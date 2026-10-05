@@ -14,12 +14,16 @@ Compiler policy explicitly approved by the project owner: Arm GNU14.3.rel1
 for kernel/U-Boot; OE-Core GNU compiler and modern sysroot for userland.
 New metadata license explicitly approved as MIT; component GPL notices retained.
 
-Compilation is in progress. No Yocto artifact is yet device-qualified or
+All 142 boot/kernel fetch tasks passed, including upstream recipe QA.
+The first offline boot/kernel compilation is in progress (native tool bootstrap). No Yocto artifact is yet device-qualified or
 claimed independently bit-reproducible. No binary release is published.
 The working Buildroot hardware baseline is preserved. No device access,
 reset, flashing or storage changes occurred during this migration.
 
 The first CI run exposed a host/container UID mismatch in workspace ownership;
-the workflow now grants explicit ACL access to both identities.
+the workflow now grants explicit ACL access to both identities. The follow-up
+GitHub run passed all metadata checks:
+https://github.com/highenergymagic/openh432-build/actions/runs/37324692417
+The subsequent RAM-only rootfs finalizer also passed local graph validation.
 CI checks metadata and source publication, not full image builds or hardware.
 A/B installation, NAND ECC, Wi-Fi, Linux braille and keys remain separate work.
