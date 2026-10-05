@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "platform": "linux/amd64",
+  "base_image": "ghcr.io/siemens/kas/kas@sha256:4b210b0be3c887875973c4f4c35470b4ecf3edd2346c9de1bdd33feae5b86e94",
+  "kas_version": "5.5",
+  "builder_uid": 1000,
+  "builder_gid": 1000,
+  "builder_user": "builder",
+  "builder_hostname": "openh432-builder",
+  "source_date_epoch": 1791158400,
+  "arm_gnu": {
+    "version": "14.3.rel1",
+    "url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/14.3.rel1/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz",
+    "sha256": "3ec0113af5154a2573b3851d74d9e9501a805abf9dfa0f82b04ef26fa0e6fc35"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "header": {
+    "version": 14
+  },
+  "build_system": "openembedded",
+  "machine": "h432b",
+  "distro": "openh432",
+  "target": [
+    "openh432-ram-dev"
+  ],
+  "repos": {
+    "openembedded-core": {
+      "url": "https://git.openembedded.org/openembedded-core",
+      "commit": "ef022bf82d79015802309d14c28b13373ebe53f5",
+      "path": "layers/openembedded-core",
+      "layers": {
+        "meta": {}
+      }
+    },
+    "bitbake": {
+      "url": "https://git.openembedded.org/bitbake",
+      "commit": "fae9db3168dbff1b8c76fe9c6726a9687ff97514",
+      "path": "layers/openembedded-core/bitbake",
+      "layers": {}
+    },
+    "meta-fractalmicro-H432B": {
+      "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
+      "commit": "6c7b8273b4f9a6fab8b21e8587174ef875fb8583",
+      "path": "layers/meta-fractalmicro-H432B"
+    },
+    "meta-fractalmicro-openh432": {
+      "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
+      "commit": "b9bce37e6ceda068bbc104c26dc16e6e91889c90",
+      "path": "layers/meta-fractalmicro-openh432"
+    }
+  },
+  "local_conf_header": {
+    "reproducibility": "SOURCE_DATE_EPOCH = \"1791158400\"\nKBUILD_BUILD_USER = \"builder\"\nKBUILD_BUILD_HOST = \"openh432-builder\"\nKBUILD_BUILD_VERSION = \"1\"\n",
+    "resources": "BB_NUMBER_THREADS = \"2\"\nPARALLEL_MAKE = \"-j 2\"\nBB_DISKMON_DIRS = \"STOPTASKS,${TMPDIR},10G,100K STOPTASKS,${DL_DIR},10G,100K HALT,${TMPDIR},5G,50K\"\n",
+    "cache": "DL_DIR = \"/work/downloads\"\nSSTATE_DIR = \"/work/sstate-cache\"\nBB_HASHSERVE = \"auto\"\nBB_GENERATE_MIRROR_TARBALLS = \"1\"\nBB_HASHSERVE_DB_DIR = \"${SSTATE_DIR}\"\n",
+    "isolation": "CONNECTIVITY_CHECK_URIS = \"\"\nBB_STRICT_CHECKSUM = \"1\"\nCONF_VERSION = \"2\"\n"
+  }
+}

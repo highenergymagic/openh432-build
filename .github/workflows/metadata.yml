@@ -1,0 +1,27 @@
+name: Metadata and publication checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Test orchestration and audit tracked sources
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 scripts/audit-public.py .
+      - name: Prepare fixed-identity workspace
+        run: sudo install -d -o 1000 -g 1000 "$RUNNER_TEMP/openh432-work"
+      - name: Build pinned container and fetch pinned layers
+        run: python3 scripts/bsp.py checkout --work "$RUNNER_TEMP/openh432-work"
+      - name: Parse metadata offline
+        run: python3 scripts/bsp.py parse --work "$RUNNER_TEMP/openh432-work"
+      - name: Resolve all initial targets offline
+        run: python3 scripts/bsp.py graph u-boot-h432b u-boot-h432b-ram linux-h432b openh432-ram-dev --work "$RUNNER_TEMP/openh432-work"
