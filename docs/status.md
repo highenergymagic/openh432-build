@@ -7,6 +7,7 @@ Verified on the build host with the pinned Docker image:
 - Six Python orchestration/publication regression tests pass.
 - Wrynose6.0.3 parses 954 recipes with zero errors.
 - Dependency graphs resolve for both U-Boot roles, Linux and the RAM image.
+- A fresh public-manifest checkout on Carbon also parses successfully offline.
 - Layer source-only Git-index audits pass (no binary/vendor/private inputs).
 
 Compiler policy explicitly approved by the project owner: Arm GNU14.3.rel1
@@ -18,5 +19,7 @@ claimed independently bit-reproducible. No binary release is published.
 The working Buildroot hardware baseline is preserved. No device access,
 reset, flashing or storage changes occurred during this migration.
 
+The first CI run exposed a host/container UID mismatch in workspace ownership;
+the workflow now grants explicit ACL access to both identities.
 CI checks metadata and source publication, not full image builds or hardware.
 A/B installation, NAND ECC, Wi-Fi, Linux braille and keys remain separate work.
