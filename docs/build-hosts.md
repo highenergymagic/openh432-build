@@ -94,3 +94,17 @@ python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compar
 
 The command requires all ten target payloads and exits nonzero on any mismatch.
 The manifests contain file names, sizes and hashes, not firmware contents.
+
+## Continuous integration
+
+GitHub Actions validates the pinned layers on native x86-64 and ARM64 runners:
+source/documentation audits, layer contract tests, offline metadata parsing,
+and dependency-graph resolution for the supported development image variants.
+These checks are not full image builds or hardware tests.
+
+Repository checkouts use sibling paths for OpenEmbedded and BitBake.
+Nested concurrent clones can race when the child clone creates its parent's
+destination first; a path-overlap regression test prevents reintroducing that
+layout. Fixed-UID workspace access uses non-inherited ACLs, and target compilers
+come from pinned OE recipes rather than an external Arm binary download.
+Historical failures from those earlier configurations remain visible in Actions.

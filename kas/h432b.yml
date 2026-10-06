@@ -20,12 +20,12 @@
     "bitbake": {
       "url": "https://git.openembedded.org/bitbake",
       "commit": "fae9db3168dbff1b8c76fe9c6726a9687ff97514",
-      "path": "layers/openembedded-core/bitbake",
+      "path": "layers/bitbake",
       "layers": {}
     },
     "meta-fractalmicro-H432B": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
-      "commit": "973de263c6f6b45915bfabde3cf591de2bc8d07f",
+      "commit": "88307d1a7b571084dea20405c8ae2ddc696a1759",
       "path": "layers/meta-fractalmicro-H432B"
     },
     "meta-fractalmicro-openh432": {

@@ -28,6 +28,20 @@ class BuildContract(unittest.TestCase):
         for host in bsp.PLATFORMS:
             self.assertNotIn("arm-build-host", bsp.configuration(build_platform=host)["local_conf_header"])
 
+    def test_repository_checkouts_do_not_overlap(self):
+        paths = [Path(repo["path"]) for repo in bsp.configuration()["repos"].values()]
+        for index, path in enumerate(paths):
+            for other in paths[index + 1:]:
+                self.assertNotEqual(path, other)
+                self.assertNotIn(path, other.parents)
+                self.assertNotIn(other, path.parents)
+
+    def test_ci_covers_maintenance_and_nand_root(self):
+        text = (ROOT / ".github/workflows/metadata.yml").read_text()
+        for target in ("u-boot-h432b-maintenance-chain", "openh432-battery-test",
+                       "openh432-nand-b", "openh432-systembase-b"):
+            self.assertIn(target, text)
+
     def test_no_hardware_or_credentials(self):
         with patch.object(bsp, "docker", return_value=["docker"]):
             argv = bsp.container_args("sha256:test", Path("/tmp/yocto"), False)
@@ -59,7 +73,7 @@ class BuildContract(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("audit", ROOT / "scripts/audit-public.py")
         audit = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(audit)
-        self.assertTrue({".c", ".h", ".S"}.issubset(audit.ALLOWED_SUFFIXES))
+        self.assertTrue({".c", ".h", ".S", ".network"}.issubset(audit.ALLOWED_SUFFIXES))
         self.assertTrue({".bin", ".elf", ".img"}.issubset(audit.FORBIDDEN_SUFFIXES))
         self.assertIn("private", audit.FORBIDDEN_PARTS)
 
