@@ -19,6 +19,9 @@ installer.
   board support, kernel, device tree and bootloader.
 - [meta-fractalmicro-openh432](https://github.com/highenergymagic/meta-fractalmicro-openh432):
   distribution policy, systemd configuration and operating-system images.
+- [meta-fractalmicro-assets](https://github.com/highenergymagic/meta-fractalmicro-assets):
+  separately licensed system sound assets and reproducible audio conversion;
+  included in the pinned build manifest.
 - **openh432-build** (this repository): source locks, build container,
   orchestration and validation.
 
@@ -34,13 +37,17 @@ The hardware target is `h432b`; the distribution is `openh432`.
 
 ### Requirements
 
-- A Linux x86-64 host with Docker, Python 3 and Git.
+- A Linux x86-64 (amd64) or ARM64 (aarch64) host with Docker, Python 3 and Git.
 - Access to the Docker daemon, directly or through `doas`/`sudo`.
 - Approximately 150–200 GB of disk space for a useful development build cache.
 - A build directory writable by UID/GID `1000:1000`, the container's builder identity.
 
 No host cross-compiler is required. The launcher builds and runs the pinned
-container; compilation happens inside it.
+container; compilation happens inside it. Native builds on both architectures
+are supported without CPU emulation. The default selects the Docker daemon's
+architecture; use `--platform linux/amd64` or `--platform linux/arm64` to
+select explicitly. Keep separate work directories for different architectures.
+See [native build hosts](docs/build-hosts.md) for setup details.
 
 ### Build a development image
 
@@ -78,7 +85,7 @@ Append `--work /absolute/build-directory` to each command to use another
 build disk. Downloads, shared-state cache and run records are retained there.
 Do not run concurrent builds in the same work directory.
 
-For layer development, place checkouts of both layer repositories beside
+For layer development, place checkouts of all three layer repositories (hardware, OS and assets) beside
 this repository and pass `--local-layers`. This explicitly replaces the
 manifest's pinned layer commits with those working trees; it is not a
 release build configuration.
@@ -90,19 +97,38 @@ Disk monitoring stops new tasks at 10 GB free and halts the build at 5 GB.
 
 The [kas manifest](kas/h432b.yml) pins the layer, OpenEmbedded-Core and
 BitBake commits. The [container lock](container/lock.json) pins the builder
-base image and Arm GNU toolchain archive.
+native base-image digest for each supported host architecture.
 
-- Kernel and U-Boot builds use the official Arm GNU toolchain.
-- Userland uses OpenEmbedded's pinned GNU compiler and glibc sysroot.
+- Kernel, U-Boot and userland use OpenEmbedded's pinned GNU toolchain.
+- Userland uses OpenEmbedded's glibc sysroot; no host-distribution target
+  toolchain or external Arm binary compiler is required.
 - Build identity and timestamps are fixed in the configuration.
 - After container setup, only checkout and fetch operations have network
   access. Parse and build operations run without network access.
 - The launcher records the effective configuration and container image for
   each run.
 
-These controls support reproducible builds; they do not alone demonstrate
-bit-for-bit reproducibility. See [validation status](docs/status.md) for
-what has actually been built and tested.
+Ten selected target payloads produced identical sizes and SHA256 hashes on
+native amd64 and ARM64 builders. See the [measured reproducibility
+results](docs/cross-host-validation.md) for the exact tested source revisions,
+hash manifest and limitations. That result does not automatically qualify
+later source changes or establish two empty-cache rebuilds of the final
+revision. [Validation status](docs/status.md) separates builds from hardware tests.
+
+### System sound assets
+
+The manifest imports and pins
+[meta-fractalmicro-assets](https://github.com/highenergymagic/meta-fractalmicro-assets)
+alongside the hardware and OS layers. It fetches the selected upstream KDE
+startup/logout sounds with verified checksums and uses pinned integer-only
+decoding for reproducible PCM output. Assets retain their upstream licenses;
+they are not covered by the metadata's MIT license.
+
+The default `openh432-ram-dev` image is quiet. To include and enable the
+sound-service test composition, build `openh432-hardware-test`. Layer inclusion
+and image package selection are separate: importing the assets layer does not
+make every image play sounds. See the
+[system sounds guide](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/system-sounds.md).
 
 ## Device status and deployment
 
