@@ -1,5 +1,8 @@
 # Repository and image boundaries
 
+Native x86-64 and ARM64 builders are described in [Build hosts](build-hosts.md).
+Their target-image reproducibility must be measured separately from build success.
+
 ## Layers
 
 The BSP layer owns MACHINE=h432b, boot/kernel inputs and hardware constraints.
