@@ -43,6 +43,7 @@
     "reproducibility": "SOURCE_DATE_EPOCH = \"1791158400\"\nKBUILD_BUILD_USER = \"builder\"\nKBUILD_BUILD_HOST = \"openh432-builder\"\nKBUILD_BUILD_VERSION = \"1\"\n",
     "resources": "BB_NUMBER_THREADS = \"2\"\nPARALLEL_MAKE = \"-j 4\"\nBB_DISKMON_DIRS = \"STOPTASKS,${TMPDIR},10G,100K STOPTASKS,${DL_DIR},10G,100K HALT,${TMPDIR},5G,50K\"\n",
     "cache": "DL_DIR = \"/work/downloads\"\nSSTATE_DIR = \"/work/sstate-cache\"\nBB_HASHSERVE = \"auto\"\nBB_GENERATE_MIRROR_TARBALLS = \"1\"\nBB_HASHSERVE_DB_DIR = \"${SSTATE_DIR}\"\n",
-    "isolation": "CONNECTIVITY_CHECK_URIS = \"\"\nBB_STRICT_CHECKSUM = \"1\"\nCONF_VERSION = \"2\"\n"
+    "isolation": "CONNECTIVITY_CHECK_URIS = \"\"\nBB_STRICT_CHECKSUM = \"1\"\nCONF_VERSION = \"2\"\n",
+    "gnu-source-mirrors": "PREMIRRORS:prepend = \"https://ftpmirror.gnu.org/.* https://downloads.yoctoproject.org/mirror/sources/ \\n https://ftp.gnu.org/.* https://downloads.yoctoproject.org/mirror/sources/ \\n https://download.savannah.gnu.org/.* https://downloads.yoctoproject.org/mirror/sources/ \\n\"\n"
   }
 }

@@ -59,3 +59,30 @@ expect x86-64 and ARM64 host executables or container image IDs to match.
 Native support and byte-for-byte target reproducibility are separate claims.
 Architecture selection has unit coverage; CI runs metadata checks on both
 runner architectures. Full cross-host artifact qualification is in progress.
+
+## Fetch transport
+
+The manifest prefers the public Yocto source mirror for GNU/Savannah archives
+whose primary servers may be unreachable from some hosts. Recipe checksums are
+still mandatory and unchanged; the mirror does not replace source pins or
+permit different archive contents. No private cache is required.
+
+## Artifact comparison command
+
+After building all three targets below on each platform:
+
+```sh
+python3 scripts/bsp.py fetch u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
+python3 scripts/bsp.py build u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
+python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b > target-hashes.json
+```
+
+Transfer only the reference hash manifest to the other host after its build,
+then run:
+
+```sh
+python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compare reference-hashes.json
+```
+
+The command requires all ten target payloads and exits nonzero on any mismatch.
+The manifests contain file names, sizes and hashes, not firmware contents.
