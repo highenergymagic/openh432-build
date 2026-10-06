@@ -31,4 +31,4 @@ jobs:
       - name: Parse metadata offline
         run: python3 scripts/bsp.py parse --work "$RUNNER_TEMP/openh432-work"
       - name: Resolve all targets offline
-        run: python3 scripts/bsp.py graph u-boot-h432b u-boot-h432b-ram u-boot-h432b-fastboot linux-h432b openh432-ram-dev openh432-fastboot-ram --work "$RUNNER_TEMP/openh432-work"
+        run: python3 scripts/bsp.py graph u-boot-h432b u-boot-h432b-ram u-boot-h432b-fastboot u-boot-h432b-nand u-boot-h432b-nand-auto u-boot-h432b-chain linux-h432b openh432-ram-dev openh432-fastboot-ram --work "$RUNNER_TEMP/openh432-work"

@@ -41,6 +41,24 @@ network isolation and BB_NO_NETWORK. Source downloads and shared-state
 cache persist in the work directory. Nothing mounts USB or deploys to hardware.
 No automatic cleanup deletes failed builds.
 
+## NAND development roles
+
+Additional offline build targets are `u-boot-h432b-nand` (RAM54 interactive
+read-only reader), `u-boot-h432b-nand-auto` (RAM55 kernel-A reader), and
+`u-boot-h432b-chain` (NAND56 low-address bootstrap plus validated CE carrier).
+Raw stage binaries are not factory update images. The NAND56 carrier build
+does not imply that its installation or normal boot has been qualified.
+
+The default kernel profile is read-only. `--nand-profile scratch` explicitly
+permits one 128 KiB test block; `--nand-profile ubi` permits only the designated
+507 MiB Linux pool. Neither permits boot-prefix or reserved-tail writes.
+Profiles are development configurations, not installers. Do not run different
+builds concurrently in one work directory.
+
+Systembase is SquashFS on a static UBI volume through ubiblock, not an extra
+raw partition. Each base image must fit its 199.926 MiB volume and the hard
+200 MiB limit; the image recipe fails if either limit is exceeded.
+
 ## Pins and compiler policy
 
 Yocto 6.0.3 Wrynose: separate OE-Core and BitBake commits, not the retired

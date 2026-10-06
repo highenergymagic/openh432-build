@@ -51,9 +51,20 @@ class BuildContract(unittest.TestCase):
         spec = importlib.util.spec_from_file_location("audit", ROOT / "scripts/audit-public.py")
         audit = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(audit)
-        self.assertTrue({".c", ".h"}.issubset(audit.ALLOWED_SUFFIXES))
+        self.assertTrue({".c", ".h", ".S"}.issubset(audit.ALLOWED_SUFFIXES))
         self.assertTrue({".bin", ".elf", ".img"}.issubset(audit.FORBIDDEN_SUFFIXES))
         self.assertIn("private", audit.FORBIDDEN_PARTS)
+
+    def test_nand_profile_is_explicit_and_defaults_readonly(self):
+        default = bsp.configuration()
+        self.assertIn('H432B_NAND_PROFILE = "readonly"',
+                      default["local_conf_header"]["nand-profile"])
+        for profile in ("readonly", "scratch", "ubi"):
+            cfg = bsp.configuration(nand_profile=profile)
+            self.assertIn('H432B_NAND_PROFILE = "' + profile + '"',
+                          cfg["local_conf_header"]["nand-profile"])
+        with self.assertRaises(ValueError):
+            bsp.configuration(nand_profile="whole-chip")
 
     def test_public_audit_rejects_credentials(self):
         spec = importlib.util.spec_from_file_location("audit", ROOT / "scripts/audit-public.py")

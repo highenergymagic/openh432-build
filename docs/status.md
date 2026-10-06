@@ -2,7 +2,53 @@
 
 Updated 2026-10-06 UTC. Source-only developer preview, not an installer.
 
-## Compiled and boot-tested
+## NAND bring-up (current)
+
+Software BCH8/512 is qualified across Linux and U-Boot. A full raw+OOB backup
+was verified privately before writes. A bounded scratch erase/program/readback
+passed, followed by provisioning the 507 MiB UBI pool. Kernel A and base A
+full SHA256 readbacks passed; the first 4 MiB including OOB stayed identical.
+Both base slots are capped at 199.926 MiB. UBI reports 138 unallocated PEBs
+in addition to internal reserves. B/recovery/bootstate capacity is reserved
+but those slots are not yet populated or managed by a rollback policy.
+
+The interactive RAM-staged NAND reader booted Linux from kernel_a, including
+the debug initramfs. Kernel/base readback and ubiblock/SquashFS mount tests
+passed. Kernel taint and ECC failures stayed zero; systemd reports running
+with no failed units. Kernel + userspace startup was 28.755 seconds, excluding
+the significantly slower unoptimized U-Boot NAND read. This is not a production
+SquashFS-root boot.
+
+The corrected automatic reader also booted the NAND kernel and passed the
+same hash/mount/health checks without host kernel upload. It took136.261s
+from loader launch to shell (113.382s to Linux USB); kernel+userspace28.696s.
+The two-stage CE bootstrap builds offline. Its packager reproduces the legacy
+carrier byte-for-byte and its image/heap/stack checks pass.
+NAND56 is installed and its factory-assisted launch and subsequent plain Reset
+both passed full hash/mount/health checks. The complete CE payload read back
+exactly from NAND. StepLoader/EBOOT (main plus OOB) are unchanged; internal
+SD remains read-only and unpartitioned by this work. First plain-Reset boot:
+about 138 seconds to the shell, including 28.731 seconds Linux/systemd.
+A second plain Reset also passed both complete readbacks, SquashFS mount
+and health checks. The two observed reset-to-shell times were 137.965 and
+138.213 seconds; Linux/systemd startup was 28.731 and 28.887 seconds.
+No power-removal/cold-power test or long endurance test is claimed.
+No binary installer or production firmware release is being published.
+Kernel Kconfig now fails if UBI/ubiblock/SquashFS-XZ/UBIFS requirements vanish.
+Explicit scratch/UBI writer profiles never gain boot-prefix or tail access.
+
+The current pinned NAND composition is hardware layer
+`f9e5d9e222719efb7fd80b470014a501bd22fc41` and OS layer
+`bb188ea4e991591e901d3dd7e2705f9aa2c39ff1`. Normal pinned checkout and offline
+build passed 2,869 cached tasks. CE carrier, high-RAM reader, kernel bundle
+and SquashFS base compare byte-for-byte with the frozen hardware-tested inputs.
+This checks the published composition, not independent clean-cache bit
+reproducibility. 39 hardware, nine OS and eight launcher tests pass, plus
+native C guard/parser checks during builds. All nine target graphs resolve.
+
+The following sections record the earlier RAM-only baseline.
+
+## Compiled and boot-tested RAM baseline
 
 All four targets build successfully offline in the pinned Docker environment:
 `u-boot-h432b`, `u-boot-h432b-ram`, `linux-h432b` and `openh432-ram-dev`.
@@ -73,7 +119,7 @@ This is RAM boot qualification, not NAND kernel boot or a production updater.
   checked. Missing libseccomp was caught by the first hardware smoke test,
   then fixed in the recipe and verified on a fresh boot.
 
-Nine hardware-layer, nine OS-layer and seven build-orchestration tests pass.
+39 hardware-layer, nine OS-layer and eight build-orchestration tests pass.
 CI runs both pinned layer suites, parses metadata and resolves target graphs.
 CI does not build complete images or perform hardware tests.
 
@@ -94,5 +140,5 @@ Build-source pins, fixed identities, timestamps and cache reuse do not alone
 prove bit reproducibility. No binary release is published.
 
 The earlier Buildroot images and failed build/test evidence remain preserved.
-A/B installation, NAND ECC/writes, Wi-Fi, Linux braille, keys and power management
+Production A/B installation, Wi-Fi, Linux braille, keys and power management
 remain separate work. MIT covers new metadata; component GPL licenses remain.

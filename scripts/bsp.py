@@ -65,7 +65,9 @@ def image():
     return info["Id"]
 
 
-def configuration(local_layers=False):
+def configuration(local_layers=False, nand_profile="readonly"):
+    if nand_profile not in ("readonly", "scratch", "ubi"):
+        raise ValueError("Unknown bounded NAND profile")
     cfg = json.loads((ROOT / "kas/h432b.yml").read_text())
     for name, repo in cfg["repos"].items():
         if not re.fullmatch(r"[0-9a-f]{40}", repo["commit"]) or repo["commit"] == "0" * 40:
@@ -76,6 +78,7 @@ def configuration(local_layers=False):
             if not (folder / "conf/layer.conf").is_file():
                 raise ValueError("Missing sibling layer: " + str(folder))
             cfg["repos"][name] = {"path": "/local-layers/" + name}
+    cfg["local_conf_header"]["nand-profile"] = 'H432B_NAND_PROFILE = "' + nand_profile + '"\n'
     return cfg
 
 
@@ -107,6 +110,8 @@ def main():
     parser.add_argument("--work", default=str(ROOT / "work"))
     parser.add_argument("--local-layers", action="store_true",
                         help="Use sibling layers read-only; development, not a release build")
+    parser.add_argument("--nand-profile", choices=("readonly", "scratch", "ubi"),
+                        default="readonly", help="Built kernel write window; build never deploys")
     args = parser.parse_args()
     for target in args.targets:
         if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9+_.-]*", target):
@@ -121,7 +126,7 @@ def main():
     work.mkdir(parents=True, exist_ok=True)
     (work / "home").mkdir(exist_ok=True)
     (work / "logs").mkdir(exist_ok=True)
-    cfg = configuration(args.local_layers)
+    cfg = configuration(args.local_layers, args.nand_profile)
     if args.targets:
         cfg["target"] = args.targets
     online = args.action in ("checkout", "fetch")
