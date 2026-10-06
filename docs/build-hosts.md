@@ -8,10 +8,11 @@ not the client machine's CPU. An explicit `--platform linux/amd64` or
 `--platform linux/arm64` selects a pinned builder. Choosing the other platform
 does not install emulation; the daemon must already support executing it.
 
-Each platform has its own immutable kas 5.5 container manifest digest and
-checksum-pinned official Arm GNU 14.3.rel1 archive in
-[container/lock.json](../container/lock.json). Kernel/U-Boot still use Arm GNU;
-userland still uses the pinned OpenEmbedded compiler/sysroot.
+Each platform has its own immutable kas 5.5 container manifest digest in
+[container/lock.json](../container/lock.json). All target components use the
+OpenEmbedded GCC/binutils recipes selected by the pinned OE-Core revision.
+The BSP layer carries an ordered ARM compiler reproducibility patch. There is
+no external target-compiler archive or host-distribution target sysroot.
 
 ## Clean build
 

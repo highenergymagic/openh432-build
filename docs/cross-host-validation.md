@@ -1,5 +1,12 @@
 # Cross-host validation
 
+## Toolchain migration in progress
+
+Current recipes select OE-built GCC for every target component and carry the
+ARM scratch-allocation ordering fix in a version-specific shared-source append.
+New compilation and cross-host comparison are required; the results below
+belong to the previous external Arm toolchain baseline.
+
 Native amd64 and arm64 builders compile the three qualification targets:
 u-boot-h432b-chain, openh432-fastboot-ram, and openh432-hardware-test.
 This does not yet establish cross-host bit-for-bit reproducibility.
@@ -34,9 +41,9 @@ to one function, leaving their evaluation order unspecified. This is consistent
 with the opposite temporary-register numbering observed in the two host builds.
 See the [GCC 14.3 ARM machine description](https://github.com/gcc-mirror/gcc/blob/releases/gcc-14.3.0/gcc/config/arm/arm.md).
 
-A compiler-source fix would need a separately pinned source-built toolchain
-and another complete comparison. No compiler patch, target-source workaround,
-or global optimization downgrade has been applied.
+The follow-up migration applies ordered scratch allocations to OE GCC shared
+source. It does not patch target source around the compiler behavior or weaken
+the artifact comparisons. No new toolchain result is implied by this baseline.
 
 ## Claim boundary
 

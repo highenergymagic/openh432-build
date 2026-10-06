@@ -18,7 +18,15 @@ class BuildContract(unittest.TestCase):
         self.assertEqual(cfg["distro"], "openh432")
         self.assertEqual(cfg["repos"]["openembedded-core"]["commit"],
                          "ef022bf82d79015802309d14c28b13373ebe53f5")
-        self.assertEqual(bsp.lock()["arm_gnu"]["version"], "14.3.rel1")
+        self.assertEqual(bsp.lock()["toolchain_provider"], "openembedded-core")
+
+    def test_container_has_no_external_target_compiler(self):
+        dockerfile = (ROOT / "container/Dockerfile").read_text()
+        self.assertNotIn("ARM_GNU", dockerfile)
+        self.assertNotIn("/opt/arm-gnu", dockerfile)
+        self.assertNotIn("arm_gnu", bsp.lock())
+        for host in bsp.PLATFORMS:
+            self.assertNotIn("arm-build-host", bsp.configuration(build_platform=host)["local_conf_header"])
 
     def test_no_hardware_or_credentials(self):
         with patch.object(bsp, "docker", return_value=["docker"]):

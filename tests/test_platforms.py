@@ -38,13 +38,11 @@ class Platforms(unittest.TestCase):
         for platform, host in (("linux/amd64", "x86_64"), ("linux/arm64", "aarch64")):
             data = bsp.lock(platform)
             self.assertEqual(platform, data["platform"])
-            self.assertIn("-"+host+"-", data["arm_gnu"]["url"])
-            self.assertEqual("14.3.rel1", data["arm_gnu"]["version"])
+            self.assertEqual("openembedded-core", data["toolchain_provider"])
+            self.assertNotIn("arm_gnu", data)
             self.assertRegex(data["base_image"], r"@sha256:[a-f0-9]{64}$")
             cfg = bsp.configuration(build_platform=platform)
-            self.assertIn(data["arm_gnu"]["sha256"],
-                          cfg["local_conf_header"]["arm-build-host"])
-            self.assertTrue(cfg["local_conf_header"]["arm-build-host"].endswith("\n"))
+            self.assertNotIn("arm-build-host", cfg["local_conf_header"])
             with patch.object(bsp, "docker", return_value=["docker"]):
                 argv = bsp.container_args("sha256:test", Path("/test"), False,
                                           build_platform=platform)

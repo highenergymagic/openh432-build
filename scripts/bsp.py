@@ -51,15 +51,14 @@ def resolve_platform(requested):
 
 def lock(build_platform="linux/amd64"):
     data = json.loads((ROOT / "container/lock.json").read_text())
-    if data.get("schema") != 2 or build_platform not in data["platforms"]:
+    if data.get("schema") != 3 or build_platform not in data["platforms"]:
         raise ValueError("Missing immutable builder platform: " + build_platform)
     selected = data["platforms"][build_platform]
-    data = {**data, "platform": build_platform, "base_image": selected["base_image"],
-            "arm_gnu": {**data["arm_gnu"], **selected["arm_gnu"]}}
+    data = {**data, "platform": build_platform, "base_image": selected["base_image"]}
     if not re.fullmatch(r".+@sha256:[0-9a-f]{64}", data["base_image"]):
         raise ValueError("Container base must be digest-pinned")
-    if not re.fullmatch(r"[0-9a-f]{64}", data["arm_gnu"]["sha256"]):
-        raise ValueError("Arm archive hash must be SHA-256")
+    if data.get("toolchain_provider") != "openembedded-core":
+        raise ValueError("Target toolchain must come from pinned OE sources")
     return data
 
 
@@ -76,8 +75,6 @@ def image(build_platform="linux/amd64"):
     if inspected.returncode:
         run(docker() + ["build", "--platform", data["platform"],
             "--build-arg", "BASE_IMAGE=" + data["base_image"],
-            "--build-arg", "ARM_GNU_URL=" + data["arm_gnu"]["url"],
-            "--build-arg", "ARM_GNU_SHA256=" + data["arm_gnu"]["sha256"],
             "--label", "org.fractalmicro.recipe=" + fingerprint,
             "-t", tag, ROOT / "container"])
         inspected = run(docker() + ["image", "inspect", tag],
@@ -104,8 +101,6 @@ def configuration(local_layers=False, nand_profile="readonly", build_platform="l
                 raise ValueError("Missing sibling layer: " + str(folder))
             cfg["repos"][name] = {"path": "/local-layers/" + name}
     cfg["local_conf_header"]["nand-profile"] = 'H432B_NAND_PROFILE = "' + nand_profile + '"\n'
-    cfg["local_conf_header"]["arm-build-host"] = (
-        'H432B_ARM_GNU_SHA256:forcevariable = "' + lock(build_platform)["arm_gnu"]["sha256"] + '"\n')
     return cfg
 
 

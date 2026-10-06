@@ -1,28 +1,18 @@
 {
-  "schema": 2,
+  "schema": 3,
   "kas_version": "5.5",
   "builder_uid": 1000,
   "builder_gid": 1000,
   "builder_user": "builder",
   "builder_hostname": "openh432-builder",
   "source_date_epoch": 1791158400,
-  "arm_gnu": {
-    "version": "14.3.rel1"
-  },
   "platforms": {
     "linux/amd64": {
-      "base_image": "ghcr.io/siemens/kas/kas@sha256:9132eaf8c6f924638c70f5718a4594cf4e83f2558c889f772eb03efc8de5e094",
-      "arm_gnu": {
-        "url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/14.3.rel1/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-linux-gnueabihf.tar.xz",
-        "sha256": "3ec0113af5154a2573b3851d74d9e9501a805abf9dfa0f82b04ef26fa0e6fc35"
-      }
+      "base_image": "ghcr.io/siemens/kas/kas@sha256:9132eaf8c6f924638c70f5718a4594cf4e83f2558c889f772eb03efc8de5e094"
     },
     "linux/arm64": {
-      "base_image": "ghcr.io/siemens/kas/kas@sha256:18653eb59870a54b8a5f379122b92aef25bc19d60f61a6574bb4a39268369d65",
-      "arm_gnu": {
-        "url": "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/14.3.rel1/arm-gnu-toolchain-14.3.rel1-aarch64-arm-none-linux-gnueabihf.tar.xz",
-        "sha256": "547a618cafac3a587dbaa0d866208987a9d855eefc64012c933560c287f66837"
-      }
+      "base_image": "ghcr.io/siemens/kas/kas@sha256:18653eb59870a54b8a5f379122b92aef25bc19d60f61a6574bb4a39268369d65"
     }
-  }
+  },
+  "toolchain_provider": "openembedded-core"
 }
