@@ -73,7 +73,7 @@ def configuration(local_layers=False, nand_profile="readonly"):
         if not re.fullmatch(r"[0-9a-f]{40}", repo["commit"]) or repo["commit"] == "0" * 40:
             raise ValueError("Missing immutable commit: " + name)
     if local_layers:
-        for name in ("meta-fractalmicro-H432B", "meta-fractalmicro-openh432"):
+        for name in ("meta-fractalmicro-H432B", "meta-fractalmicro-openh432", "meta-fractalmicro-assets"):
             folder = ROOT.parent / name
             if not (folder / "conf/layer.conf").is_file():
                 raise ValueError("Missing sibling layer: " + str(folder))
@@ -97,7 +97,7 @@ def container_args(image_id, work, online, local_layers=False):
         "--env", "TZ=UTC", "--env", "LANG=en_US.UTF-8",
         "--env", "LC_ALL=en_US.UTF-8"]
     if local_layers:
-        for name in ("meta-fractalmicro-H432B", "meta-fractalmicro-openh432"):
+        for name in ("meta-fractalmicro-H432B", "meta-fractalmicro-openh432", "meta-fractalmicro-assets"):
             args += ["--mount", "type=bind,src=" + str(ROOT.parent / name)
                      + ",dst=/local-layers/" + name + ",readonly"]
     return args + [image_id]

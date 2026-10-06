@@ -1,144 +1,102 @@
 # Validation status
 
-Updated 2026-10-06 UTC. Source-only developer preview, not an installer.
+Updated 2026-10-06 UTC. OpenH432 is a source-only developer preview, not an
+installer or production firmware release. Results below describe one H432B
+qualification device, not every BrailleSense model or every future build.
 
-## NAND bring-up (current)
+## Qualified functionality
 
-Software BCH8/512 is qualified across Linux and U-Boot. A full raw+OOB backup
-was verified privately before writes. A bounded scratch erase/program/readback
-passed, followed by provisioning the 507 MiB UBI pool. Kernel A and base A
-full SHA256 readbacks passed; the first 4 MiB including OOB stayed identical.
-Both base slots are capped at 199.926 MiB. UBI reports 138 unallocated PEBs
-in addition to internal reserves. B/recovery/bootstate capacity is reserved
-but those slots are not yet populated or managed by a rollback policy.
+- Repeated plain-Reset boots loaded Linux from NAND with no host image upload,
+  preserving the factory first-stage loader and EBOOT.
+- Linux CIP 6.12.111-cip32 plus separately pinned rt21, systemd 259.5, USB
+  diagnostics, internal SD reads, NAND access and PREEMPT_RT were exercised.
+  This is not an official combined CIP RT release.
+- Linux and U-Boot software BCH8/512 agreed on parity; 1–8 injected RAM bit
+  errors per sector were corrected. NAND bad-block markers were retained.
+- Bounded NAND provisioning, complete kernel/base SHA256 readbacks and
+  SquashFS-on-ubiblock mount checks passed. Factory boot regions, including
+  OOB, were checked byte-for-byte against the private backup after provisioning.
+- Standard high-speed fastboot RAM download and Linux boot passed. Eleven
+  transfer lengths covered USB packet and request boundaries. Unsupported
+  flash/erase requests were rejected.
+- Three physical power-switch presses produced paired KEY_POWER events
+  without unwanted repeats or missing releases. Shutdown actions remained
+  disabled during input qualification.
+- Startup playback and shutdown playback during a systemd reboot were audibly
+  verified in a RAM-resident system. Playback used volume 45 below the kernel
+  limit of 50, and outputs were muted afterward.
 
-The interactive RAM-staged NAND reader booted Linux from kernel_a, including
-the debug initramfs. Kernel/base readback and ubiblock/SquashFS mount tests
-passed. Kernel taint and ECC failures stayed zero; systemd reports running
-with no failed units. Kernel + userspace startup was 28.755 seconds, excluding
-the significantly slower unoptimized U-Boot NAND read. This is not a production
-SquashFS-root boot.
+The most recent restoration check booted the preserved NAND baseline on plain
+Reset and reached a working USB shell with zero failed units and kernel taint 0.
+Its Linux/systemd startup was 28.657 seconds, **excluding bootloader time**.
+Input and sound experiments did not persist new packages in NAND.
 
-The corrected automatic reader also booted the NAND kernel and passed the
-same hash/mount/health checks without host kernel upload. It took136.261s
-from loader launch to shell (113.382s to Linux USB); kernel+userspace28.696s.
-The two-stage CE bootstrap builds offline. Its packager reproduces the legacy
-carrier byte-for-byte and its image/heap/stack checks pass.
-NAND56 is installed and its factory-assisted launch and subsequent plain Reset
-both passed full hash/mount/health checks. The complete CE payload read back
-exactly from NAND. StepLoader/EBOOT (main plus OOB) are unchanged; internal
-SD remains read-only and unpartitioned by this work. First plain-Reset boot:
-about 138 seconds to the shell, including 28.731 seconds Linux/systemd.
-A second plain Reset also passed both complete readbacks, SquashFS mount
-and health checks. The two observed reset-to-shell times were 137.965 and
-138.213 seconds; Linux/systemd startup was 28.731 and 28.887 seconds.
-No power-removal/cold-power test or long endurance test is claimed.
-No binary installer or production firmware release is being published.
-Kernel Kconfig now fails if UBI/ubiblock/SquashFS-XZ/UBIFS requirements vanish.
-Explicit scratch/UBI writer profiles never gain boot-prefix or tail access.
+## Boot performance
 
-The current pinned NAND composition is hardware layer
-`f9e5d9e222719efb7fd80b470014a501bd22fc41` and OS layer
-`bb188ea4e991591e901d3dd7e2705f9aa2c39ff1`. Normal pinned checkout and offline
-build passed 2,869 cached tasks. CE carrier, high-RAM reader, kernel bundle
-and SquashFS base compare byte-for-byte with the frozen hardware-tested inputs.
-This checks the published composition, not independent clean-cache bit
-reproducibility. 39 hardware, nine OS and eight launcher tests pass, plus
-native C guard/parser checks during builds. All nine target graphs resolve.
+Two earlier reset-to-shell samples were 137.965 and 138.213 seconds.
+A separate RAM-only profiler measured complete UBI attachment, kernel-bundle
+read and validation in 95.823 seconds with caches off and 73.088 seconds with
+instruction caching only. Both returned the same bundle CRC.
 
-The following sections record the earlier RAM-only baseline.
+Those command measurements are not a qualified faster persistent boot.
+The inherited U-Boot timer counts calls rather than time; its internal timing
+numbers are invalid. The replacement PWM4 timer passed five-second delay checks against a host
+clock with instruction caching both off and on. A further BCH partial-page
+read experiment reduced UBI attachment from 34.981 to 22.178 seconds while
+retaining ECC. Fifteen partial-read/full-page comparisons and RAM bit-error
+correction checks passed. Full bundle read/validation remained 37.368 seconds,
+with the expected CRC. The partial-page candidate also booted the NAND kernel to a healthy Linux
+USB shell (zero failed units and taint 0). These remain RAM-only loader tests,
+not qualification of an optimized persistent carrier.
+See [boot performance](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md).
+A sub-30-second total boot has not been demonstrated.
 
-## Compiled and boot-tested RAM baseline
+## Built but not fully qualified
 
-All four targets build successfully offline in the pinned Docker environment:
-`u-boot-h432b`, `u-boot-h432b-ram`, `linux-h432b` and `openh432-ram-dev`.
-The kernel uses Arm GNU 14.3.rel1; userland uses OE-Core GCC 15.3/glibc 2.43.
-The board kernel remains CIP 6.12.111-cip32 plus the separately pinned rt21
-patch, not an official combined CIP RT release.
+The explicitly audible `openh432-hardware-test` image built successfully; its
+13,341,188-byte initramfs fits the 16 MiB limit and service-enablement links
+were inspected. Its sound components were tested separately in RAM; a complete
+boot of this packaged image remains untested.
 
-The resulting kernel, DTB and XZ RAM root were booted on a real U2 through
-the preserved, previously qualified NAND51/RAM52 boot path. The newly compiled
-U-Boot artifacts were NOT flashed or substituted into that test.
-No NAND/SD write, partitioning or persistent mount occurred.
+The default development initramfs and NAND kernel bundle are not a production
+SquashFS-root system. Kernel/base B, recovery and boot-state volumes reserve
+capacity but do not implement a coordinated update or rollback policy.
+Both system-base slots are capped at 199.926 MiB.
 
-Verified on the final RAM image:
+Internal Wi-Fi enumerates over SDIO but has no working function driver.
+Linux braille, the remaining keyboard controls, battery management, electrical
+poweroff, wake and suspend remain incomplete. Shutdown latency has not been
+qualified. Internal SD has not been repartitioned by this work.
+No power-removal test or long-duration endurance qualification is claimed.
 
-- systemd 259.5 is PID 1 and reports running, with no failed units or runtime
-  service overrides; USB console, udev, journald and networkd work.
-- PREEMPT_RT is active; kernel taint remains zero after the checks.
-- NAND/internal SD identity and guarded reads, SDIO enumeration, and USB host
-  root hubs still work. Wi-Fi has no function driver yet.
-- A bounded transient systemd service verified seccomp filtering,
-  no-new-privileges, memory/task limits and filesystem-isolation settings.
-  This smoke test is not complete security qualification.
-- Repart's installer authorization is absent, GPT auto-discovery is disabled,
-  and fstab has no persistent mounts.
-- Both audio mixer ceilings clamp to 50/63; all outputs were left muted.
-  No audible playback test was performed in this Yocto qualification.
+Development images expose an unauthenticated root shell over physical USB.
+Service-isolation smoke tests exercised seccomp, no-new-privileges,
+memory/task limits and filesystem isolation; they are not a security audit.
 
-Final observed boot: 7.626 s kernel + 19.128 s userspace = 26.754 s.
-This excludes the U-Boot stage and host upload; verbose diagnostics remain.
-The compressed RAM root is 10,100,632 bytes, below the 16 MiB slot limit.
+## Build and reproducibility evidence
 
-## Fastboot RAM boot
+Kernel and U-Boot use the pinned Arm GNU 14.3.rel1 toolchain; userland uses
+OE-Core GCC 15.3 and glibc 2.43. Builds run in the pinned Docker environment.
+Builds and CI never open a USB device, flash NAND or modify device storage.
 
-Two additional targets compile in the same pinned builder:
-`u-boot-h432b-fastboot` (RAM53-only) and `openh432-fastboot-ram` (Android-v2
-boot envelope). This adapter implements standard fastboot on the existing
-2012.10 S3C UDC, with no storage-write backend.
+A previously qualified NAND composition used hardware-layer commit
+`f9e5d9e222719efb7fd80b470014a501bd22fc41` and OS-layer commit
+`bb188ea4e991591e901d3dd7e2705f9aa2c39ff1`. Its normal pinned offline build
+passed 2,869 cached tasks; the CE carrier, high-RAM reader, kernel bundle and
+SquashFS base matched the frozen hardware-tested inputs byte-for-byte.
 
-The real U2 enumerated with unmodified fastboot35.0.2. A 10,100,632-byte
-rootfs uploaded in8.14s with matching CRC; the13,735,936-byte complete envelope
-uploaded in11.07s. The embedded kernel, DTB and rootfs exactly match the
-qualified baseline. `fastboot boot` reached Linux/systemd and passed the
-USB health/read-only hardware checks. Standard `fastboot reboot` returned
-to the preserved installed NAND51.
+That comparison does not establish independent clean-cache reproducibility,
+and those historical commits are not a statement of the current manifest pins.
+Use [kas/h432b.yml](../kas/h432b.yml) for the current composition. Source pins,
+fixed identities, timestamps and cache reuse alone do not prove reproducibility.
 
-Eleven download sizes from1 through65536 passed CRC, including USB packet
-and16KiB request boundaries. Unknown variables and erase correctly returned
-FAIL. The board parser's native tests also run inside the pinned build.
-A second boot with the final148404-byte RAM53 loader also passed systemd
-health (26.801s kernel+userspace); flash rejection and muted audio ceilings
-were verified. Final loader SHA256:
-`dc12a3cf794e3d3b88336b96151f44debedb1a840ec8784c55114042458cebff`.
-Boot envelope SHA256:
-`5620c7b34a092b00b5f061cf680d715bcc2fb067692ad75e01f1a9807759426b`.
-High-speed only has been device-tested. No NAND/SD writes occurred.
-This is RAM boot qualification, not NAND kernel boot or a production updater.
+Unit and native tests cover image parsing, memory overlap, write guards,
+artifact roles, package requirements and build configuration. CI parses
+metadata and resolves target graphs; it does not qualify device behavior.
 
-## Repairs covered by regression tests
+## Further reading
 
-- Kernel source-path assignment follows kernel class inheritance.
-- The verified upstream RT patch gets a provenance-only metadata header.
-- Target binutils overrides survive Wrynose's deferred toolchain inheritance,
-  so packaging uses the pinned Arm tools too.
-- U-Boot follows Wrynose's Git unpack layout.
-- The kernel enables XZ decoding. XZ uses CRC32 and one fixed compressor thread.
-- Rootfs timestamps and artifact names use the fixed epoch.
-- Required identity, tools and dlopen libraries are installed explicitly and
-  checked. Missing libseccomp was caught by the first hardware smoke test,
-  then fixed in the recipe and verified on a fresh boot.
-
-39 hardware-layer, nine OS-layer and eight build-orchestration tests pass.
-CI runs both pinned layer suites, parses metadata and resolves target graphs.
-CI does not build complete images or perform hardware tests.
-
-## Scope and reproducibility
-
-Hardware qualification above used local layer development inputs. The earlier public
-BSP e3184bf1ce78321fcebac6db7ab1d66b1fec9c85 and OS
-cf529a05898d07b44844366e1351db8e0109a22f composition passed2,813 cached tasks,
-with artifacts identical to the frozen boot-tested kernel, DTB and RAM root.
-The current manifest adds fastboot through BSP6bbcef5a71d6fb5f2cf11fac5cc135befb86a58f
-and OS4fc4a893e66995260030928e0c4ddcfebcdb4606. A normal pinned
-checkout/fetch/offline build passed2,803 cached tasks; both fastboot loader and
-boot envelope compared byte-for-byte identical to the frozen device-tested
-artifacts. Final sandbox, read-only hardware and muted audio checks also passed.
-This validates the published composition, not an independent rebuild.
-No independent clean-cache, same-input bit-reproducibility claim is made.
-Build-source pins, fixed identities, timestamps and cache reuse do not alone
-prove bit reproducibility. No binary release is published.
-
-The earlier Buildroot images and failed build/test evidence remain preserved.
-Production A/B installation, Wi-Fi, Linux braille, keys and power management
-remain separate work. MIT covers new metadata; component GPL licenses remain.
+- [Build architecture](architecture.md)
+- [Boot roles and load addresses](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-contract.md)
+- [NAND layout and qualification](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/nand.md)
+- [Installation prerequisites and remaining gaps](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)

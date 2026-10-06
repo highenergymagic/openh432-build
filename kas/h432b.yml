@@ -25,13 +25,18 @@
     },
     "meta-fractalmicro-H432B": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
-      "commit": "e064ade724b2b30c26d4b05008e2c212cd79d7f0",
+      "commit": "fa4043c07467cae4729e816bad4e648c5392d01b",
       "path": "layers/meta-fractalmicro-H432B"
     },
     "meta-fractalmicro-openh432": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
-      "commit": "bff1499710dea36ff887840b10ada7da1bc8ec5a",
+      "commit": "d278582cbf689cb4e856c6fc67273b2ceb5bfd79",
       "path": "layers/meta-fractalmicro-openh432"
+    },
+    "meta-fractalmicro-assets": {
+      "url": "https://github.com/highenergymagic/meta-fractalmicro-assets.git",
+      "commit": "3b9e0d201c260cdb44a1e8c23c6cc75dbca87c36",
+      "path": "layers/meta-fractalmicro-assets"
     }
   },
   "local_conf_header": {
