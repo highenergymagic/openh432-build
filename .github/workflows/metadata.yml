@@ -30,5 +30,5 @@ jobs:
           python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-openh432/tests" -v
       - name: Parse metadata offline
         run: python3 scripts/bsp.py parse --work "$RUNNER_TEMP/openh432-work"
-      - name: Resolve all initial targets offline
-        run: python3 scripts/bsp.py graph u-boot-h432b u-boot-h432b-ram linux-h432b openh432-ram-dev --work "$RUNNER_TEMP/openh432-work"
+      - name: Resolve all targets offline
+        run: python3 scripts/bsp.py graph u-boot-h432b u-boot-h432b-ram u-boot-h432b-fastboot linux-h432b openh432-ram-dev openh432-fastboot-ram --work "$RUNNER_TEMP/openh432-work"

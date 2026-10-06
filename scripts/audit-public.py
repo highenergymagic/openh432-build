@@ -16,7 +16,7 @@ SECRET = re.compile(rb"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|"
                     rb"AKIA[A-Z0-9]{16}")
 ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf",
                     ".config", ".patch", ".dts", ".json", ".yml", ".yaml",
-                    ".service", ".preset", ".sh", ".txt"}
+                    ".service", ".preset", ".sh", ".txt", ".c", ".h"}
 ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", ".gitignore",
                  ".gitattributes", "init", "series", "GPL-2.0-only", "GPL-2.0-or-later"}
 

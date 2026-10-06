@@ -28,6 +28,8 @@ python3 scripts/bsp.py fetch u-boot-h432b u-boot-h432b-ram linux-h432b
 python3 scripts/bsp.py build u-boot-h432b u-boot-h432b-ram linux-h432b
 python3 scripts/bsp.py fetch openh432-ram-dev
 python3 scripts/bsp.py build openh432-ram-dev
+python3 scripts/bsp.py fetch u-boot-h432b-fastboot openh432-fastboot-ram
+python3 scripts/bsp.py build u-boot-h432b-fastboot openh432-fastboot-ram
 ```
 
 Use `--work /absolute/build-directory` for another build disk.
@@ -58,7 +60,9 @@ can be smaller. Disk monitoring stops new tasks at 10 GB free and halts at
 ## Safety and publication
 
 Raw `nand51-raw/u-boot.bin` is NOT a CE update carrier.
-`ram52-only/u-boot.bin` is RAM-only and must NEVER be flashed to NAND.
+`ram52-only/u-boot.bin` and `ram53-fastboot-only/u-boot.bin` are RAM-only and
+must NEVER be flashed to NAND. The latter accepts standard fastboot RAM boot
+of `openh432-ram-boot.img`; persistent flash/erase is not implemented.
 The RAM image has a physical USB root debug shell, not production access
 control. The XZ/CRC32-compressed image must fit the tested 16 MiB loader slot.
 The kernel includes its XZ decoder; do not pair this rootfs with a gzip-only

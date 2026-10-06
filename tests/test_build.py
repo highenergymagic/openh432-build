@@ -47,6 +47,14 @@ class BuildContract(unittest.TestCase):
         for repo in json.loads(manifest)["repos"].values():
             self.assertRegex(repo["commit"], r"^[a-f0-9]{40}$")
 
+    def test_public_audit_accepts_text_source_not_build_outputs(self):
+        spec = importlib.util.spec_from_file_location("audit", ROOT / "scripts/audit-public.py")
+        audit = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(audit)
+        self.assertTrue({".c", ".h"}.issubset(audit.ALLOWED_SUFFIXES))
+        self.assertTrue({".bin", ".elf", ".img"}.issubset(audit.FORBIDDEN_SUFFIXES))
+        self.assertIn("private", audit.FORBIDDEN_PARTS)
+
     def test_public_audit_rejects_credentials(self):
         spec = importlib.util.spec_from_file_location("audit", ROOT / "scripts/audit-public.py")
         audit = importlib.util.module_from_spec(spec)
