@@ -164,3 +164,10 @@ not distribute proprietary vendor firmware or device dumps.
 
 OpenH432 is an independent Fractal Microsystems project, not affiliated
 with or endorsed by HIMS.
+
+## Battery telemetry experiment
+
+The `power-control-bringup` branch pins the opt-in read-only battery image.
+See [battery telemetry](docs/battery-telemetry.md) for its standard Linux interface,
+Git-only build commands and RAM qualification limits. This does not enable
+battery polling in the default image or install firmware on a device.
