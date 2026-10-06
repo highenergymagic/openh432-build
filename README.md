@@ -133,10 +133,13 @@ make every image play sounds. See the
 ## Device status and deployment
 
 Repeated normal-reset boots from NAND have reached Linux and systemd
-without a host upload, while retaining the factory bootloader. The current
-OS runs from a development initramfs. Persistent production root storage,
-coordinated A/B updates, Linux accessibility services and power management
-remain unfinished; internal Wi-Fi has no working driver.
+without a host upload, while retaining the factory bootloader. The pinned
+default development image runs from initramfs. A separate NAND-root
+composition has also reached systemd through a minimal handoff initramfs and
+a SquashFS systembase volume; it is not yet selected by this manifest.
+Persistent writable user data, coordinated A/B updates, Linux accessibility
+services and suspend/resume remain unfinished; internal Wi-Fi has no working
+driver.
 
 **Development images provide an unauthenticated physical USB root shell.**
 They are intended for bring-up, not everyday or security-sensitive use.
