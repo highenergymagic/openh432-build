@@ -1,0 +1,45 @@
+{
+  "artifacts": {
+    "nand56-ce-carrier/u-boot-ce.b000ff": {
+      "bytes": 394271,
+      "sha256": "233ec90bbcdd601f3fa950d915792fb3f3933f79a8dd60d0864cef8b5a118334"
+    },
+    "nand56-chain-raw/u-boot.bin": {
+      "bytes": 390136,
+      "sha256": "cf1d17aa64eaa9075ec304093725ac34c34d7fc1730306a69436df38ed54bd57"
+    },
+    "openh432-hardware-test-h432b.rootfs.cpio.xz": {
+      "bytes": 13338368,
+      "sha256": "20e224caa6344d70ccbc264f81533a91aaf4f6eead8cec493f475a2db73e7025"
+    },
+    "openh432-hardware-test-h432b.rootfs.squashfs-xz": {
+      "bytes": 19804160,
+      "sha256": "6e4bcbd687a7d4d45180feb5e2bdc8451b05573a416706d49953fb5b8994ae51"
+    },
+    "openh432-ram-boot.img": {
+      "bytes": 15585280,
+      "sha256": "b9d568af9e5c7aa9edfda9091667fffe92a8f6062ddcee8662f91f78ddbb8fb9"
+    },
+    "openh432-ram-dev-h432b.rootfs.cpio.xz": {
+      "bytes": 11487272,
+      "sha256": "fdc5e7376f956db16702b92e3c40eb1a15987d39991dc109d28cd88f04951b4b"
+    },
+    "openh432-ram-dev-h432b.rootfs.squashfs-xz": {
+      "bytes": 17985536,
+      "sha256": "dc673632b090ec204af8a8d967197c46b5b1d325308b6442c15e846fb206da72"
+    },
+    "ram55-nand-autoboot/u-boot.bin": {
+      "bytes": 272248,
+      "sha256": "dce56590377faef88829300665d1025020285dce983a9fc758e2e08e3d861b1f"
+    },
+    "s5pv210-hims-u2.dtb": {
+      "bytes": 25495,
+      "sha256": "22eacd9231767729693ac3a3184b51a0a06a345dd1dfba1962e7461300416db5"
+    },
+    "zImage": {
+      "bytes": 4067112,
+      "sha256": "645f5a4979e4a35c7c7d53c8310d265a618d8a108041580f079a27ee4f331668"
+    }
+  },
+  "schema": 1
+}

@@ -75,8 +75,10 @@ memory/task limits and filesystem isolation; they are not a security audit.
 
 ## Build and reproducibility evidence
 
-Kernel and U-Boot use the pinned Arm GNU 14.3.rel1 toolchain; userland uses
-OE-Core GCC 15.3 and glibc 2.43. Builds run in the pinned Docker environment.
+Kernel, U-Boot and userland use source-built OE-Core GCC 15.3; userland uses
+the OE glibc 2.43 sysroot. Native amd64 and ARM64 builds run in pinned Docker
+environments without an external Arm compiler archive. See the
+[cross-host comparison](cross-host-validation.md) for measured evidence.
 Builds and CI never open a USB device, flash NAND or modify device storage.
 
 A previously qualified NAND composition used hardware-layer commit

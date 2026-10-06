@@ -1,73 +1,97 @@
 # Cross-host validation
 
-## Toolchain migration in progress
+## Result
 
-Current recipes select OE-built GCC for every target component and carry the
-ARM scratch-allocation ordering fix in a version-specific shared-source append.
-New compilation and cross-host comparison are required; the results below
-belong to the previous external Arm toolchain baseline.
+On 2026-10-06, native Linux amd64 and ARM64 builds produced identical sizes
+and SHA256 hashes for all ten selected target payloads. Both builds completed
+the 2,985-task graph successfully. The checked-in
+[hash manifest](target-hashes.json) records the exact outputs.
 
-Native amd64 and arm64 builders compile the three qualification targets:
-u-boot-h432b-chain, openh432-fastboot-ram, and openh432-hardware-test.
-This does not yet establish cross-host bit-for-bit reproducibility.
+The comparison covers the CE carrier, raw NAND bootstrap, RAM second-stage
+loader, kernel, device tree, development and hardware-test initramfs/SquashFS
+images, and RAM boot envelope. It uses the default read-only NAND profile.
 
-## Observed comparison
+## Pinned inputs
 
-An independently fetched, empty-cache ARM64 build completed all 2,985 tasks.
-The amd64 reference used existing cached build state with identical public pins.
-Only the device tree matched among the ten target payloads on the first pass.
+- Build orchestration: `a4221bfc1af4f1e8b8fb64a034448f3e00cef056`
+- Hardware layer: `793c12296cf4f51fe483969c0932e55e92fc7753`
+- OS layer: `d278582cbf689cb4e856c6fc67273b2ceb5bfd79`
+- Assets layer: `1d846ec64f88c5e33ded2b20ec9179cf67293a6d`
+- OE-Core: `ef022bf82d79015802309d14c28b13373ebe53f5`
+- BitBake: `fae9db3168dbff1b8c76fe9c6726a9687ff97514`
 
-The base root filesystems contained 1,728 regular files with matching contents.
-A decoded initramfs comparison found 2,098 differing mode fields, with no other
-entry-field differences. Inherited workspace default ACLs changed permissions
-recorded by fakeroot. The documented setup now uses access ACLs only, and the
-launcher rejects a workspace root with default ACLs. A new build with empty sstate and the corrected setup completed successfully,
-reusing only checksum-verified public downloads. Its base initramfs and SquashFS
-images match the amd64 reference byte-for-byte. The failed workspace was not reused.
+The [container lock](../container/lock.json) pins native kas 5.5 images for
+both platforms. All target components use OE-built GCC 15.3 and binutils;
+there is no external Arm compiler archive. Userland uses OE's glibc sysroot.
 
-## Compiler output
+## Procedure and limitations
 
-The chain loader differed by 12 bytes in a 388,004-byte binary. The raw kernel
-images were equal in size and differed by 24 bytes. Kernel configuration,
-compiler identification, build identity and timestamp matched.
+Both hosts built only public pinned sources through the Docker launcher,
+with separate native build workspaces. The ARM64 host began with an independent
+empty-cache public build. Its corrected-permissions workspace reused only
+checksum-verified public downloads, not sstate or outputs from the first run.
+No amd64 compiler, sstate, sysroot or target binary was imported to ARM64.
 
-Repeated isolated compilations of U-Boot's number-formatting implementation
-were stable on each host but differed across hosts. Preprocessed input and
-optimized GIMPLE matched. RTL expansion differed in the assignment of two
-temporary registers for a variable 64-bit logical right shift. Fixed random
-seeds and the tested register-slot sharing options did not remove the difference.
+The amd64 build used an existing workspace. Both hosts incrementally rebuilt
+after the compiler and audio fixes. This is a measured cross-architecture
+comparison, **not two fresh empty-cache builds of the final revision**.
+Logs and earlier failed outputs were retained privately; they are not build
+inputs or required dependencies.
 
-The GCC 14.3 ARM lshrdi3 expansion passes two gen_reg_rtx calls as arguments
-to one function, leaving their evaluation order unspecified. This is consistent
-with the opposite temporary-register numbering observed in the two host builds.
-See the [GCC 14.3 ARM machine description](https://github.com/gcc-mirror/gcc/blob/releases/gcc-14.3.0/gcc/config/arm/arm.md).
+Reproduce the selected build and compare it to the recorded result:
 
-The follow-up migration applies ordered scratch allocations to OE GCC shared
-source. It does not patch target source around the compiler behavior or weaken
-the artifact comparisons. No new toolchain result is implied by this baseline.
+```sh
+git checkout --detach a4221bfc1af4f1e8b8fb64a034448f3e00cef056
+python3 scripts/bsp.py fetch u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
+python3 scripts/bsp.py build u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
+python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compare /path/to/target-hashes.json
+```
 
-## OE compiler checkpoint
+Save this documentation revision's hash manifest before checking out the
+recorded build revision. See [native build hosts](build-hosts.md) for clean
+workspace setup, UID access and platform selection.
 
-The OE GCC 15.3 build with ordered scratch allocations has produced matching
-kernel and device-tree payloads on both native hosts:
+## Differences found and corrected
 
-- zImage: `645f5a4979e4a35c7c7d53c8310d265a618d8a108041580f079a27ee4f331668`
-- DTB: `22eacd9231767729693ac3a3184b51a0a06a345dd1dfba1962e7461300416db5`
+### Workspace permissions
 
-The complete target-image comparison is still pending.
+The initial ARM64 comparison had matching contents for all 1,728 regular base
+rootfs files, but 2,098 initramfs mode fields differed. Inherited default ACLs
+altered permissions recorded by fakeroot. The setup now uses access ACLs only,
+and the launcher rejects default ACLs on the workspace root. The corrected
+workspace produced matching base filesystems before the compiler migration.
 
-## Audio conversion
+### Compiler register allocation
 
-With filesystem permissions corrected, the previous hardware-test image
-comparison differed only in its two decoded WAV files. Both hosts fetched the
-same checksum-verified Ogg sources; the floating-point Vorbis conversion
-produced different PCM bytes. The asset layer now pins Xiph's integer-only
-Tremor decoder and emits little-endian PCM explicitly. Its full build and
-cross-host comparison are pending; metadata tests are not a substitute.
+The external Arm GCC 14.3 build produced different ARM code on different host
+architectures. Identical preprocessed input and optimized GIMPLE led to
+different RTL scratch-register allocation for a variable 64-bit shift.
 
-## Claim boundary
+The ARM machine description passed two `gen_reg_rtx` calls as arguments to
+one function, with unspecified evaluation order. The OE GCC 15.3 shared-source
+patch allocates those registers in explicit statements for all three 64-bit
+shift forms. It does not weaken hash checks or work around the discrepancy
+in target code. See the
+[GCC ARM machine description](https://github.com/gcc-mirror/gcc/blob/releases/gcc-15.3.0/gcc/config/arm/arm.md).
 
-Native compilation, metadata CI and launcher tests pass on both architectures.
-Cross-host byte reproducibility remains unqualified. These builds have not been
-flashed or device-tested. Host/container executables are intentionally outside
-the target-image hash comparison.
+The historical U-Boot recipe also needed generated dependency cleanup when
+changing compilers and a GCC 15 compatibility header. Both loader memory-layout
+checks pass with the new compiler.
+
+### Sound conversion
+
+After permissions were corrected, the hardware-test rootfs differed only in
+two WAV files decoded from identical Ogg inputs. Floating-point Vorbis decoding
+was replaced with a pinned integer-only Tremor decoder and explicit
+little-endian PCM output. Both converted WAVs and both complete hardware-test
+filesystem images now match across hosts.
+
+## Qualification boundary
+
+The result applies to the listed target payloads and pinned configuration,
+not host executables, container IDs, every NAND profile or arbitrary future
+source changes. Fixed inputs alone do not prove reproducibility; compare outputs.
+
+These newly compiled images have **not** been flashed or tested on the device.
+Previous hardware qualification belongs to the retained older artifacts.
+A modern U-Boot port remains a separate migration after this compiler baseline.

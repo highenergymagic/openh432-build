@@ -65,8 +65,8 @@ expect x86-64 and ARM64 host executables or container image IDs to match.
 
 Native support and byte-for-byte target reproducibility are separate claims.
 Architecture selection has unit coverage; CI runs metadata checks on both
-runner architectures. Full cross-host artifact qualification is in progress; see the
-[measured results and remaining compiler difference](cross-host-validation.md).
+runner architectures. All ten selected target payloads matched across both native hosts; see the
+[measured results and qualification limits](cross-host-validation.md).
 
 ## Fetch transport
 
