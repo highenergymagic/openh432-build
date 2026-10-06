@@ -75,6 +75,22 @@ memory/task limits and filesystem isolation; they are not a security audit.
 
 ## Build and reproducibility evidence
 
+On 2026-10-06, all ten selected target artifacts matched byte-for-byte between
+native Linux x86-64 (amd64) and ARM64 builders: identical lengths and SHA256
+hashes. This includes the kernel, device tree, bootloader/carrier, boot bundle,
+and development and hardware-test filesystem images. The tested composition
+uses source-built OE GCC for all target components.
+
+See [cross-host validation](cross-host-validation.md) for exact commits,
+[recorded hashes](target-hashes.json), comparison commands and limitations, and
+[native build hosts](build-hosts.md) for ARM64 setup. The final revisions were
+incrementally rebuilt on both hosts; this is not two empty-cache builds of the
+final revision. New source changes and hardware qualification are separate.
+The tested revision must be checked out explicitly; this documentation update
+does not promote its build configuration to main.
+
+### Earlier main-branch composition
+
 Kernel and U-Boot use the pinned Arm GNU 14.3.rel1 toolchain; userland uses
 OE-Core GCC 15.3 and glibc 2.43. Builds run in the pinned Docker environment.
 Builds and CI never open a USB device, flash NAND or modify device storage.
