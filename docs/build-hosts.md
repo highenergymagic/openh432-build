@@ -34,8 +34,14 @@ For example, using the host's POSIX ACL tools on that directory only:
 
 ```sh
 mkdir -m 0700 /absolute/fresh-work
-setfacl -m "u:1000:rwx,d:u:1000:rwx,d:u:$(id -u):rwx" /absolute/fresh-work
+mkdir -m 0700 /absolute/fresh-work/home
+setfacl -m "u:1000:rwx" /absolute/fresh-work /absolute/fresh-work/home
 ```
+
+Use access ACLs only, never default/inheritable ACLs. Default ACLs can change
+permissions recorded by fakeroot in target packages and filesystem images.
+The launcher refuses work directories carrying default ACLs; use a new work
+directory rather than reusing outputs built under that setup.
 
 No global ownership change or world-writable permission is required.
 Docker, Git and Python 3 are host prerequisites; native target compilers are not.

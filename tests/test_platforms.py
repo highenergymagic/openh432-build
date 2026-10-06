@@ -80,3 +80,9 @@ class Platforms(unittest.TestCase):
                     returncode=0, stdout=json.dumps(info))):
             with self.assertRaisesRegex(RuntimeError, "platform mismatch"):
                 bsp.image(selected)
+
+    def test_default_acl_work_is_refused(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(
+                bsp.os, "listxattr", return_value=["system.posix_acl_default"]):
+            with self.assertRaisesRegex(ValueError, "default ACLs"):
+                bsp.bind_work_platform(Path(folder), "linux/arm64")

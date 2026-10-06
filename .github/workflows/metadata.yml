@@ -26,7 +26,8 @@ jobs:
         run: |
           install -d -m 0700 "$RUNNER_TEMP/openh432-work"
           # Both the runner and fixed container UID need access; no world write.
-          setfacl -m "u:1000:rwx,d:u:1000:rwx,d:u:$(id -u):rwx" "$RUNNER_TEMP/openh432-work"
+          install -d -m 0700 "$RUNNER_TEMP/openh432-work/home"
+          setfacl -m "u:1000:rwx" "$RUNNER_TEMP/openh432-work" "$RUNNER_TEMP/openh432-work/home"
       - name: Build pinned container and fetch pinned layers
         run: python3 scripts/bsp.py checkout --work "$RUNNER_TEMP/openh432-work"
       - name: Test pinned layer contracts

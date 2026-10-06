@@ -132,6 +132,8 @@ def container_args(image_id, work, online, local_layers=False, build_platform="l
 
 def bind_work_platform(work, build_platform):
     """Do not mix native sysroots or build state from different architectures."""
+    if "system.posix_acl_default" in os.listxattr(work):
+        raise ValueError("Inherited default ACLs can alter image permissions; use a fresh work directory with access ACLs only")
     marker = work / "builder-platform.json"
     if marker.exists():
         if json.loads(marker.read_text())["platform"] != build_platform:
