@@ -21,8 +21,9 @@ The base root filesystems contained 1,728 regular files with matching contents.
 A decoded initramfs comparison found 2,098 differing mode fields, with no other
 entry-field differences. Inherited workspace default ACLs changed permissions
 recorded by fakeroot. The documented setup now uses access ACLs only, and the
-launcher rejects a workspace root with default ACLs. A new empty-cache build
-with the corrected setup is being checked; the failed workspace is not reused.
+launcher rejects a workspace root with default ACLs. A new build with empty sstate and the corrected setup completed successfully,
+reusing only checksum-verified public downloads. Its base initramfs and SquashFS
+images match the amd64 reference byte-for-byte. The failed workspace was not reused.
 
 ## Compiler output
 
@@ -44,6 +45,25 @@ See the [GCC 14.3 ARM machine description](https://github.com/gcc-mirror/gcc/blo
 The follow-up migration applies ordered scratch allocations to OE GCC shared
 source. It does not patch target source around the compiler behavior or weaken
 the artifact comparisons. No new toolchain result is implied by this baseline.
+
+## OE compiler checkpoint
+
+The OE GCC 15.3 build with ordered scratch allocations has produced matching
+kernel and device-tree payloads on both native hosts:
+
+- zImage: `645f5a4979e4a35c7c7d53c8310d265a618d8a108041580f079a27ee4f331668`
+- DTB: `22eacd9231767729693ac3a3184b51a0a06a345dd1dfba1962e7461300416db5`
+
+The complete target-image comparison is still pending.
+
+## Audio conversion
+
+With filesystem permissions corrected, the previous hardware-test image
+comparison differed only in its two decoded WAV files. Both hosts fetched the
+same checksum-verified Ogg sources; the floating-point Vorbis conversion
+produced different PCM bytes. The asset layer now pins Xiph's integer-only
+Tremor decoder and emits little-endian PCM explicitly. Its full build and
+cross-host comparison are pending; metadata tests are not a substitute.
 
 ## Claim boundary
 
