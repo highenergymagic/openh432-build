@@ -49,3 +49,14 @@ for this new image, physical charging/discharging transitions, or NAND
 installation. See the hardware layer's
 [battery documentation](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/7029184d8fae832d39774a92fc0166cfc8aa16c3/docs/battery.md)
 for GPIO and protocol scope.
+
+## Raw measurement qualification
+
+The pinned hardware layer includes an explicit root-readable `registers`
+snapshot under `/sys/devices/platform/battery-inventory`. It captures fixed
+measurement and parameter-shadow windows twice without modifying the gauge.
+A RAM boot and repeated snapshots passed; details and interpretation limits
+are in the [hardware-layer battery documentation](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/power-control-bringup/docs/battery.md).
+Standard power_supply properties remain capacity/status only. This does not
+install the diagnostic in NAND or establish cross-host reproducibility for
+this revision.
