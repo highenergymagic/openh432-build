@@ -1,29 +1,68 @@
 # Validation status
 
-Initial Yocto migration, 2026-10-05. Source-only developer preview.
+Updated 2026-10-06 UTC. Source-only developer preview, not an installer.
 
-Verified on the build host with the pinned Docker image:
+## Compiled and boot-tested
 
-- Six Python orchestration/publication regression tests pass.
-- Wrynose6.0.3 parses 954 recipes with zero errors.
-- Dependency graphs resolve for both U-Boot roles, Linux and the RAM image.
-- A fresh public-manifest checkout on Carbon also parses successfully offline.
-- Layer source-only Git-index audits pass (no binary/vendor/private inputs).
+All four targets build successfully offline in the pinned Docker environment:
+`u-boot-h432b`, `u-boot-h432b-ram`, `linux-h432b` and `openh432-ram-dev`.
+The kernel uses Arm GNU 14.3.rel1; userland uses OE-Core GCC 15.3/glibc 2.43.
+The board kernel remains CIP 6.12.111-cip32 plus the separately pinned rt21
+patch, not an official combined CIP RT release.
 
-Compiler policy explicitly approved by the project owner: Arm GNU14.3.rel1
-for kernel/U-Boot; OE-Core GNU compiler and modern sysroot for userland.
-New metadata license explicitly approved as MIT; component GPL notices retained.
+The resulting kernel, DTB and XZ RAM root were booted on a real U2 through
+the preserved, previously qualified NAND51/RAM52 boot path. The newly compiled
+U-Boot artifacts were NOT flashed or substituted into that test.
+No NAND/SD write, partitioning or persistent mount occurred.
 
-All 142 boot/kernel fetch tasks passed, including upstream recipe QA.
-The first offline boot/kernel compilation is in progress (native tool bootstrap). No Yocto artifact is yet device-qualified or
-claimed independently bit-reproducible. No binary release is published.
-The working Buildroot hardware baseline is preserved. No device access,
-reset, flashing or storage changes occurred during this migration.
+Verified on the final RAM image:
 
-The first CI run exposed a host/container UID mismatch in workspace ownership;
-the workflow now grants explicit ACL access to both identities. The follow-up
-GitHub run passed all metadata checks:
-https://github.com/highenergymagic/openh432-build/actions/runs/37324692417
-The subsequent RAM-only rootfs finalizer also passed local graph validation.
-CI checks metadata and source publication, not full image builds or hardware.
-A/B installation, NAND ECC, Wi-Fi, Linux braille and keys remain separate work.
+- systemd 259.5 is PID 1 and reports running, with no failed units or runtime
+  service overrides; USB console, udev, journald and networkd work.
+- PREEMPT_RT is active; kernel taint remains zero after the checks.
+- NAND/internal SD identity and guarded reads, SDIO enumeration, and USB host
+  root hubs still work. Wi-Fi has no function driver yet.
+- A bounded transient systemd service verified seccomp filtering,
+  no-new-privileges, memory/task limits and filesystem-isolation settings.
+  This smoke test is not complete security qualification.
+- Repart's installer authorization is absent, GPT auto-discovery is disabled,
+  and fstab has no persistent mounts.
+- Both audio mixer ceilings clamp to 50/63; all outputs were left muted.
+  No audible playback test was performed in this Yocto qualification.
+
+Final observed boot: 7.626 s kernel + 19.128 s userspace = 26.754 s.
+This excludes the U-Boot stage and host upload; verbose diagnostics remain.
+The compressed RAM root is 10,100,632 bytes, below the 16 MiB slot limit.
+
+## Repairs covered by regression tests
+
+- Kernel source-path assignment follows kernel class inheritance.
+- The verified upstream RT patch gets a provenance-only metadata header.
+- Target binutils overrides survive Wrynose's deferred toolchain inheritance,
+  so packaging uses the pinned Arm tools too.
+- U-Boot follows Wrynose's Git unpack layout.
+- The kernel enables XZ decoding. XZ uses CRC32 and one fixed compressor thread.
+- Rootfs timestamps and artifact names use the fixed epoch.
+- Required identity, tools and dlopen libraries are installed explicitly and
+  checked. Missing libseccomp was caught by the first hardware smoke test,
+  then fixed in the recipe and verified on a fresh boot.
+
+Six hardware-layer, six OS-layer and six build-orchestration tests pass.
+CI runs both pinned layer suites, parses metadata and resolves target graphs.
+CI does not build complete images or perform hardware tests.
+
+## Scope and reproducibility
+
+Hardware qualification above used local layer development inputs. The public
+kas manifest now pins BSP e3184bf1ce78321fcebac6db7ab1d66b1fec9c85 and OS
+cf529a05898d07b44844366e1351db8e0109a22f. A normal checkout/fetch/build using
+those public commits passed all 2,813 tasks using the existing cache, with
+artifacts identical to the frozen boot-tested kernel, DTB and RAM root.
+This validates the published composition, not an independent rebuild.
+No independent clean-cache, same-input bit-reproducibility claim is made.
+Build-source pins, fixed identities, timestamps and cache reuse do not alone
+prove bit reproducibility. No binary release is published.
+
+The earlier Buildroot images and failed build/test evidence remain preserved.
+A/B installation, NAND ECC/writes, Wi-Fi, Linux braille, keys and power management
+remain separate work. MIT covers new metadata; component GPL licenses remain.

@@ -24,6 +24,10 @@ jobs:
           setfacl -m "u:1000:rwx,d:u:1000:rwx,d:u:$(id -u):rwx" "$RUNNER_TEMP/openh432-work"
       - name: Build pinned container and fetch pinned layers
         run: python3 scripts/bsp.py checkout --work "$RUNNER_TEMP/openh432-work"
+      - name: Test pinned layer contracts
+        run: |
+          python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-H432B/tests" -v
+          python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-openh432/tests" -v
       - name: Parse metadata offline
         run: python3 scripts/bsp.py parse --work "$RUNNER_TEMP/openh432-work"
       - name: Resolve all initial targets offline

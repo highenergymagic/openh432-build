@@ -16,7 +16,7 @@ Repositories:
 
 Linux amd64, Docker, Python 3 and Git are required. No host target compiler.
 The container uses UID/GID 1000:1000; its work directory must be writable by
-that identity. Default parallelism is two tasks / two compiler jobs.
+that identity. Default parallelism is two tasks / four compiler jobs per task.
 
 ```sh
 git clone https://github.com/highenergymagic/openh432-build.git
@@ -60,7 +60,10 @@ can be smaller. Disk monitoring stops new tasks at 10 GB free and halts at
 Raw `nand51-raw/u-boot.bin` is NOT a CE update carrier.
 `ram52-only/u-boot.bin` is RAM-only and must NEVER be flashed to NAND.
 The RAM image has a physical USB root debug shell, not production access
-control. The compressed image must fit the tested 16 MiB loader slot.
+control. The XZ/CRC32-compressed image must fit the tested 16 MiB loader slot.
+The kernel includes its XZ decoder; do not pair this rootfs with a gzip-only
+kernel. The current RAM baseline has been boot-tested on a U2; see
+[validation status](docs/status.md) for the exact scope.
 
 No vendor blobs, CE images, firmware extracts, device dumps, private logs,
 credentials or binaries are published. MIT covers new build metadata;
