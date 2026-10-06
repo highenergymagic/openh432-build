@@ -35,7 +35,7 @@
     },
     "meta-fractalmicro-assets": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-assets.git",
-      "commit": "3b9e0d201c260cdb44a1e8c23c6cc75dbca87c36",
+      "commit": "1d846ec64f88c5e33ded2b20ec9179cf67293a6d",
       "path": "layers/meta-fractalmicro-assets"
     }
   },

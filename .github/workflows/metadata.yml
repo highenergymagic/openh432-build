@@ -34,6 +34,7 @@ jobs:
         run: |
           python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-H432B/tests" -v
           python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-openh432/tests" -v
+          python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-assets/tests" -v
       - name: Audit pinned layer documentation
         run: python3 scripts/audit-docs.py "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-H432B" "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-openh432" "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-assets"
       - name: Parse metadata offline
