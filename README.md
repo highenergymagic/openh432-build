@@ -22,6 +22,12 @@ installer.
 - **openh432-build** (this repository): source locks, build container,
   orchestration and validation.
 
+Host-side installation and recovery tooling lives in
+[openh432-tools](https://github.com/highenergymagic/openh432-tools). Start with
+its [conversion guide](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)
+for the path from Windows CE, backup requirements and remaining qualification
+gaps. It is a developer workflow, not an unattended installer.
+
 The hardware target is `h432b`; the distribution is `openh432`.
 
 ## Building
