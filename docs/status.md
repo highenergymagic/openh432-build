@@ -34,14 +34,18 @@ qualification. Hardware tests describe one qualification device.
 | Speaker audio | Runtime | Playback and system cues; NAND-startup underruns observed |
 | Braille | Bootloader only | Startup/status text; Linux accessibility incomplete |
 | Power key | Runtime | KEY_POWER; OS action disabled pending sleep/wake |
-| Keyboard / selectors | Diagnostic | Mappings and selected evdev tests; provisional ABI, no lock/chord policy |
-| Battery | Diagnostic | Read-only telemetry; no charging control or exact-model qualification |
-| Vibration | Diagnostic | Confirmed bounded pulse; no production haptics interface |
-| USB host / external SD | Diagnostic | Three-port hub/adapter enumeration, card reads/hotplug; payload/write limits apply |
+| Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, no lock/chord policy |
+| Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
+| Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
+| USB host | Runtime | Earlier diagnostic three-port hub/adapter enumeration; serial payload unqualified |
+| External SD | Runtime, read-only | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
 | PMIC / suspend | Partial | Read-only inventory and device-callback tests; no full sleep/wake or electrical shutdown |
 | Other peripherals | Unqualified | No support claim for VGA or unlisted hardware |
 
-Use the [hardware reference](https://github.com/highenergymagic/meta-fractalmicro-H432B#technical-documentation)
+Runtime inclusion does not extend earlier diagnostic qualification to a new
+combined image. Artifact-specific checks are recorded in [hardware validation](hardware-validation.md).
+
+Use the [hardware reference](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/index.md)
 for configuration and the [target catalogue](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/targets.md)
 for diagnostic prerequisites.
 

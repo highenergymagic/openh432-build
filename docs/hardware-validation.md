@@ -4,6 +4,33 @@ Recorded on 2026-10-07 on one H432B. Artifact hashes identify tested images,
 not downloads or guarantees for later builds. See the [support matrix](status.md)
 for deployment scope.
 
+## Integrated runtime build
+
+The default NAND composition includes the shared keyboard/selector, battery,
+USB-host and removable-SD implementations. The systembase includes the
+explicit bounded vibration command; it does not start the motor automatically.
+External SD retains its read-only guard. Suspend and charging control remain
+outside this integration.
+
+The pinned amd64 builder completed all 3,273 tasks for the normal kernel
+bundle and separate systembase using local-layer inputs. Artifact inspection
+confirmed the input, battery and onboard-hub driver symbols, board nodes and
+required built-in configuration; suspend was disabled. The systembase package
+manifest and root filesystem contained the vibration command.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| NAND kernel bundle | 6,430,720 | `d964fcf8625d8f1c189b92163eb82428e0bbecd06e49d1449bb73e33e9acc378` |
+| Separate systembase | 31,817,728 | `1bec586a3262c3f30281af949268a548fbb80f6948b34604eb2e1b11b2e577a1` |
+
+The build/layer suites passed 307 tests; host tools passed 14 Rust tests,
+73 Python tests and nine optimized-Python checks. Source and documentation
+audits passed for all five repositories.
+
+These artifacts have not been installed or qualified together on the device.
+Earlier isolated peripheral tests retain only their documented scope.
+This build does not establish clean-cache or cross-host reproducibility.
+
 ## FM
 
 The NAND runtime identifies the internal Si4702-C19 and exposes standard

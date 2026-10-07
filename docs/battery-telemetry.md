@@ -1,7 +1,9 @@
 # Battery telemetry qualification image
 
-Battery telemetry is an opt-in diagnostic profile, not a default runtime feature. Select it explicitly with the commands
-below; the default targets are the separate NAND runtime kernel and base.
+Battery telemetry is included in the default NAND kernel. This guide describes
+the optional isolated battery-test profile, which shares the same driver and
+configuration. Select that profile explicitly with the commands below; the
+default targets remain the separate NAND runtime kernel and systembase.
 
 Build using the pinned container and Git inputs:
 
@@ -56,6 +58,6 @@ Observed gauge readings were about 4.18 V before removal, 4.14–4.15 V afterwar
 27 degrees C and approximately 240–360 mA discharge during the test.
 Systemd remained healthy, UBI read-only and the kernel untainted.
 
-These are RAM-profile results, not NAND-runtime battery integration or
+These are RAM-profile results, not qualification of the combined NAND runtime or
 independent sensor calibration. See the hardware reference for conversion,
 staleness and source-detection limits.
