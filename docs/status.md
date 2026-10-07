@@ -31,9 +31,36 @@ The normal runtime has exercised:
   CPU frequency remains 800 MHz; regulator transitions and 1 GHz operation
   are not qualified.
 
-Complete A/B kernel and base hashes were checked after the latest runtime
+Complete A/B kernel and base hashes were checked after the Wi-Fi runtime
 kernel update. Slot A and both bases were unchanged; failed-unit count,
 NAND ECC errors and kernel taint were zero.
+
+## Bluetooth checkpoint: 2026-10-07
+
+A NAND-installed kernel and separate systembase established communication
+with the internal CSR controller over UART0 BCSP at 1,382,400 baud, 8E1.
+With manual factory-derived radio configuration and recovered device identity
+applied to volatile controller memory, testing with a Noxgear 39g passed:
+
+- BR/EDR discovery, legacy pairing/bonding and SDP service discovery.
+- Ten L2CAP echo exchanges, with ten replies and no loss.
+
+The kernel bundle SHA-256 was
+`1a6c2ec65d7df5dc2789d1e20821d57845a8c2906035b757c20cedfabcdbde44`;
+the separate systembase SHA-256 was
+`2d7a3a8c53582192b82579de91e87b7f2b0c07ab497b12b519b3431ea2a97f13`.
+Both slot-B writes passed full readback verification; slot A and factory
+boot regions were unchanged. These were local-layer builds, not an
+independent clean-build or cross-architecture reproduction test.
+
+The packaged transport service remains disabled. Automatic factory
+initialization, persistent identity/bond provisioning, repeat-boot Bluetooth
+qualification, audio playback and power management are unfinished.
+Controller-reset testing also exposed HCI timeout/attachment warnings;
+the complete startup/shutdown lifecycle is not qualified.
+See the [Bluetooth guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/bluetooth.md).
+No factory binaries, device identities, pairing keys or private test logs
+are included in these repositories.
 
 ## Wi-Fi checkpoint: 2026-10-07
 
