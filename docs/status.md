@@ -107,6 +107,12 @@ and maintenance CE carrier matched the preserved hardware-tested artifacts
 byte-for-byte. New diagnostic target graphs also resolved. This verifies
 committed-input coverage, not an independent clean-cache rebuild.
 
+An all-target CI check exposed a legacy-kernel provider conflict after the
+runtime became the default. The legacy kernel now has an isolated package
+and source namespace while retaining its bundle deploy paths. The full target
+graph passed locally; a pinned build of the NAND pair and optional fastboot
+RAM bundle passed 3,148 tasks. NAND kernel/base hashes were unchanged.
+
 The [kas manifest](../kas/h432b.yml) is authoritative for current layer pins.
 Fixed identities, timestamps and cache reuse alone do not prove reproducibility.
 
