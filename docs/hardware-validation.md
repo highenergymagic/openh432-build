@@ -4,6 +4,22 @@ Recorded on 2026-10-07 on one H432B. Artifact hashes identify tested images,
 not downloads or guarantees for later builds. See the [support matrix](status.md)
 for deployment scope.
 
+## Local console login
+
+The standard NAND systembase includes an instance-specific tty1 autologin
+policy for the unprivileged `user` account. A normal NAND boot reached a
+shell with UID/GID 1000, working directory `/home/user` and zero effective
+capabilities, without a host command starting the getty or BRLTTY.
+Both services reported active with zero restarts. Both root and user
+passwords remained locked; the key-only SSH policy was unchanged.
+
+Systembase SHA-256:
+`883778c5ca86f8db937a59a6d85608fb717ff5c0e9b62752ead68d8aababd480`.
+Slot-B full readback passed and slot A was preserved. The kernel and factory
+loader were not replaced. The manifest-pinned cached build matched this
+payload; this does not establish a new clean-cache or cross-host reproduction.
+The home directory remains volatile.
+
 ## Internal braille
 
 The Linux GPIO transport exposed an exclusive 32-cell character device.

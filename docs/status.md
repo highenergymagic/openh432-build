@@ -51,7 +51,9 @@ for diagnostic prerequisites.
 
 ## Security and deployment limits
 
-Development images expose an unauthenticated physical USB root console.
+The built-in tty1 console automatically logs in as the unprivileged `user`
+account. It does not grant root access or enable password-based SSH.
+Development images also expose an unauthenticated physical USB root console.
 SSH requires an operator-provisioned public key and verified host key; identity
 and credentials are volatile. No private credentials, proprietary radio
 firmware or per-device identities are published in the generic composition.
