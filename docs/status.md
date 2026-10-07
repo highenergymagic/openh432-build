@@ -35,6 +35,43 @@ Complete A/B kernel and base hashes were checked after the latest runtime
 kernel update. Slot A and both bases were unchanged; failed-unit count,
 NAND ECC errors and kernel taint were zero.
 
+## Wi-Fi checkpoint: 2026-10-07
+
+The NAND-installed station driver completed WPA2-PSK/CCMP association, DHCP,
+disconnect/reconnect and two normal NAND boots without a recovery upload.
+With Ethernet disabled, two 2,689,160-byte SSH downloads and one upload
+matched the source SHA-256. A subsequent 60-packet Internet ping test had no
+packet loss. The configured NZ regulatory domain survived an AP advertising
+a different country. Driver service faults, CCMP integrity failures, TX
+failures and kernel taint were zero.
+
+Qualified artifact SHA-256 values:
+
+- Kernel bundle: `3285150959a3013ead008552daca86bc4eb2545c63ff74264c089840b645e495`.
+- Separate systembase: `5572f5e057d78635dae5ffbbaf51ddc0a44882bb5b6800e05c61550b7f8ebe22`.
+
+A build from pinned public Git inputs, without local-layer overrides, completed
+3,199 tasks and reproduced both installed artifacts byte-for-byte on the same
+build host with existing caches and the same private firmware input. This is
+not an independent clean-cache or cross-architecture reproducibility result.
+The implementation checkpoint used hardware-layer commit
+`a32ff5e38e7ce8e4f8a6e248fd85d7688352c495`, OS-layer commit
+`4d4220f0977a3ef911631acac9bc4de91e3d1682` and build commit
+`aadb0b680f7edc5b0e48fba94a6ec4101efea441`.
+Documentation-only successors retain that qualification scope.
+
+All 274 hardware-layer, OS-layer and orchestration tests passed, including
+native C framing regressions in the pinned container.
+[Checkpoint CI](https://github.com/highenergymagic/openh432-build/actions/runs/37598570002)
+passed on x86-64 and ARM64. CI validates source/metadata contracts, not radio
+operation.
+
+The profile remains limited to WPA2-Personal/CCMP, passive scanning and fixed
+1 Mb/s TX. Roaming, PMF, WPA3, power saving and long-duration reliability are
+not qualified. Network credentials are operator-provisioned, never published,
+and currently disappear with the volatile writable overlay on reboot.
+See the [detailed Wi-Fi validation record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi-qualification.md).
+
 ## Diagnostic hardware qualification
 
 Separate opt-in profiles have qualified input mappings for Perkins,
@@ -108,7 +145,7 @@ both build-host architectures, audits pinned layer sources/docs, parses
 metadata and resolves target graphs; it does not qualify device behavior.
 Builds and CI never access USB, flash NAND or modify device storage.
 
-The current committed-input check passed 3,120 tasks with existing caches,
+An earlier committed-input check passed 3,120 tasks with existing caches,
 without local-layer overrides. The normal NAND kernel bundle, SquashFS base
 and maintenance CE carrier matched the preserved hardware-tested artifacts
 byte-for-byte. New diagnostic target graphs also resolved. This verifies

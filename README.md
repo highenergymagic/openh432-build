@@ -72,9 +72,12 @@ Neither artifact is an installer, and the build does not flash a device.
 ### Internal Wi-Fi firmware
 
 The runtime includes the Wi-Fi station driver, `iw`, `wpa_supplicant`, a signed regulatory
-database and automatic initialization. Association and data traffic are not
-implemented yet. Factory radio firmware is not redistributed by these
-repositories. Supply a legally obtained, compatible file explicitly:
+database and automatic initialization. NAND-booted WPA2-PSK/CCMP association,
+DHCP, reconnect and checksum-verified Wi-Fi-only transfers have passed on
+hardware. The development driver currently uses a fixed 1 Mb/s transmit rate;
+see the [checkpoint record](docs/status.md#wi-fi-checkpoint-2026-10-07) for
+validation scope and remaining limitations. Factory radio firmware is not
+redistributed. Supply a legally obtained, compatible file explicitly:
 
 ```sh
 python3 scripts/bsp.py fetch --wifi-firmware /path/to/rtl8712s.bin --wifi-country NZ
