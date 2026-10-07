@@ -179,6 +179,11 @@ Its supported security modes, data rates and recovery behavior remain limited.
 See the [Wi-Fi qualification guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi.md)
 for firmware requirements and test limitations.
 
+The internal FM receiver now supports V4L2 tuning and muted signal scanning.
+Frequency peaks have been corroborated against local broadcasts; audible FM
+and stereo reception remain unqualified. See the
+[FM guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/fm.md).
+
 **Development images provide an unauthenticated physical USB root shell.**
 They are intended for bring-up, not everyday or security-sensitive use.
 

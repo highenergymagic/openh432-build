@@ -35,6 +35,25 @@ Complete A/B kernel and base hashes were checked after the Wi-Fi runtime
 kernel update. Slot A and both bases were unchanged; failed-unit count,
 NAND ECC errors and kernel taint were zero.
 
+## FM checkpoint: 2026-10-07
+
+The NAND runtime identifies the internal Si4702-C19 and exposes standard
+V4L2 tuning, signal strength and stereo status through `/dev/radio0`.
+A muted 206-point scan from 87.5 to 108 MHz had exact frequency readbacks.
+Weak peaks near 90.1 and 94.1 MHz were corroborated by the operator as local
+broadcast frequencies. No stereo indication was observed.
+
+The optional `h432b-fm-check` client provides muted checks and scanning,
+plus an explicit bounded listening mode. The codec's analogue route powered
+up during a ten-second test and its mixer baseline was restored afterward,
+but audible FM output was not confirmed. RDS is unavailable on this chip;
+hardware seek, suspend and production audio routing remain unfinished.
+
+The kernel bundle was built in the pinned container, installed into slot B
+and verified by full readback; slot A, systembase and factory loader were
+unchanged. These results do not establish cross-host reproducibility for
+this revision. See the [hardware qualification record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/fm.md).
+
 ## Bluetooth checkpoint: 2026-10-07
 
 A NAND-installed kernel and separate systembase established communication
