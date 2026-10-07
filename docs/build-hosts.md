@@ -25,8 +25,8 @@ cd openh432-build
 git checkout --detach <build-commit>
 python3 scripts/bsp.py image
 python3 scripts/bsp.py checkout --work /absolute/fresh-work
-python3 scripts/bsp.py fetch openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --work /absolute/fresh-work
-python3 scripts/bsp.py build openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --work /absolute/fresh-work
+python3 scripts/bsp.py fetch openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --work /absolute/fresh-work --stock-nk /path/to/nk.bin
+python3 scripts/bsp.py build openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --work /absolute/fresh-work --stock-nk /path/to/nk.bin
 ```
 
 The builder always runs as UID/GID 1000:1000. Create the selected work directory
@@ -80,8 +80,8 @@ permit different archive contents. No private cache is required.
 After building all three targets below on each platform:
 
 ```sh
-python3 scripts/bsp.py fetch openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain
-python3 scripts/bsp.py build openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain
+python3 scripts/bsp.py fetch openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --stock-nk /path/to/nk.bin
+python3 scripts/bsp.py build openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --stock-nk /path/to/nk.bin
 python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b > target-hashes.json
 ```
 

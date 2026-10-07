@@ -7,8 +7,8 @@ Build using the pinned container and Git inputs:
 
 ```sh
 python3 scripts/bsp.py checkout
-python3 scripts/bsp.py fetch openh432-battery-test openh432-systembase-b openh432-maintenance-ssh
-python3 scripts/bsp.py build openh432-battery-test openh432-systembase-b openh432-maintenance-ssh
+python3 scripts/bsp.py fetch openh432-battery-test openh432-systembase-b openh432-maintenance-ssh --without-wifi
+python3 scripts/bsp.py build openh432-battery-test openh432-systembase-b openh432-maintenance-ssh --without-wifi
 ```
 
 Native amd64/ARM64 host selection applies. Do not use `--local-layers` when

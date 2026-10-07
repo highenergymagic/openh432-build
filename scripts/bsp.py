@@ -149,6 +149,27 @@ def configure_wifi(cfg, work, firmware=None, country="00"):
     return digest
 
 
+def extract_stock_firmware(image_id, work, stock_nk, build_platform):
+    source = Path(stock_nk).resolve(strict=True)
+    if not source.is_file():
+        raise ValueError("--stock-nk must name a regular stock CE image")
+    command = container_args(image_id, work, False, build_platform=build_platform)
+    command[-1:-1] = ["--mount", "type=bind,src=" + str(source) + ",dst=/input/nk.bin,readonly"]
+    command += ["python3", "/repo/scripts/stock_firmware.py",
+                "--stock-nk", "/input/nk.bin", "--output", "/work/private-wifi-firmware"]
+    try:
+        result = run(command, capture_output=True, text=True)
+    except subprocess.CalledProcessError as error:
+        raise ValueError("Stock firmware extraction failed: " + error.stderr.strip()) from error
+    return json.loads(result.stdout)
+
+
+def require_stock_input(action, stock_nk, without_wifi):
+    if action in ("fetch", "build") and not stock_nk and not without_wifi:
+        raise ValueError("Image builds require --stock-nk /path/to/nk.bin; "
+                         "use --without-wifi explicitly for firmware-free builds")
+
+
 def bind_work_platform(work, build_platform):
     """Do not mix native sysroots or build state from different architectures."""
     if "system.posix_acl_default" in os.listxattr(work):
@@ -175,12 +196,19 @@ def main():
                         help="Use sibling layers read-only; development, not a release build")
     parser.add_argument("--nand-profile", choices=("readonly", "scratch", "ubi"),
                         default="readonly", help="Built kernel write window; build never deploys")
-    parser.add_argument("--wifi-firmware", help="Private operator-supplied RTL8712 SDIO firmware; never redistributed")
+    firmware_input = parser.add_mutually_exclusive_group()
+    firmware_input.add_argument("--stock-nk", help="Private stock nk_200617.bin; extract radio firmware in the pinned container")
+    firmware_input.add_argument("--without-wifi", action="store_true",
+                                help="Explicitly build without the private radio firmware")
     parser.add_argument("--wifi-country", default="00", help="Actual operating country (uppercase ISO code), default world")
     args = parser.parse_args()
     for target in args.targets:
         if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9+_.-]*", target):
             parser.error("Targets must be recipe names")
+    try:
+        require_stock_input(args.action, args.stock_nk, args.without_wifi)
+    except ValueError as error:
+        parser.error(str(error))
     build_platform = resolve_platform(args.platform)
     image_id = image(build_platform)
     if args.action == "image":
@@ -194,7 +222,12 @@ def main():
     (work / "home").mkdir(exist_ok=True)
     (work / "logs").mkdir(exist_ok=True)
     cfg = configuration(args.local_layers, args.nand_profile, build_platform)
-    firmware_sha256 = configure_wifi(cfg, work, args.wifi_firmware, args.wifi_country)
+    stock_provenance = None
+    firmware = None
+    if args.stock_nk:
+        stock_provenance = extract_stock_firmware(image_id, work, args.stock_nk, build_platform)
+        firmware = work / "private-wifi-firmware/rtl8712s.bin"
+    firmware_sha256 = configure_wifi(cfg, work, firmware, args.wifi_country)
     if args.targets:
         cfg["target"] = args.targets
     online = args.action in ("checkout", "fetch")
@@ -222,6 +255,7 @@ def main():
               "configuration": cfg, "local_layers": args.local_layers,
               "hardware_tested": False, "build_platform": build_platform,
               "private_wifi_firmware_sha256": firmware_sha256,
+              "stock_firmware_extraction": stock_provenance,
               "builder_inputs": lock(build_platform)}
     (work / "logs" / (stamp + ".json")).write_text(json.dumps(record, indent=2) + "\n")
     run(command)

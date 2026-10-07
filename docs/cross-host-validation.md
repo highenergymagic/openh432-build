@@ -47,8 +47,8 @@ Reproduce the selected build and compare it to the recorded result:
 
 ```sh
 git checkout --detach a4221bfc1af4f1e8b8fb64a034448f3e00cef056
-python3 scripts/bsp.py fetch u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
-python3 scripts/bsp.py build u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
+python3 scripts/bsp.py fetch u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test --without-wifi
+python3 scripts/bsp.py build u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test --without-wifi
 python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compare /path/to/target-hashes.json
 ```
 

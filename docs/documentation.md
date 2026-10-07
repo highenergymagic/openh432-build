@@ -18,6 +18,24 @@ Use the [support matrix](status.md) to distinguish normal runtime, opt-in
 diagnostics and unsupported functions. Do not describe a diagnostic result
 as default-image support.
 
+## Repository landing pages
+
+Treat a README as an entry point, not a release diary or complete manual.
+Use this order where applicable: repository purpose, supported platform,
+requirements, primary workflow, output roles, reference links and licence.
+
+Keep one canonical workflow in the build repository. Layer READMEs describe
+integration and link to it; they should not duplicate its shell commands.
+Keep peripheral-specific results out of the build README. Route interface
+details to hardware guides, default-service policy to the distribution
+reference, and source/asset licensing analysis to provenance documentation.
+
+When a feature changes, revise its owning guide and the support matrix.
+Add a landing-page link only when it introduces a new reader task; do not
+append a status paragraph for each hardware milestone. Preserve concise
+deployment/security warnings without repeating the complete qualification
+record. Review the whole page after an edit, not just the new paragraph.
+
 ## Writing conventions
 
 Lead with the behavior available at the documented revision. Use stable
@@ -44,6 +62,11 @@ Run `scripts/audit-docs.py` across affected repositories and review the
 diff manually. Automated checks do not establish factual consistency.
 
 ## Editorial references
+
+The [NXP i.MX BSP README](https://github.com/nxp-imx/meta-imx)
+provides a platform/setup/build entry-point model, while
+[Digi's layer README](https://github.com/digi-embedded/meta-digi) routes
+installation through its manifest repository.
 
 The organization follows the separation of build workflows and reference
 material used by the [Toradex Developer Center](https://developer.toradex.com/linux-bsp/os-development/reference-documentation/)
