@@ -32,7 +32,7 @@ qualification. Hardware tests describe one qualification device.
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
 | Speaker audio | Runtime | Playback and system cues; NAND-startup underruns observed |
-| Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing and scrolling; routing and broader chord coverage unqualified |
+| Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; broader chords and exhaustive routing coverage unqualified |
 | Power key | Runtime | KEY_POWER; OS action disabled pending sleep/wake |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, no lock/chord policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |

@@ -18,7 +18,10 @@ Systembase SHA-256:
 Slot-B full readback passed and slot A was preserved. The kernel and factory
 loader were not replaced. The manifest-pinned cached build matched this
 payload; this does not establish a new clean-cache or cross-host reproduction.
-The home directory remains volatile.
+The operator confirmed `whoami` returned `user` on the braille console,
+and reported working Backspace, Enter and cursor routing. These observations
+qualify basic console interaction, not every routing key or application-specific
+chord. The home directory remains volatile.
 
 ## Internal braille
 
@@ -32,8 +35,9 @@ The standard systembase packages pinned BRLTTY 6.9.1 and the H432B backend.
 The operator confirmed virtual-console text, typing at the login prompt
 and scroll-key navigation with the installed NAND system. Automatic service
 startup was verified on a subsequent normal NAND boot without a host start
-command, with zero service restarts. Routing-key behavior and broader
-chord coverage remain unqualified.
+command, with zero service restarts. The local-console qualification above with the
+same kernel includes cursor routing; exhaustive routing and broader chord
+coverage remain unqualified.
 The GPIO direction callback includes interrupt-mux handling; Ethernet DHCP
 and SSH were checked after correcting that integration.
 
