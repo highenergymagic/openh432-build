@@ -24,3 +24,11 @@ class PublicDocs(unittest.TestCase):
                 "Artifact nand51-raw is a USB-shell bootstrap.\n"
                 "[external](https://example.org/test)\n", encoding="utf-8")
             self.assertEqual([], audit_docs.audit(root))
+
+    def test_session_narration(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "README.md").write_text(
+                "The user confirmed the last test.\n"
+                "Next we will try the other port.\n", encoding="utf-8")
+            self.assertEqual(2, len(audit_docs.audit(root)))

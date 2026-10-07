@@ -97,6 +97,6 @@ The result applies to the listed target payloads and pinned configuration,
 not host executables, container IDs, every NAND profile or arbitrary future
 source changes. Fixed inputs alone do not prove reproducibility; compare outputs.
 
-These newly compiled images have **not** been flashed or tested on the device.
-Previous hardware qualification belongs to the retained older artifacts.
-A modern U-Boot port remains a separate migration after this compiler baseline.
+This comparison establishes artifact equivalence only. Device qualification
+must be established for the exact image being deployed; later kernel and
+bootloader changes do not inherit this result.

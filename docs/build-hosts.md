@@ -105,9 +105,6 @@ source/documentation audits, layer contract tests, offline metadata parsing,
 and dependency-graph resolution for the supported development image variants.
 These checks are not full image builds or hardware tests.
 
-Repository checkouts use sibling paths for OpenEmbedded and BitBake.
-Nested concurrent clones can race when the child clone creates its parent's
-destination first; a path-overlap regression test prevents reintroducing that
-layout. Fixed-UID workspace access uses non-inherited ACLs, and target compilers
-come from pinned OE recipes rather than an external Arm binary download.
-Historical failures from those earlier configurations remain visible in Actions.
+OpenEmbedded and BitBake use sibling checkout paths. Fixed-UID workspace
+access uses non-inherited ACLs. CI target compilers come from pinned OE recipes;
+no external Arm binary toolchain is required.

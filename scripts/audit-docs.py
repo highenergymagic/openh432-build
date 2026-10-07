@@ -15,6 +15,7 @@ PATTERNS = (
     r"(?i)\b(?:this conversation|our discussion|owner's supplied|user's hard)\b",
     r"(?i)\b(?:currently NAND\d+|yesterday|just now)\b",
     r"(?i)evidence/private/",
+    r"(?i)\b(?:the user confirmed|the user reported|next we will|left the device running)\b",
 )
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 

@@ -13,6 +13,15 @@ replacement.** Linux boots from NAND, but essential accessibility and
 power-management features remain incomplete. There is no general-purpose
 installer.
 
+## Documentation
+
+- [Build hosts](docs/build-hosts.md): native amd64/ARM64 setup and clean builds.
+- [Architecture](docs/architecture.md): layers, boot and storage.
+- [Support matrix](docs/status.md): runtime, diagnostic and unqualified features.
+- [Hardware validation](docs/hardware-validation.md): tested artifacts and scope.
+- [Reproducibility](docs/cross-host-validation.md): cross-host results.
+- [Documentation conventions](docs/documentation.md): structure and maintenance.
+
 ## Repositories
 
 - [meta-fractalmicro-H432B](https://github.com/highenergymagic/meta-fractalmicro-H432B):
@@ -75,7 +84,7 @@ The runtime includes the Wi-Fi station driver, `iw`, `wpa_supplicant`, a signed 
 database and automatic initialization. NAND-booted WPA2-PSK/CCMP association,
 DHCP, reconnect and checksum-verified Wi-Fi-only transfers have passed on
 hardware. The development driver currently uses a fixed 1 Mb/s transmit rate;
-see the [checkpoint record](docs/status.md#wi-fi-checkpoint-2026-10-07) for
+see the [validation record](docs/hardware-validation.md#wi-fi) for
 validation scope and remaining limitations. Factory radio firmware is not
 redistributed. Supply a legally obtained, compatible file explicitly:
 
@@ -210,10 +219,4 @@ not distribute proprietary vendor firmware or device dumps.
 OpenH432 is an independent Fractal Microsystems project, not affiliated
 with or endorsed by HIMS.
 
-## Battery telemetry experiment
-
-The current manifest includes the opt-in read-only battery image alongside
-the normal NAND targets. See [battery telemetry](docs/battery-telemetry.md)
-for its standard Linux interface, explicit build commands and RAM qualification
-limits. The diagnostic does not enable battery polling in the normal runtime
-or install firmware on a device.
+Optional battery diagnostics are described in [battery telemetry](docs/battery-telemetry.md).

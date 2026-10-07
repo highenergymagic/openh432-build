@@ -10,3 +10,12 @@
 - Record validation honestly: parsed, compiled, reproduced and device-tested
   are distinct states. No new image inherits hardware qualification.
 - Keep the working Buildroot baseline intact during Yocto migration.
+
+## Public documentation
+
+Write task-oriented reference documentation, not a development journal.
+Lead with availability, configuration, interfaces and known limitations.
+Keep normal-runtime support distinct from opt-in diagnostic qualification.
+Put exact artifact/test evidence in validation records; retain superseded
+investigation narratives in Git history and private notes. Check claims against
+recipes and service policy, and run the build repository's documentation audit.

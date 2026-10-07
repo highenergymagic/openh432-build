@@ -1,214 +1,78 @@
-# Validation status
+# BSP support matrix
 
-Updated 2026-10-07 UTC. OpenH432 is a source-only developer preview, not an
-installer or production firmware release. Hardware results describe one
-H432B qualification device, not every BrailleSense model or future build.
+This matrix describes the pinned OpenH432 development composition for H432B.
+It is not a production support commitment or qualification of other Sense
+models. The [kas manifest](../kas/h432b.yml) defines exact source revisions.
 
-## Normal NAND runtime
+**Runtime** means included in the normal NAND composition. **Diagnostic**
+means an opt-in profile or tool. **Partial** means incomplete integration or
+qualification. Hardware tests describe one qualification device.
 
-Repeated normal resets and software reboots have loaded Linux from NAND
-without a host upload, preserving the factory first-stage loader and EBOOT.
-The default composition is a kernel/device-tree/minimal-initramfs bundle
-plus a separate SquashFS systembase on ubiblock. A 64 MiB volatile overlay
-provides writable runtime state; persistent userdata is not implemented.
+## Platform
 
-The normal runtime has exercised:
+| Component | Availability and limits |
+| --- | --- |
+| CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
+| Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
+| Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT |
+| NAND root | Fixed slot B, minimal initramfs, separate SquashFS systembase via ubiblock |
+| Writable state | 64 MiB volatile overlay; no persistent userdata |
+| Updates | Existing-volume maintenance; no coordinated A/B activation/rollback or generic installer |
+| Build hosts | Native Linux amd64 and ARM64 Docker, OE-built target toolchain |
 
-- Linux CIP 6.12.111-cip32 plus separately pinned rt21 and systemd 259.5.
-  This is not an official combined CIP RT release.
-- NAND kernel/base readbacks, factory boot-region preservation and
-  SquashFS-to-systemd root handoff. Linux UBI maintenance and internal SD
-  writes are enabled; factory boot and BBT regions remain protected.
-- Wired Ethernet, physical USB diagnostics and power-key input. Electrical
-  poweroff, button wake and full suspend remain unfinished.
-- GPS UART/power sequencing, local-only gpsd, privacy-proxy refresh and an
-  acknowledged 31-satellite RAM-assistance upload. No navigation fix or
-  improved time-to-first-fix result is claimed.
-- Packaged boot/shutdown sounds. Sound playback has been audible and correct
-  in testing, but NAND-backed startup has also exhibited underruns;
-  buffering and startup latency remain work.
-- Read-only PMIC control/DVS inventory matching factory initialization.
-  CPU frequency remains 800 MHz; regulator transitions and 1 GHz operation
-  are not qualified.
+## Hardware interfaces
 
-Complete A/B kernel and base hashes were checked after the Wi-Fi runtime
-kernel update. Slot A and both bases were unchanged; failed-unit count,
-NAND ECC errors and kernel taint were zero.
+| Interface | Integration | Verified scope / principal limitation |
+| --- | --- | --- |
+| NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
+| Internal SD | Runtime | Bounded 64 MiB filesystem write/readback; no repartitioning or power-loss qualification |
+| Ethernet | Runtime | Networking, DHCP and SSH; suspend unqualified |
+| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP, DHCP, transfers/reconnect; passive scan, fixed 1 Mb/s TX |
+| Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP; service disabled, no audio backend |
+| FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
+| GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
+| Speaker audio | Runtime | Playback and system cues; NAND-startup underruns observed |
+| Braille | Bootloader only | Startup/status text; Linux accessibility incomplete |
+| Power key | Runtime | KEY_POWER; OS action disabled pending sleep/wake |
+| Keyboard / selectors | Diagnostic | Mappings and selected evdev tests; provisional ABI, no lock/chord policy |
+| Battery | Diagnostic | Read-only telemetry; no charging control or exact-model qualification |
+| Vibration | Diagnostic | Confirmed bounded pulse; no production haptics interface |
+| USB host / external SD | Diagnostic | Three-port hub/adapter enumeration, card reads/hotplug; payload/write limits apply |
+| PMIC / suspend | Partial | Read-only inventory and device-callback tests; no full sleep/wake or electrical shutdown |
+| Other peripherals | Unqualified | No support claim for VGA or unlisted hardware |
 
-## FM checkpoint: 2026-10-07
+Use the [hardware reference](https://github.com/highenergymagic/meta-fractalmicro-H432B#technical-documentation)
+for configuration and the [target catalogue](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/targets.md)
+for diagnostic prerequisites.
 
-The NAND runtime identifies the internal Si4702-C19 and exposes standard
-V4L2 tuning, signal strength and stereo status through `/dev/radio0`.
-A muted 206-point scan from 87.5 to 108 MHz had exact frequency readbacks.
-Weak peaks near 90.1 and 94.1 MHz were corroborated by the operator as local
-broadcast frequencies. No stereo indication was observed.
+## Security and deployment limits
 
-The optional `h432b-fm-check` client provides muted checks and scanning,
-plus an explicit bounded listening mode. The codec's analogue route powered
-up during a ten-second test and its mixer baseline was restored afterward,
-but audible FM output was not confirmed. RDS is unavailable on this chip;
-hardware seek, suspend and production audio routing remain unfinished.
+Development images expose an unauthenticated physical USB root console.
+SSH requires an operator-provisioned public key and verified host key; identity
+and credentials are volatile. No private credentials, proprietary radio
+firmware or per-device identities are published in the generic composition.
 
-The kernel bundle was built in the pinned container, installed into slot B
-and verified by full readback; slot A, systembase and factory loader were
-unchanged. These results do not establish cross-host reproducibility for
-this revision. See the [hardware qualification record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/fm.md).
+Accessible applications, persistent userdata, full power management and
+atomic updates remain incomplete. These images are not for everyday or
+security-sensitive use. See the [installation guide](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)
+for conversion and recovery gaps.
 
-## Bluetooth checkpoint: 2026-10-07
+## Validation
 
-A NAND-installed kernel and separate systembase established communication
-with the internal CSR controller over UART0 BCSP at 1,382,400 baud, 8E1.
-With manual factory-derived radio configuration and recovered device identity
-applied to volatile controller memory, testing with a Noxgear 39g passed:
+- [Hardware records](hardware-validation.md): scope, artifact hashes and limitations.
+- [Cross-host comparison](cross-host-validation.md): ten matching target payloads
+  at explicitly recorded historical revisions.
+- [Build hosts](build-hosts.md): clean-workspace and comparison procedures.
+- [Boot performance](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md):
+  measured timings; no sub-30-second boot claim.
 
-- BR/EDR discovery, legacy pairing/bonding and SDP service discovery.
-- Ten L2CAP echo exchanges, with ten replies and no loss.
+CI tests source contracts, audits sources/docs, parses metadata and resolves
+target graphs on both host architectures. It does not build every image or
+qualify hardware. Compilation and fixed inputs alone do not prove reproducibility.
 
-The kernel bundle SHA-256 was
-`1a6c2ec65d7df5dc2789d1e20821d57845a8c2906035b757c20cedfabcdbde44`;
-the separate systembase SHA-256 was
-`2d7a3a8c53582192b82579de91e87b7f2b0c07ab497b12b519b3431ea2a97f13`.
-Both slot-B writes passed full readback verification; slot A and factory
-boot regions were unchanged. These were local-layer builds, not an
-independent clean-build or cross-architecture reproduction test.
+<a id="wi-fi-checkpoint-2026-10-07"></a>
+<a id="bluetooth-checkpoint-2026-10-07"></a>
+<a id="fm-checkpoint-2026-10-07"></a>
 
-The packaged transport service remains disabled. Automatic factory
-initialization, persistent identity/bond provisioning, repeat-boot Bluetooth
-qualification, audio playback and power management are unfinished.
-Controller-reset testing also exposed HCI timeout/attachment warnings;
-the complete startup/shutdown lifecycle is not qualified.
-See the [Bluetooth guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/bluetooth.md).
-No factory binaries, device identities, pairing keys or private test logs
-are included in these repositories.
-
-## Wi-Fi checkpoint: 2026-10-07
-
-The NAND-installed station driver completed WPA2-PSK/CCMP association, DHCP,
-disconnect/reconnect and two normal NAND boots without a recovery upload.
-With Ethernet disabled, two 2,689,160-byte SSH downloads and one upload
-matched the source SHA-256. A subsequent 60-packet Internet ping test had no
-packet loss. The configured NZ regulatory domain survived an AP advertising
-a different country. Driver service faults, CCMP integrity failures, TX
-failures and kernel taint were zero.
-
-Qualified artifact SHA-256 values:
-
-- Kernel bundle: `3285150959a3013ead008552daca86bc4eb2545c63ff74264c089840b645e495`.
-- Separate systembase: `5572f5e057d78635dae5ffbbaf51ddc0a44882bb5b6800e05c61550b7f8ebe22`.
-
-A build from pinned public Git inputs, without local-layer overrides, completed
-3,199 tasks and reproduced both installed artifacts byte-for-byte on the same
-build host with existing caches and the same private firmware input. This is
-not an independent clean-cache or cross-architecture reproducibility result.
-The implementation checkpoint used hardware-layer commit
-`a32ff5e38e7ce8e4f8a6e248fd85d7688352c495`, OS-layer commit
-`4d4220f0977a3ef911631acac9bc4de91e3d1682` and build commit
-`aadb0b680f7edc5b0e48fba94a6ec4101efea441`.
-Documentation-only successors retain that qualification scope.
-
-All 274 hardware-layer, OS-layer and orchestration tests passed, including
-native C framing regressions in the pinned container.
-[Checkpoint CI](https://github.com/highenergymagic/openh432-build/actions/runs/37598570002)
-passed on x86-64 and ARM64. CI validates source/metadata contracts, not radio
-operation.
-
-The profile remains limited to WPA2-Personal/CCMP, passive scanning and fixed
-1 Mb/s TX. Roaming, PMF, WPA3, power saving and long-duration reliability are
-not qualified. Network credentials are operator-provisioned, never published,
-and currently disappear with the volatile writable overlay on reboot.
-See the [detailed Wi-Fi validation record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi-qualification.md).
-
-## Diagnostic hardware qualification
-
-Separate opt-in profiles have qualified input mappings for Perkins,
-function, media, scroll and cursor-routing keys, plus selector positions.
-Read-only battery telemetry, vibration, USB-host hub/adapter enumeration and
-removable-SD insertion/removal have been exercised. These results do not mean every diagnostic driver is
-enabled in the normal runtime or that an accessible user interface exists.
-
-A bounded internal-SD filesystem test wrote and verified 64 MiB across an
-unmount/remount, retaining the existing partitions. External SD testing was
-read-only. Device-only suspend callbacks have been exercised, but not actual
-CPU sleep, late/noirq suspend, wake sources or power-loss behavior.
-
-Linux and U-Boot software BCH8/512 agreed on parity, and injected RAM errors
-of one through eight bits per sector were corrected. Standard fastboot RAM
-download/boot passed packet-boundary tests. Unsupported flash/erase requests
-were rejected. Fastboot is not a general persistent-flashing interface.
-
-## Boot performance
-
-The persistent bootloader now uses aligned word FIFO reads. A comparable
-host-timed software reboot to working USB shell improved from 121.476 to
-107.461 seconds. This includes shutdown and console handshake, not a measured
-physical power-on interval. Linux corrected 4 MiB NAND reads improved from
-1.993 to 1.145 seconds after its word-transfer change.
-
-Earlier hardware-timer, instruction-cache and partial-page loader experiments
-remain separately qualified RAM tests. They are not all incorporated in the
-persistent loader. Its inherited internal timer is unsuitable for performance
-claims; the figures above use host timing or Linux timing as appropriate.
-
-See [boot performance](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md)
-for measurements, working-set limitations and the CE comparison. A
-sub-30-second total boot has not been demonstrated.
-
-## Remaining limitations
-
-The NAND runtime includes a cfg80211 Wi-Fi station driver and automatic
-initialization with operator-supplied firmware. WPA2-PSK/CCMP association,
-DHCP, reconnect and checksum-verified Wi-Fi-only transfers in both directions
-have passed. The supported security profile,
-data rates, fault recovery and power management remain limited; firmware
-redistribution rights are not established.
-See the [Wi-Fi guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi.md)
-and its linked qualification record.
-Linux braille, accessible userspace, full power management and coordinated
-A/B updates remain incomplete. Both systembase slots are capped at
-199.926 MiB. No power-removal or long-duration endurance qualification is
-claimed, and the internal SD has not been repartitioned.
-
-Development images expose an unauthenticated root shell over physical USB.
-Maintenance SSH requires an operator-provisioned public key. Service-isolation
-smoke tests are not a security audit. These images are not for everyday or
-security-sensitive use.
-
-## Build and reproducibility evidence
-
-Kernel, U-Boot and userland use source-built OE-Core GCC 15.3; userland uses
-the OE glibc 2.43 sysroot. Native amd64 and ARM64 builds run in pinned Docker
-environments without an external Arm compiler archive.
-
-Ten selected payloads previously matched bit-for-bit across native amd64
-and ARM64 builders. The [cross-host comparison](cross-host-validation.md)
-records the exact tested revisions and scope. Later GPS, runtime-storage,
-NAND-read, PMIC and Wi-Fi changes do not inherit that reproducibility result.
-No new clean-cache cross-host comparison is claimed for this checkpoint.
-
-Unit/native tests cover image parsing, memory overlap, write guards, input
-mappings, GPS framing/aiding, metadata and publication boundaries. CI tests
-both build-host architectures, audits pinned layer sources/docs, parses
-metadata and resolves target graphs; it does not qualify device behavior.
-Builds and CI never access USB, flash NAND or modify device storage.
-
-An earlier committed-input check passed 3,120 tasks with existing caches,
-without local-layer overrides. The normal NAND kernel bundle, SquashFS base
-and maintenance CE carrier matched the preserved hardware-tested artifacts
-byte-for-byte. New diagnostic target graphs also resolved. This verifies
-committed-input coverage, not an independent clean-cache rebuild.
-
-An all-target CI check exposed a legacy-kernel provider conflict after the
-runtime became the default. The legacy kernel now has an isolated package
-and source namespace while retaining its bundle deploy paths. The full target
-graph passed locally; a pinned build of the NAND pair and optional fastboot
-RAM bundle passed 3,148 tasks. NAND kernel/base hashes were unchanged.
-
-The [kas manifest](../kas/h432b.yml) is authoritative for current layer pins.
-Fixed identities, timestamps and cache reuse alone do not prove reproducibility.
-
-## Further reading
-
-- [Build architecture](architecture.md)
-- [Boot roles and load addresses](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-contract.md)
-- [NAND layout and qualification](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/nand.md)
-- [Installation prerequisites and remaining gaps](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)
+Historical checkpoint links resolve here. Artifact-specific results are in
+[hardware validation](hardware-validation.md).

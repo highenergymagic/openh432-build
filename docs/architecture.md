@@ -1,46 +1,64 @@
-# Repository and image boundaries
+# BSP architecture
 
-Native x86-64 and ARM64 builders are described in [Build hosts](build-hosts.md).
-Their target-image reproducibility must be measured separately from build success.
+OpenH432 targets the H432B BrailleSense U2: Samsung S5PV210, 256 MiB
+DRAM, raw NAND and separate internal SD storage. It retains the factory
+first-stage loader and EBOOT. Other Sense models are not qualified.
 
-## Layers
+## Repository responsibilities
 
-The BSP layer owns MACHINE=h432b, boot/kernel inputs and hardware constraints.
-The OS layer owns DISTRO=openh432, application packages, systemd policy and
-image composition. This manifest repository selects immutable revisions and
-the build container. Components stay separate without duplicating whole
-upstream Linux/U-Boot repositories.
+| Repository | Responsibility |
+| --- | --- |
+| meta-fractalmicro-H432B | Machine configuration, kernel, device tree, bootloader and hardware constraints |
+| meta-fractalmicro-openh432 | Distribution, packages, systemd policy and image composition |
+| meta-fractalmicro-assets | Checksum-pinned third-party sound assets and conversion |
+| openh432-build | Immutable layer manifest, container and build orchestration |
+| openh432-tools | Host transport, backup verification and deployment procedures |
 
-The kas manifest is the release composition lock; Git submodules are not
-also maintained, avoiding two competing revision authorities. Development
-overrides are explicit and are recorded as non-release runs.
+The [kas manifest](../kas/h432b.yml) is the composition lock. Local-layer
+overrides are recorded development inputs, not the pinned release composition.
+Upstream kernel and bootloader sources are fetched by recipes and modified
+by ordered patches; they are not duplicated as full source forks here.
 
-## Current and future images
+## Boot and storage
 
-Only openh432-ram-dev is defined initially. It is a full RAM-resident OS,
-not an initrd that automatically discovers a persistent root. The USB shell
-is privileged physical development access. Repart is condition-gated; GPT
-automatic discovery is masked. Kernel storage write guards remain enabled.
+The persistent CE-format carrier contains a low-address U-Boot bootstrap
+and a high-RAM maintenance stage. The maintenance stage reads fixed slot B
+from the Linux UBI pool, or enters USB maintenance on a boot failure or
+recognized one-shot request.
 
-Future recovery/systembase/systemext images must share a release identity.
-A/B activation must coordinate kernel, NAND base and SD extension, validate
-them together, then commit boot selection last. Native systemd units handle
-ordering/readiness; a chosen update framework must still own update transactions.
-No partition table, RAUC configuration or installation script is fabricated
-before the NAND ECC/boot metadata and rollback contract are qualified.
+The normal kernel bundle contains Linux, a device tree and a minimal
+root-handoff initramfs. Early userspace attaches the existing UBI pool,
+validates the slot marker and mounts the separate static SquashFS
+`systembase_b` volume through ubiblock. It then starts systemd with a
+64 MiB volatile writable overlay. It does not format or provision storage.
 
-Use a shared NAND UBI pool rather than treating bad-block-managed NAND as
-an SD disk. Exact volume budgets, filesystem choices and physical bootloader
-boundaries remain provisional. MMC repart provisioning requires explicit
-installer authorization and cannot run merely because an image boots.
+The standalone `openh432-fastboot-ram` bundle uses the same runtime kernel
+with a complete RAM root. It can run before a NAND systembase is provisioned.
+It permits Linux-pool and internal-SD writes and is not a forensic capture
+environment.
 
-## Validation ladder
+See the [boot contract](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-contract.md)
+and [NAND layout](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/nand.md)
+for exact artifact roles, addresses and capacity limits.
 
-1. Source/index audit and metadata parse.
-2. Dependency graph and checksum-verified fetch.
-3. Offline compilation and artifact checks.
-4. Two independent same-input builds.
-5. RAM-only device qualification against the working baseline.
-6. Persistent installation only after backup/ECC/rollback qualification.
+## Update and security boundaries
 
-Completing one step does not imply completion of the next.
+Kernel and systembase A/B volumes reserve storage capacity; they do not
+implement coordinated activation or rollback. The loader selects slot B.
+Persistent userdata, SD extensions and an update transaction framework are
+not implemented. No automatic repartitioning runs at boot.
+
+Development images expose a privileged physical USB console. Maintenance
+SSH is key-gated, with volatile host identity. Neither interface constitutes
+a production security policy. The factory prefix and NAND tail remain
+protected from Linux-pool writes.
+
+## Build and validation
+
+Native Linux x86-64 and ARM64 Docker builders use the pinned OE toolchain.
+See [build hosts](build-hosts.md) for setup and artifact comparison.
+
+Source tests, metadata resolution, compilation, reproducibility comparisons
+and device qualification are separate checks. The [support matrix](status.md)
+states deployment scope; the [cross-host record](cross-host-validation.md)
+identifies the exact artifacts for which byte-for-byte equivalence was measured.
