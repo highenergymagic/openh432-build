@@ -72,7 +72,14 @@ sub-30-second total boot has not been demonstrated.
 
 ## Remaining limitations
 
-Internal Wi-Fi enumerates over SDIO but has no working function driver.
+The optional Wi-Fi profile has qualified cold firmware startup, native SDIO
+notifications, 256 normal command/reply cycles across sequence wraparound, and
+three consecutive passive surveys without resetting the radio. There is no
+Linux wireless network interface, association, encryption-key handling or packet
+TX/RX support yet. Redundant scan notifications and firmware redistribution
+remain unresolved. The default runtime does not enable the diagnostic driver.
+See the [Wi-Fi guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi.md)
+and its linked qualification record.
 Linux braille, accessible userspace, full power management and coordinated
 A/B updates remain incomplete. Both systembase slots are capped at
 199.926 MiB. No power-removal or long-duration endurance qualification is
@@ -92,7 +99,7 @@ environments without an external Arm compiler archive.
 Ten selected payloads previously matched bit-for-bit across native amd64
 and ARM64 builders. The [cross-host comparison](cross-host-validation.md)
 records the exact tested revisions and scope. Later GPS, runtime-storage,
-NAND-read and PMIC changes do not inherit that reproducibility result.
+NAND-read, PMIC and Wi-Fi changes do not inherit that reproducibility result.
 No new clean-cache cross-host comparison is claimed for this checkpoint.
 
 Unit/native tests cover image parsing, memory overlap, write guards, input
