@@ -6,7 +6,8 @@
   "machine": "h432b",
   "distro": "openh432",
   "target": [
-    "openh432-ram-dev"
+    "openh432-nand-b",
+    "openh432-systembase-b"
   ],
   "repos": {
     "openembedded-core": {
@@ -25,18 +26,26 @@
     },
     "meta-fractalmicro-H432B": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
-      "commit": "88307d1a7b571084dea20405c8ae2ddc696a1759",
+      "commit": "90d0576c1fe89753b2d4b6ddc17472e34b221811",
       "path": "layers/meta-fractalmicro-H432B"
     },
     "meta-fractalmicro-openh432": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
-      "commit": "4beb568a5a4f1406d31481b855e60ec3e8530409",
+      "commit": "0240654870c64d09163656b66421b2e67cced965",
       "path": "layers/meta-fractalmicro-openh432"
     },
     "meta-fractalmicro-assets": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-assets.git",
       "commit": "1d846ec64f88c5e33ded2b20ec9179cf67293a6d",
       "path": "layers/meta-fractalmicro-assets"
+    },
+    "meta-openembedded": {
+      "url": "https://github.com/openembedded/meta-openembedded.git",
+      "commit": "47d7dbdd10890bbd429bc0cccbe14435c37e5af1",
+      "path": "layers/meta-openembedded",
+      "layers": {
+        "meta-oe": {}
+      }
     }
   },
   "local_conf_header": {

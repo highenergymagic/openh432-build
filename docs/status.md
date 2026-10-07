@@ -1,100 +1,114 @@
 # Validation status
 
-Updated 2026-10-06 UTC. OpenH432 is a source-only developer preview, not an
-installer or production firmware release. Results below describe one H432B
-qualification device, not every BrailleSense model or every future build.
+Updated 2026-10-07 UTC. OpenH432 is a source-only developer preview, not an
+installer or production firmware release. Hardware results describe one
+H432B qualification device, not every BrailleSense model or future build.
 
-## Qualified functionality
+## Normal NAND runtime
 
-- Repeated plain-Reset boots loaded Linux from NAND with no host image upload,
-  preserving the factory first-stage loader and EBOOT.
-- Linux CIP 6.12.111-cip32 plus separately pinned rt21, systemd 259.5, USB
-  diagnostics, internal SD reads, NAND access and PREEMPT_RT were exercised.
+Repeated normal resets and software reboots have loaded Linux from NAND
+without a host upload, preserving the factory first-stage loader and EBOOT.
+The default composition is a kernel/device-tree/minimal-initramfs bundle
+plus a separate SquashFS systembase on ubiblock. A 64 MiB volatile overlay
+provides writable runtime state; persistent userdata is not implemented.
+
+The normal runtime has exercised:
+
+- Linux CIP 6.12.111-cip32 plus separately pinned rt21 and systemd 259.5.
   This is not an official combined CIP RT release.
-- Linux and U-Boot software BCH8/512 agreed on parity; 1–8 injected RAM bit
-  errors per sector were corrected. NAND bad-block markers were retained.
-- Bounded NAND provisioning, complete kernel/base SHA256 readbacks and
-  SquashFS-on-ubiblock mount checks passed. Factory boot regions, including
-  OOB, were checked byte-for-byte against the private backup after provisioning.
-- Standard high-speed fastboot RAM download and Linux boot passed. Eleven
-  transfer lengths covered USB packet and request boundaries. Unsupported
-  flash/erase requests were rejected.
-- Three physical power-switch presses produced paired KEY_POWER events
-  without unwanted repeats or missing releases. Shutdown actions remained
-  disabled during input qualification.
-- Startup playback and shutdown playback during a systemd reboot were audibly
-  verified in a RAM-resident system. Playback used volume 45 below the kernel
-  limit of 50, and outputs were muted afterward.
+- NAND kernel/base readbacks, factory boot-region preservation and
+  SquashFS-to-systemd root handoff. Linux UBI maintenance and internal SD
+  writes are enabled; factory boot and BBT regions remain protected.
+- Wired Ethernet, physical USB diagnostics and power-key input. Electrical
+  poweroff, button wake and full suspend remain unfinished.
+- GPS UART/power sequencing, local-only gpsd, privacy-proxy refresh and an
+  acknowledged 31-satellite RAM-assistance upload. No navigation fix or
+  improved time-to-first-fix result is claimed.
+- Packaged boot/shutdown sounds. Sound playback has been audible and correct
+  in testing, but NAND-backed startup has also exhibited underruns;
+  buffering and startup latency remain work.
+- Read-only PMIC control/DVS inventory matching factory initialization.
+  CPU frequency remains 800 MHz; regulator transitions and 1 GHz operation
+  are not qualified.
 
-The most recent restoration check booted the preserved NAND baseline on plain
-Reset and reached a working USB shell with zero failed units and kernel taint 0.
-Its Linux/systemd startup was 28.657 seconds, **excluding bootloader time**.
-Input and sound experiments did not persist new packages in NAND.
+Complete A/B kernel and base hashes were checked after the latest runtime
+kernel update. Slot A and both bases were unchanged; failed-unit count,
+NAND ECC errors and kernel taint were zero.
+
+## Diagnostic hardware qualification
+
+Separate opt-in profiles have qualified input mappings for Perkins,
+function, media, scroll and cursor-routing keys, plus selector positions.
+Read-only battery telemetry, vibration, USB-host hub/adapter enumeration and
+removable-SD insertion/removal have been exercised. These results do not mean every diagnostic driver is
+enabled in the normal runtime or that an accessible user interface exists.
+
+A bounded internal-SD filesystem test wrote and verified 64 MiB across an
+unmount/remount, retaining the existing partitions. External SD testing was
+read-only. Device-only suspend callbacks have been exercised, but not actual
+CPU sleep, late/noirq suspend, wake sources or power-loss behavior.
+
+Linux and U-Boot software BCH8/512 agreed on parity, and injected RAM errors
+of one through eight bits per sector were corrected. Standard fastboot RAM
+download/boot passed packet-boundary tests. Unsupported flash/erase requests
+were rejected. Fastboot is not a general persistent-flashing interface.
 
 ## Boot performance
 
-Two earlier reset-to-shell samples were 137.965 and 138.213 seconds.
-A separate RAM-only profiler measured complete UBI attachment, kernel-bundle
-read and validation in 95.823 seconds with caches off and 73.088 seconds with
-instruction caching only. Both returned the same bundle CRC.
+The persistent bootloader now uses aligned word FIFO reads. A comparable
+host-timed software reboot to working USB shell improved from 121.476 to
+107.461 seconds. This includes shutdown and console handshake, not a measured
+physical power-on interval. Linux corrected 4 MiB NAND reads improved from
+1.993 to 1.145 seconds after its word-transfer change.
 
-Those command measurements are not a qualified faster persistent boot.
-The inherited U-Boot timer counts calls rather than time; its internal timing
-numbers are invalid. The replacement PWM4 timer passed five-second delay checks against a host
-clock with instruction caching both off and on. A further BCH partial-page
-read experiment reduced UBI attachment from 34.981 to 22.178 seconds while
-retaining ECC. Fifteen partial-read/full-page comparisons and RAM bit-error
-correction checks passed. Full bundle read/validation remained 37.368 seconds,
-with the expected CRC. The partial-page candidate also booted the NAND kernel to a healthy Linux
-USB shell (zero failed units and taint 0). These remain RAM-only loader tests,
-not qualification of an optimized persistent carrier.
-See [boot performance](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md).
-A sub-30-second total boot has not been demonstrated.
+Earlier hardware-timer, instruction-cache and partial-page loader experiments
+remain separately qualified RAM tests. They are not all incorporated in the
+persistent loader. Its inherited internal timer is unsuitable for performance
+claims; the figures above use host timing or Linux timing as appropriate.
 
-## Built but not fully qualified
+See [boot performance](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md)
+for measurements, working-set limitations and the CE comparison. A
+sub-30-second total boot has not been demonstrated.
 
-The explicitly audible `openh432-hardware-test` image built successfully; its
-13,341,188-byte initramfs fits the 16 MiB limit and service-enablement links
-were inspected. Its sound components were tested separately in RAM; a complete
-boot of this packaged image remains untested.
-
-The default development initramfs and NAND kernel bundle are not a production
-SquashFS-root system. Kernel/base B, recovery and boot-state volumes reserve
-capacity but do not implement a coordinated update or rollback policy.
-Both system-base slots are capped at 199.926 MiB.
+## Remaining limitations
 
 Internal Wi-Fi enumerates over SDIO but has no working function driver.
-Linux braille, the remaining keyboard controls, battery management, electrical
-poweroff, wake and suspend remain incomplete. Shutdown latency has not been
-qualified. Internal SD has not been repartitioned by this work.
-No power-removal test or long-duration endurance qualification is claimed.
+Linux braille, accessible userspace, full power management and coordinated
+A/B updates remain incomplete. Both systembase slots are capped at
+199.926 MiB. No power-removal or long-duration endurance qualification is
+claimed, and the internal SD has not been repartitioned.
 
 Development images expose an unauthenticated root shell over physical USB.
-Service-isolation smoke tests exercised seccomp, no-new-privileges,
-memory/task limits and filesystem isolation; they are not a security audit.
+Maintenance SSH requires an operator-provisioned public key. Service-isolation
+smoke tests are not a security audit. These images are not for everyday or
+security-sensitive use.
 
 ## Build and reproducibility evidence
 
 Kernel, U-Boot and userland use source-built OE-Core GCC 15.3; userland uses
 the OE glibc 2.43 sysroot. Native amd64 and ARM64 builds run in pinned Docker
-environments without an external Arm compiler archive. See the
-[cross-host comparison](cross-host-validation.md) for measured evidence.
-Builds and CI never open a USB device, flash NAND or modify device storage.
+environments without an external Arm compiler archive.
 
-A previously qualified NAND composition used hardware-layer commit
-`f9e5d9e222719efb7fd80b470014a501bd22fc41` and OS-layer commit
-`bb188ea4e991591e901d3dd7e2705f9aa2c39ff1`. Its normal pinned offline build
-passed 2,869 cached tasks; the CE carrier, high-RAM reader, kernel bundle and
-SquashFS base matched the frozen hardware-tested inputs byte-for-byte.
+Ten selected payloads previously matched bit-for-bit across native amd64
+and ARM64 builders. The [cross-host comparison](cross-host-validation.md)
+records the exact tested revisions and scope. Later GPS, runtime-storage,
+NAND-read and PMIC changes do not inherit that reproducibility result.
+No new clean-cache cross-host comparison is claimed for this checkpoint.
 
-That comparison does not establish independent clean-cache reproducibility,
-and those historical commits are not a statement of the current manifest pins.
-Use [kas/h432b.yml](../kas/h432b.yml) for the current composition. Source pins,
-fixed identities, timestamps and cache reuse alone do not prove reproducibility.
-
-Unit and native tests cover image parsing, memory overlap, write guards,
-artifact roles, package requirements and build configuration. CI parses
+Unit/native tests cover image parsing, memory overlap, write guards, input
+mappings, GPS framing/aiding, metadata and publication boundaries. CI tests
+both build-host architectures, audits pinned layer sources/docs, parses
 metadata and resolves target graphs; it does not qualify device behavior.
+Builds and CI never access USB, flash NAND or modify device storage.
+
+The current committed-input check passed 3,120 tasks with existing caches,
+without local-layer overrides. The normal NAND kernel bundle, SquashFS base
+and maintenance CE carrier matched the preserved hardware-tested artifacts
+byte-for-byte. New diagnostic target graphs also resolved. This verifies
+committed-input coverage, not an independent clean-cache rebuild.
+
+The [kas manifest](../kas/h432b.yml) is authoritative for current layer pins.
+Fixed identities, timestamps and cache reuse alone do not prove reproducibility.
 
 ## Further reading
 

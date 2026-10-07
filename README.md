@@ -32,6 +32,8 @@ for the path from Windows CE, backup requirements and remaining qualification
 gaps. It is a developer workflow, not an unattended installer.
 
 The hardware target is `h432b`; the distribution is `openh432`.
+The manifest also pins OpenEmbedded Core, BitBake and the Wrynose `meta-oe`
+layer from meta-openembedded, which supplies gpsd and its build dependencies.
 
 ## Building
 
@@ -49,7 +51,7 @@ architecture; use `--platform linux/amd64` or `--platform linux/arm64` to
 select explicitly. Keep separate work directories for different architectures.
 See [native build hosts](docs/build-hosts.md) for setup details.
 
-### Build a development image
+### Build the NAND runtime pair
 
 ```sh
 git clone https://github.com/highenergymagic/openh432-build.git
@@ -58,16 +60,18 @@ cd openh432-build
 python3 scripts/bsp.py image
 python3 scripts/bsp.py checkout
 python3 scripts/bsp.py parse
-python3 scripts/bsp.py fetch openh432-ram-dev
-python3 scripts/bsp.py build openh432-ram-dev
+python3 scripts/bsp.py fetch
+python3 scripts/bsp.py build
 ```
 
-Artifacts are placed in `work/build/tmp/deploy/images/h432b/`. The
-`openh432-ram-dev` image is a complete development system running from
-initramfs, not an installer.
+Artifacts are placed in `work/build/tmp/deploy/images/h432b/`:
+`openh432-nand-b.img` is the kernel/device-tree/minimal-initramfs bundle;
+`openh432-systembase-b-h432b.rootfs.squashfs-xz` is the separate base userspace.
+Neither artifact is an installer, and the build does not flash a device.
 
-To also build the fastboot RAM loader and its kernel/device-tree/initramfs
-bundle:
+### Optional legacy diagnostics
+
+To explicitly build the fastboot RAM loader and diagnostic bundle:
 
 ```sh
 python3 scripts/bsp.py fetch u-boot-h432b-fastboot openh432-fastboot-ram
@@ -124,19 +128,20 @@ startup/logout sounds with verified checksums and uses pinned integer-only
 decoding for reproducible PCM output. Assets retain their upstream licenses;
 they are not covered by the metadata's MIT license.
 
-The default `openh432-ram-dev` image is quiet. To include and enable the
-sound-service test composition, build `openh432-hardware-test`. Layer inclusion
-and image package selection are separate: importing the assets layer does not
-make every image play sounds. See the
+The normal NAND systembase includes the selected boot and shutdown sounds.
+The optional `openh432-ram-dev` diagnostic image is quiet. Layer inclusion
+and image package selection remain separate: importing the assets layer does
+not make every image play sounds. See the
 [system sounds guide](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/system-sounds.md).
 
 ## Device status and deployment
 
 Repeated normal-reset boots from NAND have reached Linux and systemd
-without a host upload, while retaining the factory bootloader. The pinned
-default development image runs from initramfs. A separate NAND-root
-composition has also reached systemd through a minimal handoff initramfs and
-a SquashFS systembase volume; it is not yet selected by this manifest.
+without a host upload, while retaining the factory bootloader. The default
+targets are the NAND kernel bundle and separate systembase.
+A minimal handoff initramfs mounts the slot-matched SquashFS systembase
+and starts systemd; it does not contain the full userspace. Historical RAM
+diagnostic targets remain available explicitly, not as the default workflow.
 Persistent writable user data, coordinated A/B updates, Linux accessibility
 services and suspend/resume remain unfinished; internal Wi-Fi has no working
 driver.
@@ -144,9 +149,11 @@ driver.
 **Development images provide an unauthenticated physical USB root shell.**
 They are intended for bring-up, not everyday or security-sensitive use.
 
-Build commands never access USB or flash hardware. Default kernel storage
-access is read-only; explicit NAND write profiles are development tools,
-not installers. Bootloader artifacts have distinct load addresses and roles
+Build commands never access USB or flash hardware. The normal NAND runtime
+permits Linux UBI maintenance and internal SD writes. Factory boot and BBT
+regions remain protected, and the immutable SquashFS systembase is mounted
+read-only. Historical qualification profiles remain explicit development
+tools, not installers. Bootloader artifacts have distinct load addresses and roles
 and must not be used interchangeably.
 
 Before any deployment, read the
@@ -167,7 +174,8 @@ with or endorsed by HIMS.
 
 ## Battery telemetry experiment
 
-The `power-control-bringup` branch pins the opt-in read-only battery image.
-See [battery telemetry](docs/battery-telemetry.md) for its standard Linux interface,
-Git-only build commands and RAM qualification limits. This does not enable
-battery polling in the default image or install firmware on a device.
+The current manifest includes the opt-in read-only battery image alongside
+the normal NAND targets. See [battery telemetry](docs/battery-telemetry.md)
+for its standard Linux interface, explicit build commands and RAM qualification
+limits. The diagnostic does not enable battery polling in the normal runtime
+or install firmware on a device.

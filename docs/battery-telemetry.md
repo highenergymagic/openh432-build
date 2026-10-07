@@ -1,7 +1,8 @@
 # Battery telemetry qualification image
 
-The power-control-bringup branch pins the hardware and OS layers containing
-the opt-in battery telemetry image. The default image target remains unchanged.
+The current main-branch manifest pins the hardware and OS layers containing
+the opt-in battery telemetry image. Select it explicitly with the commands
+below; the default targets are the separate NAND runtime kernel and base.
 
 Build using the pinned container and Git inputs:
 

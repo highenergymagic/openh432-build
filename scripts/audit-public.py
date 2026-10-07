@@ -15,8 +15,8 @@ SECRET = re.compile(rb"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|"
                     rb"gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|"
                     rb"AKIA[A-Z0-9]{16}")
 ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf",
-                    ".config", ".patch", ".dts", ".json", ".yml", ".yaml",
-                    ".service", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
+                    ".config", ".patch", ".dts", ".dtsi", ".json", ".yml", ".yaml",
+                    ".service", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
 ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", ".gitignore",
                  ".gitattributes", "init", "series", "GPL-2.0-only", "GPL-2.0-or-later"}
 
