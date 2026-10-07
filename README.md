@@ -149,8 +149,11 @@ A minimal handoff initramfs mounts the slot-matched SquashFS systembase
 and starts systemd; it does not contain the full userspace. Historical RAM
 diagnostic targets remain available explicitly, not as the default workflow.
 Persistent writable user data, coordinated A/B updates, Linux accessibility
-services and suspend/resume remain unfinished; internal Wi-Fi has no working
-driver.
+services and suspend/resume remain unfinished. The optional Wi-Fi test kernel
+has demonstrated firmware startup, native SDIO notifications and passive scanning;
+a Linux wireless network interface, association and data traffic remain unfinished.
+See the [Wi-Fi qualification guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi.md)
+for firmware requirements and test limitations.
 
 **Development images provide an unauthenticated physical USB root shell.**
 They are intended for bring-up, not everyday or security-sensitive use.
