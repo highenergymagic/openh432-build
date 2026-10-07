@@ -4,6 +4,39 @@ Recorded on 2026-10-07 on one H432B. Artifact hashes identify tested images,
 not downloads or guarantees for later builds. See the [support matrix](status.md)
 for deployment scope.
 
+## Internal braille
+
+The Linux GPIO transport exposed an exclusive 32-cell character device.
+Operator checks confirmed the exact contracted startup greeting, a left-column
+dot-7 extension and a full eight-dot cell beside a six-dot “y”. A competing
+open was rejected as busy, and a short frame was rejected without replacing
+the displayed pattern.
+
+The standard systembase packages pinned BRLTTY 6.9.1 and the H432B backend.
+The operator confirmed virtual-console text, typing at the login prompt
+and scroll-key navigation with the installed NAND system. Automatic service
+startup was verified on a subsequent normal NAND boot without a host start
+command, with zero service restarts. Routing-key behavior and broader
+chord coverage remain unqualified.
+The GPIO direction callback includes interrupt-mux handling; Ethernet DHCP
+and SSH were checked after correcting that integration.
+
+The kernel bundle and systembase were installed in slot B and passed full
+readback verification; both slot-A hashes were unchanged.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `1a85f84328b574771a89cbda62b9e8f800c4ff017bd13378c3b5aab190dacb21` |
+| Systembase used for operator console checks | `55cbe94995dd5a58c8265f43ce13bcfc816d20760fd03f6fe48e760e730cb972` |
+| Installed systembase with automatic startup | `d638acfada21a46e4e6db8b99721a9b6fe2938f6733cdb153e916589b7adc070` |
+
+The manifest-pinned build completed with matching installed artifact hashes;
+this was a cached build, not an independent clean-cache reproduction.
+
+These tests do not qualify display power management or cross-host
+reproducibility for this image. See the
+[braille interface](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/braille.md).
+
 ## Integrated runtime build
 
 The default NAND composition includes the shared keyboard/selector, battery,

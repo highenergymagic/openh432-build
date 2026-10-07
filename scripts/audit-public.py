@@ -16,8 +16,8 @@ SECRET = re.compile(rb"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|"
                     rb"AKIA[A-Z0-9]{16}")
 ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf",
                     ".config", ".patch", ".dts", ".dtsi", ".json", ".yml", ".yaml",
-                    ".service", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
-ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", ".gitignore",
+                    ".ktb", ".service", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
+ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", ".gitignore",
                  ".gitattributes", "init", "series", "openh432-wifi-start", "GPL-2.0-only", "GPL-2.0-or-later"}
 
 
