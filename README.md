@@ -69,6 +69,26 @@ Artifacts are placed in `work/build/tmp/deploy/images/h432b/`:
 `openh432-systembase-b-h432b.rootfs.squashfs-xz` is the separate base userspace.
 Neither artifact is an installer, and the build does not flash a device.
 
+### Internal Wi-Fi firmware
+
+The runtime includes the Wi-Fi station driver, `iw`, `wpa_supplicant`, a signed regulatory
+database and automatic initialization. Association and data traffic are not
+implemented yet. Factory radio firmware is not redistributed by these
+repositories. Supply a legally obtained, compatible file explicitly:
+
+```sh
+python3 scripts/bsp.py fetch --wifi-firmware /path/to/rtl8712s.bin --wifi-country NZ
+python3 scripts/bsp.py build --wifi-firmware /path/to/rtl8712s.bin --wifi-country NZ
+```
+
+Replace `NZ` with the device's actual operating country; the default is the
+world domain `00`. The launcher verifies the qualified firmware digest, copies
+it into the ignored private build directory and records its hash. Use the same
+options for fetch and build. The resulting systembase contains that private
+firmware and must not be published without redistribution rights. Default
+builds omit the binary and skip Wi-Fi initialization until it is installed.
+No Wi-Fi password is accepted or embedded by the build.
+
 ### Standalone recovery and optional diagnostics
 
 To build the fastboot RAM loader and standalone recovery bundle:
@@ -149,9 +169,10 @@ A minimal handoff initramfs mounts the slot-matched SquashFS systembase
 and starts systemd; it does not contain the full userspace. Historical RAM
 diagnostic targets remain available explicitly, not as the default workflow.
 Persistent writable user data, coordinated A/B updates, Linux accessibility
-services and suspend/resume remain unfinished. The optional Wi-Fi test kernel
-has demonstrated firmware startup, native SDIO notifications and passive scanning;
-a Linux wireless network interface, association and data traffic remain unfinished.
+services and suspend/resume remain unfinished. The NAND Wi-Fi station driver
+has demonstrated WPA2-PSK/CCMP association, DHCP, reconnect and checksum-verified
+bidirectional transfers with Ethernet disabled.
+Its supported security modes, data rates and recovery behavior remain limited.
 See the [Wi-Fi qualification guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi.md)
 for firmware requirements and test limitations.
 

@@ -21,14 +21,15 @@ class PublicAuditTests(unittest.TestCase):
         return repo
 
     def test_source_metadata_extensions(self):
-        for name in ("board.dtsi", "refresh.timer", "70-device.rules"):
+        for name in ("board.dtsi", "refresh.timer", "70-device.rules", "openh432-wifi-start"):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as folder:
                 repo = self.repository(folder, name, b"# source metadata\n")
                 self.assertEqual(audit.audit(repo)[0], 1)
 
     def test_rejects_firmware_and_binary_content(self):
         for name, data in (("firmware.bin", b"firmware"),
-                           ("board.dtsi", b"binary\x00data")):
+                           ("board.dtsi", b"binary\x00data"),
+                           ("openh432-wifi-start", b"binary\x00data")):
             with self.subTest(name=name), tempfile.TemporaryDirectory() as folder:
                 repo = self.repository(folder, name, data)
                 with self.assertRaises(ValueError):

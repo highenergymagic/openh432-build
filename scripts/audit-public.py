@@ -18,7 +18,7 @@ ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf
                     ".config", ".patch", ".dts", ".dtsi", ".json", ".yml", ".yaml",
                     ".service", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
 ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", ".gitignore",
-                 ".gitattributes", "init", "series", "GPL-2.0-only", "GPL-2.0-or-later"}
+                 ".gitattributes", "init", "series", "openh432-wifi-start", "GPL-2.0-only", "GPL-2.0-or-later"}
 
 
 def audit(repo):

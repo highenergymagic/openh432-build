@@ -72,12 +72,12 @@ sub-30-second total boot has not been demonstrated.
 
 ## Remaining limitations
 
-The optional Wi-Fi profile has qualified cold firmware startup, native SDIO
-notifications, 256 normal command/reply cycles across sequence wraparound, and
-three consecutive passive surveys without resetting the radio. There is no
-Linux wireless network interface, association, encryption-key handling or packet
-TX/RX support yet. Redundant scan notifications and firmware redistribution
-remain unresolved. The default runtime does not enable the diagnostic driver.
+The NAND runtime includes a cfg80211 Wi-Fi station driver and automatic
+initialization with operator-supplied firmware. WPA2-PSK/CCMP association,
+DHCP, reconnect and checksum-verified Wi-Fi-only transfers in both directions
+have passed. The supported security profile,
+data rates, fault recovery and power management remain limited; firmware
+redistribution rights are not established.
 See the [Wi-Fi guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi.md)
 and its linked qualification record.
 Linux braille, accessible userspace, full power management and coordinated

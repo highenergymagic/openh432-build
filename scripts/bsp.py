@@ -125,6 +125,30 @@ def container_args(image_id, work, online, local_layers=False, build_platform="l
     return args + [image_id]
 
 
+def configure_wifi(cfg, work, firmware=None, country="00"):
+    """Private, explicit firmware input; never fetch or publish the factory blob."""
+    if not re.fullmatch(r"00|[A-Z]{2}", country):
+        raise ValueError("Wi-Fi country must be 00 or an uppercase ISO country code")
+    cfg["local_conf_header"]["wifi-country"] = 'H432B_WIFI_COUNTRY = "' + country + '"\n'
+    if firmware is None:
+        return None
+    source = Path(firmware).resolve(strict=True)
+    payload = source.read_bytes()
+    digest = hashlib.sha256(payload).hexdigest()
+    if digest != "a586c6d2253d2890f8a853c3d98dfc0f880be1b0c9a420057a2436fc6523a4d7":
+        raise ValueError("Firmware does not match the qualified RTL8712 SDIO image")
+    folder = work / "private-wifi-firmware"
+    folder.mkdir(mode=0o700, exist_ok=True)
+    destination = folder / "rtl8712s.bin"
+    destination.write_bytes(payload)
+    destination.chmod(0o600)
+    cfg["local_conf_header"]["private-wifi-firmware"] = (
+        'H432B_WIFI_FIRMWARE_DIR = "/work/private-wifi-firmware"\n'
+        'IMAGE_INSTALL:append:pn-openh432-systembase-b = " h432b-wifi-firmware"\n'
+    )
+    return digest
+
+
 def bind_work_platform(work, build_platform):
     """Do not mix native sysroots or build state from different architectures."""
     if "system.posix_acl_default" in os.listxattr(work):
@@ -151,6 +175,8 @@ def main():
                         help="Use sibling layers read-only; development, not a release build")
     parser.add_argument("--nand-profile", choices=("readonly", "scratch", "ubi"),
                         default="readonly", help="Built kernel write window; build never deploys")
+    parser.add_argument("--wifi-firmware", help="Private operator-supplied RTL8712 SDIO firmware; never redistributed")
+    parser.add_argument("--wifi-country", default="00", help="Actual operating country (uppercase ISO code), default world")
     args = parser.parse_args()
     for target in args.targets:
         if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9+_.-]*", target):
@@ -168,6 +194,7 @@ def main():
     (work / "home").mkdir(exist_ok=True)
     (work / "logs").mkdir(exist_ok=True)
     cfg = configuration(args.local_layers, args.nand_profile, build_platform)
+    firmware_sha256 = configure_wifi(cfg, work, args.wifi_firmware, args.wifi_country)
     if args.targets:
         cfg["target"] = args.targets
     online = args.action in ("checkout", "fetch")
@@ -194,6 +221,7 @@ def main():
     record = {"action": args.action, "targets": targets, "container_image": image_id,
               "configuration": cfg, "local_layers": args.local_layers,
               "hardware_tested": False, "build_platform": build_platform,
+              "private_wifi_firmware_sha256": firmware_sha256,
               "builder_inputs": lock(build_platform)}
     (work / "logs" / (stamp + ".json")).write_text(json.dumps(record, indent=2) + "\n")
     run(command)
