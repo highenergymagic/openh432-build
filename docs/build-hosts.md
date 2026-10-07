@@ -25,8 +25,8 @@ cd openh432-build
 git checkout --detach <build-commit>
 python3 scripts/bsp.py image
 python3 scripts/bsp.py checkout --work /absolute/fresh-work
-python3 scripts/bsp.py fetch openh432-fastboot-ram u-boot-h432b-chain --work /absolute/fresh-work
-python3 scripts/bsp.py build openh432-fastboot-ram u-boot-h432b-chain --work /absolute/fresh-work
+python3 scripts/bsp.py fetch openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --work /absolute/fresh-work
+python3 scripts/bsp.py build openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain --work /absolute/fresh-work
 ```
 
 The builder always runs as UID/GID 1000:1000. Create the selected work directory
@@ -80,8 +80,8 @@ permit different archive contents. No private cache is required.
 After building all three targets below on each platform:
 
 ```sh
-python3 scripts/bsp.py fetch u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
-python3 scripts/bsp.py build u-boot-h432b-chain openh432-fastboot-ram openh432-hardware-test
+python3 scripts/bsp.py fetch openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain
+python3 scripts/bsp.py build openh432-nand-b openh432-systembase-b u-boot-h432b-maintenance-chain
 python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b > target-hashes.json
 ```
 
@@ -92,8 +92,11 @@ then run:
 python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compare reference-hashes.json
 ```
 
-The command requires all ten target payloads and exits nonzero on any mismatch.
-The manifests contain file names, sizes and hashes, not firmware contents.
+The command requires the current NAND carrier, kernel bundle and systembase
+(schema 2), and exits nonzero on any mismatch. The manifests contain file
+names, sizes and hashes, not firmware contents. The historical ten-payload
+comparison uses schema 1 and the older script at its documented build revision;
+it is not a reference manifest for the current deployment set.
 
 ## Continuous integration
 

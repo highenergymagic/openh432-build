@@ -69,19 +69,25 @@ Artifacts are placed in `work/build/tmp/deploy/images/h432b/`:
 `openh432-systembase-b-h432b.rootfs.squashfs-xz` is the separate base userspace.
 Neither artifact is an installer, and the build does not flash a device.
 
-### Optional legacy diagnostics
+### Standalone recovery and optional diagnostics
 
-To explicitly build the fastboot RAM loader and diagnostic bundle:
+To build the fastboot RAM loader and standalone recovery bundle:
 
 ```sh
 python3 scripts/bsp.py fetch u-boot-h432b-fastboot openh432-fastboot-ram
 python3 scripts/bsp.py build u-boot-h432b-fastboot openh432-fastboot-ram
 ```
 
-The bundle is named `openh432-ram-boot.img`. Read the
+The bundle is named `openh432-ram-boot.img`. It uses the normal runtime kernel
+with a complete RAM root filesystem, so it does not require a provisioned NAND
+systembase. There is no separate legacy kernel. Read the
 [fastboot guide](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/fastboot.md)
 for supported use and prerequisites. Building these targets does not install
 a bootloader or send anything to a device.
+
+The [target catalogue](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/targets.md)
+separates normal deployment, initial conversion and optional hardware diagnostics.
+Obsolete intermediate recipes have been retired; their history remains in Git.
 
 ### Build directories and local changes
 

@@ -6,17 +6,12 @@ import hashlib
 import json
 from pathlib import Path
 
+# Current NAND deployment set. Historical comparisons use their pinned
+# orchestration revision and schema-1 manifest (docs/cross-host-validation.md).
 ARTIFACTS = (
-    "nand56-ce-carrier/u-boot-ce.b000ff",
-    "nand56-chain-raw/u-boot.bin",
-    "ram55-nand-autoboot/u-boot.bin",
-    "zImage",
-    "s5pv210-hims-u2.dtb",
-    "openh432-ram-dev-h432b.rootfs.cpio.xz",
-    "openh432-ram-dev-h432b.rootfs.squashfs-xz",
-    "openh432-hardware-test-h432b.rootfs.cpio.xz",
-    "openh432-hardware-test-h432b.rootfs.squashfs-xz",
-    "openh432-ram-boot.img",
+    "nand-maintenance-ce-carrier/u-boot-ce.b000ff",
+    "openh432-nand-b.img",
+    "openh432-systembase-b-h432b.rootfs.squashfs-xz",
 )
 
 def manifest(deploy):
@@ -31,11 +26,11 @@ def manifest(deploy):
             for block in iter(lambda: stream.read(1024 * 1024), b""):
                 sha.update(block)
         result[name] = {"bytes": path.stat().st_size, "sha256": sha.hexdigest()}
-    return {"schema": 1, "artifacts": result}
+    return {"schema": 2, "artifacts": result}
 
 def differences(reference, actual):
-    if reference.get("schema") != 1 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
-        raise ValueError("Reference must contain the complete schema-1 artifact set")
+    if reference.get("schema") != 2 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
+        raise ValueError("Reference must contain the complete schema-2 NAND artifact set")
     return [name for name in ARTIFACTS
             if reference["artifacts"][name] != actual["artifacts"][name]]
 

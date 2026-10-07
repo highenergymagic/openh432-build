@@ -11,6 +11,11 @@ The comparison covers the CE carrier, raw NAND bootstrap, RAM second-stage
 loader, kernel, device tree, development and hardware-test initramfs/SquashFS
 images, and RAM boot envelope. It uses the default read-only NAND profile.
 
+The legacy target names below are valid at the recorded revision. Some were
+subsequently retired or consolidated; checking out that revision also restores
+its matching artifact-manifest script. This result is retained as historical
+evidence, not a claim that every current image has been compared across hosts.
+
 ## Pinned inputs
 
 - Build orchestration: `a4221bfc1af4f1e8b8fb64a034448f3e00cef056`

@@ -18,8 +18,8 @@ class Manifest(unittest.TestCase):
                 target.write_bytes(b"test payload")
             reference = artifacts.manifest(root)
             self.assertEqual([], artifacts.differences(reference, artifacts.manifest(root)))
-            (root / "zImage").write_bytes(b"new payload")
-            self.assertEqual(["zImage"], artifacts.differences(reference, artifacts.manifest(root)))
+            (root / artifacts.ARTIFACTS[0]).write_bytes(b"new payload")
+            self.assertEqual([artifacts.ARTIFACTS[0]], artifacts.differences(reference, artifacts.manifest(root)))
             with self.assertRaises(ValueError):
                 artifacts.differences({"schema": 1, "artifacts": {}}, reference)
 
