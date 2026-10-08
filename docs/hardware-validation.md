@@ -1,7 +1,9 @@
 # Hardware validation records
 
-Recorded on 2026-10-07 on one H432B. Artifact hashes identify tested images,
-not downloads or guarantees for later builds. See the [support matrix](status.md)
+Qualification records for one H432B. Each section applies only to its identified
+artifacts, not every later image. Superseded limitations are retained where they
+describe a recorded test; the support matrix describes current integration.
+Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
 ## Managed A/B boot and interactive console
@@ -203,3 +205,153 @@ The profile remains limited to WPA2-Personal/CCMP, passive scanning and fixed
 not qualified. Network credentials are operator-provisioned, never published,
 and currently disappear with the volatile writable overlay on reboot.
 See the [detailed Wi-Fi validation record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi-qualification.md).
+
+## Power-button deep suspend qualification
+
+A standard NAND runtime built with local layer overrides was installed with
+readback verification and booted through the retained loader using software
+reboot. The separate systembase includes the logind power-key suspend policy.
+
+Qualified artifact SHA-256 values:
+
+- Kernel bundle: `e0d18750c9a8fa70a3812d0b1125aef158e71322dc5f57594f09bb40b8d83b75`.
+- Systembase: `dc849f6c82868e010ad5c2de87f1f411e9bc8960c83fd570613c8b1c0e4ebcb8`.
+
+One full power-button sleep/wake cycle preserved the boot ID and interactive
+session, with one successful suspend and no suspend failure or kernel taint.
+Ethernet recovered DHCP and verified-key SSH; a 6,508,544-byte transfer to the
+device and back matched SHA-256. Wi-Fi passive scanning returned access
+points after wake with no transport fault. gpsd subsequently delivered 15
+checksum-valid NMEA sentences with no fix indication. Opening the FM receiver
+after resume passed five muted tune/readback checks, but all signal readings
+were zero; reception, audio and an FM handle held across sleep were not tested.
+USB gadget and an attached USB
+serial adapter re-enumerated; an uninterrupted serial stream was not tested.
+
+Earlier runtime tests confirmed tactile braille-cell power removal and
+restoration. Non-power keys and both selectors did not wake the device.
+These checks do not qualify every switch position or long-duration cycling.
+
+This image did not qualify station reassociation, Bluetooth or audio resume,
+GPS assistance retention or FM reception across sleep. It exposed no RTC and
+did not restore elapsed sleep time. The following records identify subsequent
+RTC and peripheral tests. This local-layer build did not establish public-input
+or cross-host reproduction.
+
+### RTC elapsed-time accounting
+
+A subsequent standard NAND kernel enabled the Samsung RTC with its separate
+32.768 kHz source-clock description and disabled RTC alarm wake capability.
+
+- Kernel bundle SHA-256: `fa4c9b60294406ff068e78d5d4679893d1e4ee3cda6325a468672751d24ee86d`.
+- Systembase SHA-256: `dc849f6c82868e010ad5c2de87f1f411e9bc8960c83fd570613c8b1c0e4ebcb8`.
+
+The RTC registered and ticked, with no wake-alarm sysfs interface. Its initial
+invalid time prevented boot-time clock restoration; a trusted system clock
+was subsequently written to the RTC in UTC before testing.
+
+With systemd-timesyncd stopped, a measurement interval spanning actual
+power-button deep sleep advanced 94 seconds on the host, 94 seconds on the
+RTC and 93 seconds on the target wall clock. Target boot-time accounting
+advanced 93.01 seconds. The approximately one-second difference is within
+the sequential sampling interval; this is not an oscillator-accuracy test.
+
+The boot ID was unchanged, suspend reported one success and zero failures,
+and kernel taint remained zero. Ethernet SSH, Wi-Fi passive scanning and
+the local braille console recovered. Network synchronization was restored
+after measurement. Battery-removal retention, long-duration drift and
+repeated cold-start initialization remain unqualified.
+
+### Radio resume qualification
+
+On the RTC-enabled kernel identified above, an additional power-button sleep
+cycle retained the boot ID and reported two cumulative suspend successes,
+zero failures and no kernel taint. A previously associated WPA2-PSK/CCMP
+station automatically rejoined after wake. Two sets of four gateway pings
+bound explicitly to wlan0 completed without packet loss. Sustained TCP
+transfers and repeated station reconnect cycles remain unqualified.
+
+The initialized Bluetooth controller did not retain its volatile configuration:
+BCSP reported controller resets, and the local-version query timed out.
+Restarting the transport restored HCI responses but exposed the controller's
+default identity, not its provisioned factory identity. Bluetooth was stopped
+after the diagnostic. This image did not qualify Bluetooth resume; the
+separate enable-retention qualification below covers its correction.
+
+Audio playback also failed before suspend on this kernel. An active PDMA
+channel waited for an I2S request without advancing the PCM buffer; no DMA
+fault was reported. This image did not qualify audio; the request-clock
+qualification below covers its correction.
+
+### Bluetooth enable retention
+
+The standard NAND kernel with SHA-256
+`b7f72d947959c207fa8f035241c282a64db5a53aacce5b05e093bcc895e2d773`
+holds the Bluetooth enable GPIO high during deep sleep. The systembase remains
+`dc849f6c82868e010ad5c2de87f1f411e9bc8960c83fd570613c8b1c0e4ebcb8`.
+
+After manual factory-parameter initialization, one power-button sleep/wake
+cycle preserved the boot ID and completed with one suspend success, zero
+failures and no kernel taint. Bluetooth answered the HCI local-version command
+without restarting or reattaching its transport. Read-only queries confirmed
+that the factory identity and all five provisioned CSR parameters survived;
+no BCSP controller-reset or command-timeout messages occurred.
+
+Wi-Fi automatically reassociated using WPA2-PSK/CCMP and passed four
+wlan0-bound gateway pings. Ethernet SSH and the local braille console also
+remained available. These results do not qualify Bluetooth connected-peer
+retention, Bluetooth audio, repeated suspend cycling or automatic factory
+initialization. Audio DMA qualification is recorded separately below.
+
+### Audio request-clock lifetime
+
+The standard NAND kernel with SHA-256
+`21f3f4232a7844a8b2e6432479d5f90ed6c8635c03474853eaa9b4f5b5e295ec`
+adds a board audio-stream reference to the PDMA0 clock and corrects handling
+of positive ALSA constraint results. The systembase remains
+`dc849f6c82868e010ad5c2de87f1f411e9bc8960c83fd570613c8b1c0e4ebcb8`.
+
+With both DMA controllers under automatic runtime power management, a muted
+startup WAV completed successfully and its hardware sample pointer advanced.
+PDMA0 and PDMA1 clock enable counts changed from zero to one during playback
+and returned to zero after close. Rejecting an unsupported S32_LE stream also
+released the clock reference. Kernel taint remained zero.
+
+The boot-time startup service returned a successful player exit, but logged
+two underruns during system startup; gap-free boot playback remains unqualified.
+
+A subsequent power-button deep-sleep/wake cycle preserved the boot ID, with
+one suspend success, zero failures and no kernel taint. After resume, the full
+muted WAV completed with an advancing sample pointer, both DMA clock enable
+counts returned to zero, and unsupported-format rejection left the clock
+reference balanced. The startup-cue service then exited successfully, and
+operator listening confirmed correct speed and clean playback. Braille and
+local login services remained active. This qualifies playback started after
+resume, not an audio stream held open across suspend or repeated-cycle endurance.
+
+Native C tests exercise positive constraint returns, each constraint error,
+clock-enable failure and reference balancing.
+
+### Published source composition
+
+The pinned amd64 container built the normal NAND kernel, separate systembase
+and A/B carrier without local-layer overrides. With the same private stock
+firmware input and NZ radio configuration, all three payload hashes matched
+the installed/tested artifacts. The kernel and systembase hashes are listed
+above; the carrier remains
+`2f5c3868da699b83ce0e1977f4de880a6d12174369aeb01a390f7faede9f381d`.
+
+Source revisions:
+
+| Repository | Commit |
+| --- | --- |
+| Hardware layer | `6c2c0055b568fb11af789df770fbb588d4878cb8` |
+| Distribution layer | `add0b848a5e238cc379996411699accfb0531a3c` |
+| Assets layer | `28d0eaf0da0976e4a41b1e69ecb8c222542408de` |
+
+The build/layer suites ran 343 tests successfully with one optional test skipped;
+host tools passed 14 Rust tests, 79 Python tests and nine optimized-Python
+checks. Source-index and documentation audits cover all five repositories.
+This is a same-host cached public-input comparison, not a new clean-cache
+or cross-architecture reproduction. Peripheral tests above retain their
+individual artifact scope; combined radio/audio endurance is not qualified.

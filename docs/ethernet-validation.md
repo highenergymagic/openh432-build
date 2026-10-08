@@ -10,9 +10,11 @@ validated address and derived board identifier. This is not a manufacturer
 serial-number implementation.
 
 See the [Ethernet reference](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/ethernet.md)
-for bus configuration, identity policy and diagnostics. Suspend/resume,
-standalone supply sequencing, broad PHY interoperability and throughput
-remain unqualified.
+for bus configuration, identity policy and diagnostics. Deep-sleep recovery
+has passed DHCP, SSH and checksum-verified bidirectional transfers; see the
+[power-management validation](hardware-validation.md#power-button-deep-suspend-qualification)
+for artifacts and scope. Standalone supply sequencing, broad PHY interoperability,
+throughput and repeated-cycle endurance remain unqualified.
 
 The pre-deployment candidate record remains in Git history; it must not be
 used to infer that networking is absent from the normal runtime.

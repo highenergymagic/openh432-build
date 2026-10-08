@@ -26,20 +26,20 @@ qualification. Hardware tests describe one qualification device.
 | --- | --- | --- |
 | NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
 | Internal SD | Runtime | Bounded 64 MiB filesystem write/readback; no repartitioning or power-loss qualification |
-| Ethernet | Runtime | Networking, DHCP and SSH; suspend unqualified |
-| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP, DHCP, transfers/reconnect; passive scan, fixed 1 Mb/s TX |
-| Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP; service disabled, no audio backend |
+| Ethernet | Runtime | Networking, DHCP and SSH; one deep-sleep recovery cycle with verified bidirectional transfer |
+| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP, DHCP, transfers/reconnect; post-sleep reassociation/ICMP; passive scan, fixed 1 Mb/s TX |
+| Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
-| Speaker audio | Runtime | Playback and system cues; NAND-startup underruns observed |
+| Speaker audio | Runtime | Playback, system cues and playback started after resume; NAND-startup underruns observed |
 | Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
-| Power key | Runtime | KEY_POWER; OS action disabled pending sleep/wake |
+| Power key | Runtime | logind deep suspend; power-only wake and restoration of the interactive session |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
 | USB host | Runtime | Earlier diagnostic three-port hub/adapter enumeration; serial payload unqualified |
 | External SD | Runtime, read-only | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
-| PMIC / suspend | Partial | Read-only inventory and device-callback tests; no full sleep/wake or electrical shutdown |
+| PMIC / suspend | Partial | Deep sleep, braille supply removal/restoration and Ethernet recovery tested; Wi-Fi reassociation, Bluetooth parameter retention and post-resume audio tested separately; RTC sleep-time accounting tested; full peripheral resume and electrical shutdown incomplete |
 | Other peripherals | Unqualified | No support claim for VGA or unlisted hardware |
 
 Runtime inclusion does not extend earlier diagnostic qualification to a new
