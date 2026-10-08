@@ -6,6 +6,156 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Fixed-parameter BCH loader
+
+The standard A/B loader specializes upstream software BCH for M=13, T=8.
+The installed CE carrier is 403,551 bytes, SHA-256
+`9e8ae2f669f3d0f56282cbfe57bb987abd9e2dade898f0f49e10a2c4187cf68a`.
+Factory EBOOT, the slot kernels and systembase images were not replaced.
+
+Recovery-assisted launch and an ordinary NAND software reboot passed automatic
+A/B health acknowledgment, BRLTTY/local-login service checks, network/input
+properties and maintenance-console checks. Kernel taint remained zero; early
+sound completed without reported underruns. This does not retest suspend,
+radio throughput or long-term error recovery.
+
+With the same 9,054,208-byte kernel bundle and instrumentation, the ordinary
+NAND loader interval fell from 34.724 to 30.118 seconds (13.3%). BCH calculation
+fell from 21.618 to 17.093 seconds; FIFO and CRC durations were unchanged.
+Recovery-assisted launch measured 30.134 seconds. These are loader intervals,
+not power-on-to-ready measurements.
+
+The generic instrumented comparison carrier was
+`38d944bcef15a5423d4adb86f7d6fa45c178e4a3b372a0d19591d0a9fff5a7b1`.
+Both used kernel
+`52860b022590ee2eaba786c3a71c225a8390434ee961d249bcea7aaea50842d2`
+and slot-B systembase
+`9830fefd2ddaff030bc2e1d0efa421a0da52ff54eb82f111b63e1c87227da89f`.
+
+The pinned build completed 948 tasks. The hardware-layer suite passed 234 tests
+with one optional test skipped. A build-time native test compiled the fetched
+BCH implementation in generic and fixed forms and compared 8,448 corruption
+cases: parity equality, decoding equivalence, and one-through-eight-bit repair
+across data/parity/mixed errors. NAND parity layout, correction strength and
+image-integrity checks are unchanged. No new cross-host reproducibility result
+is claimed.
+
+### Pinned source composition
+
+The default build from these published layer pins completed 3,480 tasks
+without local-layer overrides. All three output hashes matched the installed
+carrier, kernel and systembase listed above.
+
+| Repository | Commit |
+| --- | --- |
+| Hardware layer | `27d4dbd3b7a4d2b2f6087875ea9e88bcb922fe47` |
+| Distribution layer | `fa154f8502da8046d00d468a00a0e0897016cfbb` |
+| Assets layer | `04f8a88bf9b941fb778f87f575b918e8887a5501` |
+
+This was a same-host cached composition check using the same private stock
+firmware input and NZ radio setting, not a clean-cache or cross-host rebuild.
+The combined layer/build suites ran 361 tests with one optional test skipped.
+Host tools passed 14 Rust tests, 79 Python tests and nine optimized-Python
+checks. Publication audits exclude private firmware, device evidence and keys.
+
+## Early maintenance USB console
+
+The standard coldplug policy queues the built-in USB tty before bulk device
+enumeration. Two consecutive normal NAND software reboots into slot B passed
+automatic boot acknowledgment, BRLTTY/local-login activation, input/network
+properties and internal-MMC link checks. Static group resolution and the full
+all-device pass remain enabled.
+
+Systembase SHA-256:
+`9830fefd2ddaff030bc2e1d0efa421a0da52ff54eb82f111b63e1c87227da89f`.
+The kernel and carrier match the gzip-systembase record below. Slot-B full
+readback passed; the other slot and kernel images were not replaced.
+The pinned build completed 3,387 tasks and 81 OS-layer tests passed.
+
+USB device readiness occurred at 36.4–36.5 seconds after Linux entry and the
+maintenance shell at 40.3–40.4 seconds, compared with approximately 50–52 and
+53–54 seconds previously. BRLTTY input remained around 43 seconds.
+The repeat test deferred SSH setup until after startup to reduce observer
+interference. No overall multi-user speedup or new cross-host reproducibility
+claim is made; physical hotplug and suspend were not retested.
+
+## Gzip systembase
+
+The standard systembase uses gzip SquashFS. Two consecutive normal NAND
+software reboots into slot B passed automatic health acknowledgment,
+BRLTTY/local-login activation, input/network properties and internal-MMC
+persistent-link checks. Early sound completed without reported underruns.
+The XZ slot-A root and both kernels were preserved; slot-B readback matched.
+
+| Tested artifact | SHA-256 |
+| --- | --- |
+| A/B CE carrier | `a74bff3db78c67db54011a6a030b524cc9757f69ee27fd4eb4cbd5bff0369cd8` |
+| NAND kernel bundle | `52860b022590ee2eaba786c3a71c225a8390434ee961d249bcea7aaea50842d2` |
+| Systembase | `06f0c2f7349a6387253296c3e4da5ee7806a3a64a94baf927c0df58280a1314b` |
+
+The systembase is 42,700,800 bytes. The final gzip-only build completed 3,387
+tasks and matched the tested comparison output byte-for-byte. The comparison
+build also reproduced the preceding XZ payload exactly. This is a same-host
+comparison, not a new independent clean-cache or ARM64 reproduction.
+Checks passed 81 OS-layer and 43 build-orchestration tests.
+
+BRLTTY virtual input appeared at 42.9–43.4 seconds after Linux entry, compared
+with 55.6 seconds for XZ; selected-root verification increased from 16.7 to
+19.4 seconds. D-Bus startup duration fell from 14.8 to 3.0–3.2 seconds.
+Multi-user activation was 53.2–53.7 seconds and included the development USB
+console. See the [performance reference](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md)
+for scope. Physical hotplug and suspend/resume were not retested in this run.
+
+## Device coldplug policy
+
+The H432B systembase uses device-only coldplug, four udev workers and a masked
+SmartMedia MTD probe. It retains all device subsystems and normal hotplug
+rules. Two consecutive normal NAND software reboots into slot A passed
+automatic boot-health acknowledgment, BRLTTY/local-login activation, input
+and network property checks, and internal MMC persistent-link checks.
+The early startup-sound helper completed on both boots; this test did not
+repeat physical USB/SD insertion or subjective sound checks.
+
+| Tested artifact | SHA-256 |
+| --- | --- |
+| A/B CE carrier | `a74bff3db78c67db54011a6a030b524cc9757f69ee27fd4eb4cbd5bff0369cd8` |
+| NAND kernel bundle | `52860b022590ee2eaba786c3a71c225a8390434ee961d249bcea7aaea50842d2` |
+| Systembase | `453547c7d1b6b8d095584ba911ee3592df3423fac4568dfe5299f36112488f7f` |
+
+The 33,562,624-byte systembase passed full NAND readback; slot B and both
+kernel images were preserved. The pinned build completed 3,387 tasks and
+81 OS-layer tests passed. Cross-host reproduction was not repeated.
+Coldplug took 14.3–14.9 seconds and multi-user activation occurred at
+56.2 seconds after Linux entry. These samples show a modest improvement
+over the preceding image, not resolution of all startup latency.
+See the [performance reference](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/boot-performance.md)
+for baseline and measurement scope.
+
+## Boot-state volume probe exclusion
+
+The standard systembase excludes UBI volumes named `bootstate_a` and
+`bootstate_b` from generic persistent-storage filesystem probing. Testing
+confirmed that both environment volumes skip the probe while an ordinary
+systembase volume continues to be probed. Device creation and boot-health
+validation remain enabled.
+
+Two consecutive normal NAND software reboots into slot A automatically
+acknowledged their persisted attempts without a manual service retry.
+Both allowances returned to three; no UBI exclusive-access error or kernel
+taint was observed. Startup audio completed and BRLTTY/local login were active.
+The previous slot-B images were preserved by full readback comparison.
+
+| Tested artifact | SHA-256 |
+| --- | --- |
+| A/B CE carrier | `a74bff3db78c67db54011a6a030b524cc9757f69ee27fd4eb4cbd5bff0369cd8` |
+| NAND kernel bundle | `52860b022590ee2eaba786c3a71c225a8390434ee961d249bcea7aaea50842d2` |
+| Systembase | `ad7d5f5a9b468bc3d8d53241d478e67d7749d439a458af64fc6151b1dd45fde9` |
+
+The systembase build completed 3,369 tasks; 77 OS-layer tests passed.
+This qualification does not cover arbitrary third-party readers holding an
+environment volume open, power loss during an update, or cross-host
+reproduction of these artifacts.
+
 ## Managed A/B boot and interactive console
 
 The standard composition includes the A/B selector, shared bootstate checker,

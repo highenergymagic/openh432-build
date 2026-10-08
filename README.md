@@ -56,7 +56,7 @@ The default output directory is `work/build/tmp/deploy/images/h432b/`:
 | Artifact | Purpose |
 | --- | --- |
 | `openh432-nand-b.img` | Slot-independent kernel bundle with loader-selected root handoff |
-| `openh432-systembase-b-h432b.rootfs.squashfs-xz` | Slot-independent system userspace |
+| `openh432-systembase-b-h432b.rootfs.squashfs` | Slot-independent system userspace |
 | `nand-ab-ce-carrier/u-boot-ce.b000ff` | A/B bootloader carrier for provisioned devices |
 
 The historical `-b` image names are retained for compatibility; the same pair

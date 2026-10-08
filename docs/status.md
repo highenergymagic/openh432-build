@@ -15,7 +15,7 @@ qualification. Hardware tests describe one qualification device.
 | CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
 | Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT |
-| NAND root | Persistent A/B selection, minimal initramfs, slot-matched SquashFS systembase via ubiblock |
+| NAND root | Persistent A/B selection, root-handoff initramfs with startup cue, slot-matched gzip SquashFS systembase via ubiblock |
 | Writable state | 64 MiB volatile overlay; no persistent userdata |
 | Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback and automatic healthy-boot acknowledgement; no signed bundle installer or hang watchdog |
 | Build hosts | Native Linux amd64 and ARM64 Docker, OE-built target toolchain |
@@ -31,7 +31,7 @@ qualification. Hardware tests describe one qualification device.
 | Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
-| Speaker audio | Runtime | Playback, system cues and playback started after resume; NAND-startup underruns observed |
+| Speaker audio | Runtime | Playback, initramfs startup cue confirmed clean, systemd shutdown cue and playback started after resume; capture unqualified |
 | Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
 | Power key | Runtime | logind deep suspend; power-only wake and restoration of the interactive session |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |

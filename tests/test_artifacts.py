@@ -13,10 +13,10 @@ class Manifest(unittest.TestCase):
         self.assertEqual(artifacts.ARTIFACTS, (
             "nand-ab-ce-carrier/u-boot-ce.b000ff",
             "openh432-nand-b.img",
-            "openh432-systembase-b-h432b.rootfs.squashfs-xz",
+            "openh432-systembase-b-h432b.rootfs.squashfs",
         ))
         with self.assertRaises(ValueError):
-            artifacts.differences({"schema": 2, "artifacts": {
+            artifacts.differences({"schema": 3, "artifacts": {
                 name: {} for name in artifacts.ARTIFACTS}}, {})
 
     def test_compare_and_changed_bytes(self):
@@ -27,7 +27,7 @@ class Manifest(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(b"test payload")
             reference = artifacts.manifest(root)
-            self.assertEqual(reference["schema"], 3)
+            self.assertEqual(reference["schema"], 4)
             self.assertEqual([], artifacts.differences(reference, artifacts.manifest(root)))
             (root / artifacts.ARTIFACTS[0]).write_bytes(b"new payload")
             self.assertEqual([artifacts.ARTIFACTS[0]], artifacts.differences(reference, artifacts.manifest(root)))

@@ -18,7 +18,7 @@ validating committed pins. Artifacts are in
 `work/build/tmp/deploy/images/h432b/`:
 
 - `openh432-battery-test.img`: RAM-launch kernel and minimal early handoff.
-- `openh432-systembase-b-h432b.rootfs.squashfs-xz`: separate NAND base image.
+- `openh432-systembase-b-h432b.rootfs.squashfs`: separate NAND base image.
 - `openh432-maintenance-ssh.tar`: non-secret volatile-overlay test payload.
 
 The kernel bundle uses an already provisioned slot-B NAND root. It is not a

@@ -27,11 +27,11 @@ persists and verifies its decremented attempt count in redundant UBI boot
 state. Exhausted slots are skipped. Invalid or exhausted state, or a recognized
 one-shot request, enters USB maintenance.
 
-The normal kernel bundle contains Linux, a device tree and a minimal
-root-handoff initramfs. Early userspace attaches the existing UBI pool,
-validates the slot marker and mounts the separate static SquashFS
-`systembase_a` or `systembase_b` volume through ubiblock. It then starts systemd with a
-64 MiB volatile writable overlay. It does not format or provision storage.
+The normal kernel bundle contains Linux, a device tree and a root-handoff
+initramfs with the startup cue, not the full userspace. Early userspace attaches the existing UBI pool,
+validates the slot marker and mounts the separate static gzip SquashFS
+`systembase_a` or `systembase_b` volume through ubiblock. It then starts systemd
+with a 64 MiB volatile writable overlay. It does not format or provision storage.
 
 The standalone `openh432-fastboot-ram` bundle uses the same runtime kernel
 with a complete RAM root. It can run before a NAND systembase is provisioned.
