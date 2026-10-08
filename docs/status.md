@@ -15,9 +15,9 @@ qualification. Hardware tests describe one qualification device.
 | CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
 | Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT |
-| NAND root | Fixed slot B, minimal initramfs, separate SquashFS systembase via ubiblock |
+| NAND root | Persistent A/B selection, minimal initramfs, slot-matched SquashFS systembase via ubiblock |
 | Writable state | 64 MiB volatile overlay; no persistent userdata |
-| Updates | Existing-volume maintenance; no coordinated A/B activation/rollback or generic installer |
+| Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback and automatic healthy-boot acknowledgement; no signed bundle installer or hang watchdog |
 | Build hosts | Native Linux amd64 and ARM64 Docker, OE-built target toolchain |
 
 ## Hardware interfaces
@@ -32,9 +32,9 @@ qualification. Hardware tests describe one qualification device.
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
 | Speaker audio | Runtime | Playback and system cues; NAND-startup underruns observed |
-| Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; broader chords and exhaustive routing coverage unqualified |
+| Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
 | Power key | Runtime | KEY_POWER; OS action disabled pending sleep/wake |
-| Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, no lock/chord policy |
+| Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
 | USB host | Runtime | Earlier diagnostic three-port hub/adapter enumeration; serial payload unqualified |
@@ -59,7 +59,7 @@ and credentials are volatile. No private credentials, proprietary radio
 firmware or per-device identities are published in the generic composition.
 
 Accessible applications, persistent userdata, full power management and
-atomic updates remain incomplete. These images are not for everyday or
+a signed update installer remain incomplete. These images are not for everyday or
 security-sensitive use. See the [installation guide](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)
 for conversion and recovery gaps.
 

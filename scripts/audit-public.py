@@ -20,6 +20,9 @@ ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf
 ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", ".gitignore",
                  ".gitattributes", "init", "series", "openh432-wifi-start", "GPL-2.0-only", "GPL-2.0-or-later"}
 
+# Extensionless runtime helper; approve its reviewed path, not arbitrary names.
+ALLOWED_PATHS = {"recipes-core/openh432-boot-success/files/mark-good"}
+
 
 def audit(repo):
     names = subprocess.check_output(
@@ -38,7 +41,8 @@ def audit(repo):
             continue
         if (any(part in FORBIDDEN_PARTS for part in path.parts)
             or path.suffix.lower() in FORBIDDEN_SUFFIXES
-            or (path.suffix not in ALLOWED_SUFFIXES and path.name not in ALLOWED_NAMES)
+            or (path.suffix not in ALLOWED_SUFFIXES and path.name not in ALLOWED_NAMES
+                and name not in ALLOWED_PATHS)
             or path.name.startswith(".env")):
             problems.append(name + ": not in source-only allowlist")
             continue

@@ -22,14 +22,15 @@ by ordered patches; they are not duplicated as full source forks here.
 ## Boot and storage
 
 The persistent CE-format carrier contains a low-address U-Boot bootstrap
-and a high-RAM maintenance stage. The maintenance stage reads fixed slot B
-from the Linux UBI pool, or enters USB maintenance on a boot failure or
-recognized one-shot request.
+and a high-RAM A/B selector. Before loading an eligible slot, the selector
+persists and verifies its decremented attempt count in redundant UBI boot
+state. Exhausted slots are skipped. Invalid or exhausted state, or a recognized
+one-shot request, enters USB maintenance.
 
 The normal kernel bundle contains Linux, a device tree and a minimal
 root-handoff initramfs. Early userspace attaches the existing UBI pool,
 validates the slot marker and mounts the separate static SquashFS
-`systembase_b` volume through ubiblock. It then starts systemd with a
+`systembase_a` or `systembase_b` volume through ubiblock. It then starts systemd with a
 64 MiB volatile writable overlay. It does not format or provision storage.
 
 The standalone `openh432-fastboot-ram` bundle uses the same runtime kernel
@@ -43,10 +44,14 @@ for exact artifact roles, addresses and capacity limits.
 
 ## Update and security boundaries
 
-Kernel and systembase A/B volumes reserve storage capacity; they do not
-implement coordinated activation or rollback. The loader selects slot B.
-Persistent userdata, SD extensions and an update transaction framework are
-not implemented. No automatic repartitioning runs at boot.
+Each slot contains a kernel and matching systembase. An updater must make an
+inactive slot ineligible before replacing either image, verify both readbacks,
+then activate the pair. The running system acknowledges its exact boot attempt
+after the local console and BRLTTY pass a 30-second health interval.
+
+The persistent selector and acknowledgement are implemented; a signed bundle
+installer, watchdog recovery of a hung kernel, persistent userdata and SD
+extensions are not. No automatic repartitioning runs at boot.
 
 Development images expose a privileged physical USB console. Maintenance
 SSH is key-gated, with volatile host identity. Neither interface constitutes

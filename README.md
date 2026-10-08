@@ -4,8 +4,11 @@ OpenH432 is a Yocto/OpenEmbedded BSP for the HIMS BrailleSense U2 (H432B),
 maintained by Fractal Microsystems. This repository provides the pinned
 source manifest, containerized build environment and image build commands.
 
-**Development release:** not yet a complete accessible replacement for the
-stock firmware. Review the [support matrix](docs/status.md) before deployment.
+The standard NAND image boots to an interactive BRLTTY console with local
+login as `user`, persistent A/B selection and boot-success tracking.
+
+**Development release:** not yet a complete replacement for the stock firmware.
+Review the [support matrix](docs/status.md) before deployment.
 Development images expose an unauthenticated physical USB root console.
 
 ## Platform
@@ -52,12 +55,17 @@ The default output directory is `work/build/tmp/deploy/images/h432b/`:
 
 | Artifact | Purpose |
 | --- | --- |
-| `openh432-nand-b.img` | Slot-B kernel, device tree and root-handoff initramfs |
-| `openh432-systembase-b-h432b.rootfs.squashfs-xz` | Separate slot-B system userspace |
+| `openh432-nand-b.img` | Slot-independent kernel bundle with loader-selected root handoff |
+| `openh432-systembase-b-h432b.rootfs.squashfs-xz` | Slot-independent system userspace |
+| `nand-ab-ce-carrier/u-boot-ce.b000ff` | A/B bootloader carrier for provisioned devices |
+
+The historical `-b` image names are retained for compatibility; the same pair
+can populate either slot. The carrier requires provisioned UBI and bootstate.
 
 Build commands do not access a device or install images. Use the
 [installation guide](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)
-for deployment; these artifacts are not interchangeable with bootloader images.
+for deployment and artifact roles; kernel bundles, raw loaders and CE carriers
+are not interchangeable.
 
 ## Source layout
 

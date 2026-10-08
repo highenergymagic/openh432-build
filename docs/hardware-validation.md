@@ -4,6 +4,47 @@ Recorded on 2026-10-07 on one H432B. Artifact hashes identify tested images,
 not downloads or guarantees for later builds. See the [support matrix](status.md)
 for deployment scope.
 
+## Managed A/B boot and interactive console
+
+The standard composition includes the A/B selector, shared bootstate checker,
+root-handoff slot selection and enabled boot-success service. Both slots
+contain the following kernel/systembase pair; full readback hashes matched.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| A/B CE carrier | 401,895 | `2f5c3868da699b83ce0e1977f4de880a6d12174369aeb01a390f7faede9f381d` |
+| NAND kernel bundle | 6,432,768 | `466567a7268d8a48392e52501b92999eef09a0f7f51bcc7bf9cb39ed18578303` |
+| Systembase | 33,562,624 | `df9d8e763e2e7461eb7b6fd7353bef3dd6f9320cfa85099ef95d88803f6be45a` |
+
+Slot A booted after recovery installation. With A deliberately exhausted, a
+plain Reset without a host upload selected B and mounted its matching base.
+On both boots, the loader persisted the attempt before launch and
+`FMMarkBootSuccessful.service` automatically restored the booted slot's
+allowance after its health interval. BRLTTY and tty1 were active without
+restarts. Both slots were subsequently left eligible.
+
+Linux/U-Boot redundant-state interoperability, serial advancement, commit
+readback and stale/repeated acknowledgement rejection were checked. Offline
+C vectors cover CRC/schema errors, serial wrap, exhausted slots and modeled
+torn writes. They do not establish physical power-cut behavior.
+
+An early bootstate diagnostic used a software timing source that expired
+NAND programming deadlines prematurely. The corrected hardware-timer loader
+repaired the UBI attachment state; kernel/base hashes remained unchanged.
+One additional 128 KiB pool block was retired and its bad marker retained.
+Subsequent scans reported no corrupted PEBs. The timer dependency is covered
+by a regression test.
+
+The pinned amd64 container built 3,444 tasks with local-layer inputs.
+A subsequent build using the published layer commits, without local overrides,
+completed all 3,444 tasks from cache and matched all three hashes above.
+Checkpoint checks ran 327 build/layer tests (one optional check skipped),
+14 Rust tests, 73 host-tool Python tests and nine optimized-Python checks.
+Source and documentation audits cover all five repositories.
+This is compilation and device qualification, not a new independent clean-cache
+or cross-host reproduction. A signed update installer, watchdog recovery of
+a hung kernel and physical power-cut qualification remain outstanding.
+
 ## Local console login
 
 The standard NAND systembase includes an instance-specific tty1 autologin
@@ -19,9 +60,9 @@ Slot-B full readback passed and slot A was preserved. The kernel and factory
 loader were not replaced. The manifest-pinned cached build matched this
 payload; this does not establish a new clean-cache or cross-host reproduction.
 The operator confirmed `whoami` returned `user` on the braille console,
-and reported working Backspace, Enter and cursor routing. These observations
-qualify basic console interaction, not every routing key or application-specific
-chord. The home directory remains volatile.
+and reported working Backspace, Enter and cursor routing. Later operator
+checks confirmed the BRLTTY chords tried, including l-chord learn mode.
+These observations do not establish exhaustive routing or chord coverage. The home directory remains volatile.
 
 ## Internal braille
 
@@ -36,8 +77,7 @@ The operator confirmed virtual-console text, typing at the login prompt
 and scroll-key navigation with the installed NAND system. Automatic service
 startup was verified on a subsequent normal NAND boot without a host start
 command, with zero service restarts. The local-console qualification above with the
-same kernel includes cursor routing; exhaustive routing and broader chord
-coverage remain unqualified.
+same kernel includes cursor routing; exhaustive routing and chord coverage remain unqualified.
 The GPIO direction callback includes interrupt-mux handling; Ethernet DHCP
 and SSH were checked after correcting that integration.
 

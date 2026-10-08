@@ -21,8 +21,10 @@ Fetch/build require a [stock firmware input](firmware.md) or an explicit
 
 ## Targets
 
-Without recipe arguments, the launcher builds `openh432-nand-b` and
-`openh432-systembase-b`: the kernel bundle and separate system userspace.
+Without recipe arguments, the launcher builds `openh432-nand-b`,
+`openh432-systembase-b` and `u-boot-h432b-ab-chain`: a slot-independent kernel
+bundle, separate system userspace and the persistent A/B bootloader carrier.
+The historical `-b` image names do not restrict deployment to slot B.
 
 Specify recipe names after the action to select other targets. For example,
 to build a fastboot RAM loader and standalone recovery environment:

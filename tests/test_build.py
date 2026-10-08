@@ -38,7 +38,10 @@ class BuildContract(unittest.TestCase):
 
     def test_ci_covers_maintenance_and_nand_root(self):
         text = (ROOT / ".github/workflows/metadata.yml").read_text()
-        for target in ("u-boot-h432b-maintenance-chain", "openh432-battery-test",
+        for target in ("u-boot-h432b-ab-chain", "u-boot-h432b-ab",
+                       "u-boot-h432b-bootstate", "u-boot-h432b-bootstate-chain",
+                       "h432b-bootstate-check",
+                       "u-boot-h432b-maintenance-chain", "openh432-battery-test",
                        "openh432-nand-b", "openh432-systembase-b"):
             self.assertIn(target, text)
 
