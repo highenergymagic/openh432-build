@@ -6,6 +6,22 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Published-source image checkpoint
+
+The pinned default build at hardware-layer commit
+`3ce6f5b706e39549b581181063f295491aca49fe` and OS-layer commit
+`ebcde078ea3e2037118a90a47798194d3ec4cb4e` completed all 3,480 tasks
+using the existing build cache. No local-layer overrides were used.
+The kernel and systembase SHA-256 values match the audio qualification
+artifacts below. The CE carrier SHA-256 is
+`9e8ae2f669f3d0f56282cbfe57bb987abd9e2dade898f0f49e10a2c4187cf68a`.
+
+This confirms the published source pins select the tested image composition;
+it is not an independent clean-build or cross-host reproducibility result.
+Pinned-container source tests ran 377 cases with one skip. Documentation and
+source-only publication audits passed. No device was connected, flashed or
+retested during this checkpoint.
+
 ## Audio capture and jack handling
 
 The standard NAND audio driver exposes duplex 44.1 kHz, stereo, S16_LE PCM.
