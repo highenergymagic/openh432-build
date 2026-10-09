@@ -6,6 +6,44 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Audited speech and reboot composition
+
+Build orchestration `18844be38d606276468cb4867b4267ebe555327c` pins:
+
+| Layer | Commit |
+| --- | --- |
+| Hardware | `5178637af2223a6e1e2695d5507902a050d244ca` |
+| Distribution | `fe005590e006f77999b762ad44005f2b0a3edfd8` |
+| Assets | `93f7dd5c7a34090d17da4483bad400080b12421e` |
+
+Both builds used the pinned amd64 container, published layer commits without
+local overrides, the qualified stock-firmware input and NZ radio setting.
+The default RHVoice profile completed 3,674 tasks; the explicitly selected
+private OpenEVV profile completed 3,552 tasks. Existing caches were reused.
+This is committed-composition build validation, not a new clean-cache or
+cross-host reproducibility result.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| A/B carrier, both profiles | 403,551 | `9e8ae2f669f3d0f56282cbfe57bb987abd9e2dade898f0f49e10a2c4187cf68a` |
+| NAND kernel bundle, both profiles | 9,072,640 | `a81718879e5fac77be78d997e7c52d7b9d44862fdcfa137bd83b873272e68385` |
+| RHVoice systembase | 53,460,992 | `53900df019e655065efdfc88825ce18adc715a6775db2dbbfb0c76809fb137ba` |
+| OpenEVV systembase | 52,604,928 | `b1007798d1692197b41e7c264fdb7576e7824da5058b378a4aea94adace5ab38` |
+
+The cleanup removes the obsolete USB register-snapshot patch while retaining
+the board-scoped hub runtime-PM policy. These rebuilt artifacts were not
+flashed in this publication check. Hardware results below apply to the
+identified pre-cleanup image, not automatically to these hashes.
+Restricted inputs and compiled firmware/speech artifacts are not published.
+
+The combined build/layer suite ran 398 tests with one optional skip. Host
+tools passed 14 Rust tests, 79 Python tests and nine optimized-Python checks.
+Source-index and documentation audits passed for all five repositories.
+Native x86-64 and ARM64 CI passed source tests, audits, offline metadata
+parsing and target dependency resolution. CI does not compile complete images
+or exercise hardware.
+
+
 ## Onboard USB hub runtime power management
 
 A local-layer standard NAND build completed 3,552 tasks. Its kernel bundle
