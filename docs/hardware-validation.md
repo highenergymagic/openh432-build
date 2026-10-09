@@ -6,6 +6,149 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Audio capture and jack handling
+
+The standard NAND audio driver exposes duplex 44.1 kHz, stereo, S16_LE PCM.
+The installed kernel bundle is 9,072,640 bytes, SHA-256
+`fb3989394e61c03f3dd24228681e12159314ca223b3cec3588b2cd2647db26d4`.
+Systembase is 42,700,800 bytes, SHA-256
+`01ae12b6528b2a18d4cde2c44097ac64b4c8d7327027d5a6d8426078eb9cd4a1`.
+Both slot-B images passed NAND readback; slot A and the factory loader were
+preserved. The final kernel passed a software-reboot NAND boot and automatic
+boot-health confirmation.
+
+On the installed image, both empty sockets reported unplugged without a
+register adjustment. A three-second recording returned 132,300 stereo frames
+in approximately 3.12 seconds, with non-zero input and no clipped samples.
+After close, microphone bias was off, both PCM devices were closed and both
+PDMA enable counts were zero. Braille, local login and Wi-Fi initialization
+remained active; there were no failed units or kernel taint.
+
+Acoustic and simulated jack-transition tests used the preceding kernel
+`5c772f2b681f87897872d3128640ba5f84db8a73e5b1add09821c9fd79ba1d06`,
+with the same audio driver and the no-pull setting applied explicitly.
+Concurrent playback/capture recovered 600, 1,000 and 1,500 Hz tones in their
+expected time windows. Repeating with analogue outputs muted removed those
+peaks. A weak pull-down on the empty headphone detector exercised its IRQ and
+speaker-amplifier gating; restoring no-pull re-enabled the amplifier.
+The final device tree incorporates that no-pull configuration.
+
+The pinned default build completed all 3,480 tasks. Hardware-layer tests passed
+250 cases with one unrelated skip, including zero-fuzz audio patch application
+and compiled tests of the actual speaker-gating callbacks.
+
+Limitations: capture has an initial settling transient of roughly one second.
+These tests do not qualify physical jack insertion, headphone listening,
+external microphone audio routing, calibrated gain, stereo microphone
+separation, or an open stream across suspend. Jack IRQs are configured as
+non-waking; a new physical suspend/jack test was not performed.
+
+## Wi-Fi runtime initialization
+
+The standard NAND kernel excludes the manual transport, power, firmware,
+event and command experiment interfaces. Systembase requests one driver-owned
+initialization operation after firmware becomes available. The diagnostic
+kernel explicitly enables the separate controls.
+
+Tested artifacts:
+
+- Kernel bundle: 9,070,592 bytes, SHA-256
+  `669c8a42b3bcc4f231309603524ac0faa7ebafedef756dcd3799efa35cc78ea2`.
+- Systembase: 42,700,800 bytes, SHA-256
+  `01ae12b6528b2a18d4cde2c44097ac64b4c8d7327027d5a6d8426078eb9cd4a1`.
+
+Both images were installed into inactive slot A and verified by full NAND
+readback; slot B and the factory loader were preserved. The first software
+reboot from the preceding LED image reached the bootloader but did not return
+a Linux endpoint. The operator reported an unpowered braille display.
+Plain Reset then booted slot A successfully. The cause of the warm-reboot
+failure is unresolved; this record does not claim reboot reliability.
+
+The NAND runtime passed:
+
+- Absence of all former writable experiment attributes.
+- Service restart without replacing the network interface.
+- NZ regulatory configuration and passive scanning (20 reported BSSs).
+- WPA2-PSK/CCMP association, DHCP and three interface-bound gateway pings
+  with no packet loss.
+- Absence of the old Wi-Fi bring-up log messages.
+- Braille/local-login services, boot-health acknowledgement and zero kernel
+  taint; the six AMI603 channels remained readable.
+
+No throughput, suspend/resume or long-duration radio retest was performed.
+Network credentials remained private and were provisioned only into the
+volatile device overlay.
+
+The normal build passed 3,480 tasks with diagnostics disabled; the explicit
+diagnostic kernel passed 913 tasks with diagnostics enabled. Hardware-layer
+tests passed 246 tests with one skip; the OS-layer suite passed 81 tests.
+The new initialization code passed checkpatch. These are build and device
+checks, not an independent cross-host reproduction.
+
+## RTL8712 LED outputs
+
+The normal NAND kernel exposes both RTL8712 LED outputs through the Linux
+LED class. It was installed into inactive slot B; the slot-A motion-sensor
+kernel and both systembase volumes passed preservation readback. No
+bootloader or factory-region write was performed.
+
+Tested artifacts:
+
+- Kernel bundle: 9,074,688 bytes, SHA-256
+  `eb24ef0c000d5ed56da6dbc761a36c195e4282ac86f779aa13f4c0a9ce830b1a`.
+- Unchanged systembase: 42,700,800 bytes, SHA-256
+  `9830fefd2ddaff030bc2e1d0efa421a0da52ff54eb82f111b63e1c87227da89f`.
+
+A software reboot reached the interactive system. Both LED class devices
+registered, all six AMI603 channels remained readable, no services were
+failed and kernel taint was zero. With the Wi-Fi interface up, the sequence
+off/off, on/off, on/on, off/on, off/off completed without LED callback errors.
+Each callback compares the full register readback to the requested value.
+Both outputs were left off.
+
+This qualifies register access, not visible light output or front-panel
+position. No observer confirmed colour or brightness. LED suspend/resume,
+Bluetooth/GPS/power indicators and radio traffic during LED activity were
+not tested.
+
+The standard build passed 3,480 tasks. The pinned-container hardware-layer
+suite passed 242 tests with one skip, including the compiled LED setter
+across 1,024 register/input combinations and injected error paths. The new
+driver passed checkpatch without errors or warnings. This build was not
+independently reproduced on another host.
+
+## AMI603 motion sensor
+
+The direct-mode IIO driver was built into the normal runtime kernel and
+installed in inactive NAND slot A, with full kernel/systembase readback.
+Slot B and the factory loader were preserved. A software reboot reached the
+interactive system, automatic boot-health acknowledgement passed, and kernel
+taint remained zero.
+
+Tested artifacts:
+
+- Kernel bundle: 9,068,544 bytes, SHA-256
+  `e0bebd101c470de0d21d48cf6464e66c877d3d9ad7a8ef23402aed9e980bd32d`.
+- Systembase: 42,700,800 bytes, SHA-256
+  `9830fefd2ddaff030bc2e1d0efa421a0da52ff54eb82f111b63e1c87227da89f`.
+- Retained loader: the fixed-parameter BCH carrier documented below.
+
+The sensor passed its identity check and provided valid factory sensitivity
+and acceleration-origin values. All six raw channels returned readings.
+Stationary acceleration was approximately 1 g; magnetic channels were not
+saturated. Operator rotation/tilt produced changing readings which settled
+afterward. This is transport and response qualification, not calibrated
+heading accuracy or a verified board-axis transformation.
+
+The default build completed 3,480 tasks. Hardware-layer tests passed 238 tests
+with one skip in the pinned container; kernel style checks reported no errors
+or warnings for the new driver. No new cross-host reproduction is claimed.
+One operator-triggered power-button deep-sleep/wake cycle restored readings
+on all six channels without a reboot. The recorder continued, kernel taint
+remained zero, and braille and boot-health services were active. Repeated-cycle
+reliability and independent electrical measurement of the sensor rail remain
+unqualified.
+
 ## Fixed-parameter BCH loader
 
 The standard A/B loader specializes upstream software BCH for M=13, T=8.

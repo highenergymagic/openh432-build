@@ -14,7 +14,7 @@ qualification. Hardware tests describe one qualification device.
 | --- | --- |
 | CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
-| Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT |
+| Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT; warm-reboot reliability remains unqualified |
 | NAND root | Persistent A/B selection, root-handoff initramfs with startup cue, slot-matched gzip SquashFS systembase via ubiblock |
 | Writable state | 64 MiB volatile overlay; no persistent userdata |
 | Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback and automatic healthy-boot acknowledgement; no signed bundle installer or hang watchdog |
@@ -27,11 +27,11 @@ qualification. Hardware tests describe one qualification device.
 | NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
 | Internal SD | Runtime | Bounded 64 MiB filesystem write/readback; no repartitioning or power-loss qualification |
 | Ethernet | Runtime | Networking, DHCP and SSH; one deep-sleep recovery cycle with verified bidirectional transfer |
-| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP, DHCP, transfers/reconnect; post-sleep reassociation/ICMP; passive scan, fixed 1 Mb/s TX |
+| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP, DHCP, transfers/reconnect; post-sleep reassociation/ICMP; passive scan, fixed 1 Mb/s TX; manual experiment controls excluded from standard kernel |
 | Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
-| Speaker audio | Runtime | Playback, initramfs startup cue confirmed clean, systemd shutdown cue and playback started after resume; capture unqualified |
+| Audio | Partial runtime | Speaker playback, startup/shutdown cues and internal microphone duplex capture; jack GPIO reporting and speaker gating tested. Headphone listening unqualified; external microphone routing not implemented; capture has an initial settling transient |
 | Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
 | Power key | Runtime | logind deep suspend; power-only wake and restoration of the interactive session |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
@@ -40,7 +40,10 @@ qualification. Hardware tests describe one qualification device.
 | USB host | Runtime | Earlier diagnostic three-port hub/adapter enumeration; serial payload unqualified |
 | External SD | Runtime, read-only | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
 | PMIC / suspend | Partial | Deep sleep, braille supply removal/restoration and Ethernet recovery tested; Wi-Fi reassociation, Bluetooth parameter retention and post-resume audio tested separately; RTC sleep-time accounting tested; full peripheral resume and electrical shutdown incomplete |
-| Other peripherals | Unqualified | No support claim for VGA or unlisted hardware |
+| Compass / accelerometer | Partial runtime | AMI603 IIO six-axis readings, factory parameters, rotation/tilt response and one deep-sleep recovery cycle; mounting orientation and heading calibration unqualified |
+| Status LEDs | Partial runtime | RTL8712 LED0/LED1 class controls and checked register writes; physical indicator mapping, other indicators and LED resume unqualified |
+| LCD / VGA | Not enabled | Factory control paths identified; no Linux display-output qualification |
+| Other peripherals | Unqualified | No support claim for unlisted hardware |
 
 Runtime inclusion does not extend earlier diagnostic qualification to a new
 combined image. Artifact-specific checks are recorded in [hardware validation](hardware-validation.md).
