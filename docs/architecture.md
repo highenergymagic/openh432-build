@@ -10,7 +10,7 @@ first-stage loader and EBOOT. Other Sense models are not qualified.
 | --- | --- |
 | meta-fractalmicro-H432B | Machine configuration, kernel, device tree, bootloader and hardware constraints |
 | meta-fractalmicro-openh432 | Distribution, packages, systemd policy and image composition |
-| meta-fractalmicro-assets | Checksum-pinned third-party sound assets and conversion |
+| meta-fractalmicro-assets | Pinned third-party sound and speech-data recipes |
 | openh432-build | Immutable layer manifest, container and build orchestration |
 | openh432-tools | Host transport, backup verification and deployment procedures |
 

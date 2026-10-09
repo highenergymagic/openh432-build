@@ -6,6 +6,30 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Onboard USB hub runtime power management
+
+A local-layer standard NAND build completed 3,552 tasks. Its kernel bundle
+SHA-256 is `7592e8bc1dad872f3239b4b5f16401373002392c1f0ad0c01ba3f0a77c136724`;
+the OpenEVV-enabled systembase SHA-256 is
+`173bf1bb39ba0eb2893bf6a34b3c666577868ce04b6aa665757fff5f1c078413`.
+Both slot-B images passed NAND readback. Hardware-layer tests ran 255 cases
+with one skip; documentation checks passed. This is not a clean-build or
+cross-host reproducibility result.
+
+With all external USB host sockets empty, two ordinary software reboots
+returned to the installed system, including one after power-button deep
+suspend/resume. Device-only PM testing also passed. OpenEVV output returned
+after wake, Ethernet access recovered, and speech/braille services were
+active with no failed units. Boot-health acknowledgement restored the
+attempt allowance after each boot.
+
+The board-specific policy keeps only the DT-described NEC hub runtime-active.
+Both host controllers remain enabled with automatic runtime PM; OHCI was
+observed suspended. System-sleep callbacks remain enabled. These tests do not
+qualify every peripheral or establish the underlying silicon failure mechanism.
+The preserved slot-A image does not contain this fix.
+
+
 ## Published-source image checkpoint
 
 The pinned default build at hardware-layer commit

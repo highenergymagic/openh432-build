@@ -10,6 +10,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -149,6 +150,49 @@ def configure_wifi(cfg, work, firmware=None, country="00"):
     return digest
 
 
+OPENEVV_SOURCE_SHA256 = "7cdb7fa059d42882996c97c2bf2f4b51b1c1f8dc24e9bd68fa2d251859c9a134"
+
+
+def configure_openevv(cfg, work, source=None):
+    """Explicit restricted source input; does not authorize redistribution."""
+    if source is None:
+        return None
+    payload = Path(source).resolve(strict=True).read_bytes()
+    digest = hashlib.sha256(payload).hexdigest()
+    if digest != OPENEVV_SOURCE_SHA256:
+        raise ValueError("OpenEVV archive does not match the pinned source input")
+    folder = work / "private-openevv"
+    folder.mkdir(mode=0o700, exist_ok=True)
+    destination = folder / "openevv.tar"
+    # Stage owner-only from creation, then replace atomically. Never follow
+    # an existing destination symlink or expose a partially copied archive.
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=folder, prefix=".openevv-", delete=False) as output:
+            temporary = Path(output.name)
+            output.write(payload)
+            output.flush()
+            os.fsync(output.fileno())
+        os.replace(temporary, destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+    cfg["local_conf_header"]["private-openevv"] = (
+        'OPENH432_OPENEVV_SOURCE_DIR = "/work/private-openevv"\n'
+    )
+    return digest
+
+
+def configure_speech_backend(cfg, backend, openevv_digest=None):
+    if backend not in ("rhvoice", "openevv"):
+        raise ValueError("Unsupported speech backend")
+    if backend == "openevv" and not openevv_digest:
+        raise ValueError("--speech-backend openevv requires --openevv-source")
+    cfg["local_conf_header"]["speech-backend"] = (
+        'OPENH432_SPEECH_BACKEND = "' + backend + '"\n'
+    )
+
+
 def extract_stock_firmware(image_id, work, stock_nk, build_platform):
     source = Path(stock_nk).resolve(strict=True)
     if not source.is_file():
@@ -201,6 +245,8 @@ def main():
     firmware_input.add_argument("--without-wifi", action="store_true",
                                 help="Explicitly build without the private radio firmware")
     parser.add_argument("--wifi-country", default="00", help="Actual operating country (uppercase ISO code), default world")
+    parser.add_argument("--openevv-source", help="Explicit restricted OpenEVV source archive; enables optional recipe, not image installation or redistribution")
+    parser.add_argument("--speech-backend", choices=("rhvoice", "openevv"), default="rhvoice", help="Select image speech backend; openevv requires private source input")
     args = parser.parse_args()
     for target in args.targets:
         if not re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9+_.-]*", target):
@@ -228,6 +274,8 @@ def main():
         stock_provenance = extract_stock_firmware(image_id, work, args.stock_nk, build_platform)
         firmware = work / "private-wifi-firmware/rtl8712s.bin"
     firmware_sha256 = configure_wifi(cfg, work, firmware, args.wifi_country)
+    openevv_sha256 = configure_openevv(cfg, work, args.openevv_source)
+    configure_speech_backend(cfg, args.speech_backend, openevv_sha256)
     if args.targets:
         cfg["target"] = args.targets
     online = args.action in ("checkout", "fetch")
@@ -256,6 +304,8 @@ def main():
               "hardware_tested": False, "build_platform": build_platform,
               "private_wifi_firmware_sha256": firmware_sha256,
               "stock_firmware_extraction": stock_provenance,
+              "private_openevv_source_sha256": openevv_sha256,
+              "speech_backend": args.speech_backend,
               "builder_inputs": lock(build_platform)}
     (work / "logs" / (stamp + ".json")).write_text(json.dumps(record, indent=2) + "\n")
     run(command)

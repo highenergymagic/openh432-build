@@ -34,9 +34,11 @@ discharge. Polling is every five seconds; failed/stale measurements are not
 reported as zero. Changes generate standard notifications.
 
 The driver never programs charging, calibration, EEPROM, PMIC rails or
-suspend. Exact gauge model, independent sensor calibration, active charging,
-AC-source behavior and low-battery policy remain unqualified. Status still
-uses the recovered GPIO inputs; 100 percent alone does not imply Full.
+suspend. Exact gauge model, independent sensor calibration, isolated AC
+transitions and low-battery policy remain unqualified. Active charging with
+AC and USB connected has been observed in the NAND runtime; it does not
+establish USB-only charging. Status uses the recovered GPIO inputs;
+100 percent alone does not imply Full.
 
 A root-only `registers` snapshot under the battery-inventory platform device
 provides fixed read-only measurement and parameter-shadow windows for analysis.

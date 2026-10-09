@@ -46,6 +46,20 @@ substitute one for another or infer installation safety from a successful
 build. Deployment is covered by the
 [installation guide](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md).
 
+## Optional speech backend
+
+`--speech-backend openevv` selects OpenEVV instead of RHVoice/SLT in
+systembase. It requires an explicitly supplied, checksum-pinned archive via
+`--openevv-source /private/path/openevv.tar`. Supplying the archive alone
+enables component builds without changing the image backend. Use the same
+options for fetch and build.
+
+See the OS layer's
+[OpenEVV reference](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/openevv.md)
+for the accepted input, capabilities and restrictions. Restricted sources and
+resulting images are not public release artifacts without appropriate
+distribution rights. A build option is not a license grant.
+
 ## Work directories
 
 Append `--work /absolute/build-directory` to each command to select another

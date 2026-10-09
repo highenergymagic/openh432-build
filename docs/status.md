@@ -14,7 +14,7 @@ qualification. Hardware tests describe one qualification device.
 | --- | --- |
 | CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
-| Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT; warm-reboot reliability remains unqualified |
+| Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT; ordinary empty-port reboot and reboot after deep sleep tested; endurance unqualified |
 | NAND root | Persistent A/B selection, root-handoff initramfs with startup cue, slot-matched gzip SquashFS systembase via ubiblock |
 | Writable state | 64 MiB volatile overlay; no persistent userdata |
 | Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback and automatic healthy-boot acknowledgement; no signed bundle installer or hang watchdog |
@@ -32,12 +32,13 @@ qualification. Hardware tests describe one qualification device.
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
 | Audio | Partial runtime | Speaker playback, startup/shutdown cues and internal microphone duplex capture; jack GPIO reporting and speaker gating tested. Headphone listening unqualified; external microphone routing not implemented; capture has an initial settling transient |
+| Speech | Runtime, build-selected | RHVoice/SLT default has real-time limitations; optional private OpenEVV profile provides BRLTTY speech and character feedback, including after wake; latency unmeasured |
 | Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
 | Power key | Runtime | logind deep suspend; power-only wake and restoration of the interactive session |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
-| USB host | Runtime | Earlier diagnostic three-port hub/adapter enumeration; serial payload unqualified |
+| USB host | Runtime | Three-port hub/adapter enumeration; onboard hub held runtime-active for empty-port reboot; deep-sleep recovery tested; serial payload unqualified |
 | External SD | Runtime, read-only | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
 | PMIC / suspend | Partial | Deep sleep, braille supply removal/restoration and Ethernet recovery tested; Wi-Fi reassociation, Bluetooth parameter retention and post-resume audio tested separately; RTC sleep-time accounting tested; full peripheral resume and electrical shutdown incomplete |
 | Compass / accelerometer | Partial runtime | AMI603 IIO six-axis readings, factory parameters, rotation/tilt response and one deep-sleep recovery cycle; mounting orientation and heading calibration unqualified |

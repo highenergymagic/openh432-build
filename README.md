@@ -83,6 +83,7 @@ OpenEmbedded Core, BitBake and meta-openembedded.
 
 - [Build configuration](docs/building.md): targets, workspaces and local-layer development.
 - [Stock firmware input](docs/firmware.md): extraction, verification and private outputs.
+- [Speech configuration](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/speech.md): offline backends and optional restricted inputs.
 - [Architecture](docs/architecture.md): component, boot and storage boundaries.
 - [Support matrix](docs/status.md): supported configurations and known limitations.
 - [Reproducibility](docs/cross-host-validation.md): demonstrated bit-for-bit cross-host results and their scope.
