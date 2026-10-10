@@ -6,6 +6,29 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Recovery and startup robustness
+
+Hardware layer `c9d04137bb095504044a656b93e6008d05d3eb0d` and distribution
+layer `91de4a2524014aa6415285bbdab4034eea0dd5c3` integrate input error reporting,
+startup-cue ordering, bounded sound-card readiness and recovery UBI probe rules.
+Tools `e1df7447e15651c535bac5e7588dab1f715150d7` identifies the internal SD by
+its controller in the empty-volume provisioning scripts.
+
+The standard RHVoice NAND composition built from published pins in the pinned
+amd64 container: 3,674 tasks succeeded with existing caches. No local-layer
+overrides were used. These artifacts have not been hardware-qualified.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| NAND kernel bundle | 9,070,592 | `7095bcffb27dc0cecc209a7c424046c52f6cf7feebf0567e699b66995c1db520` |
+| RHVoice systembase | 53,460,992 | `34e49174ae9e32495e2416400c6e96a018980ee172e88a2482c1ad6433ed36e4` |
+
+The A/B carrier is unchanged from the audited speech composition below.
+Pinned-container build/layer tests ran 404 cases with one optional skip;
+host tools passed 14 Rust, 87 Python and nine optimized-Python tests.
+Documentation and source-index audits passed. This is not a fresh-cache or
+cross-host reproducibility result; emulated PR results do not qualify hardware.
+
 ## Audited speech and reboot composition
 
 Build orchestration `18844be38d606276468cb4867b4267ebe555327c` pins:
