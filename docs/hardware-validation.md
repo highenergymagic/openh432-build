@@ -6,6 +6,45 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Braille shutdown and factory-loader restart
+
+Hardware layer `4ad20ff6a7fa5f01b15d875aedd0fcfeca4c98e4` and distribution
+layer `91de4a2524014aa6415285bbdab4034eea0dd5c3` include the recovery/startup
+fixes below and the braille shutdown callback. The assets layer is pinned to
+`93f7dd5c7a34090d17da4483bad400080b12421e`.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| NAND kernel bundle, both speech profiles | 9,070,592 | `227dbf2ebe5fc8ecb43c7ab0ba2be1ebac4144d68b283a1d84c40b01c7723242` |
+| OpenEVV systembase | 52,604,928 | `3d9ad221e7608151741e4d4362b47a12cb57d7f31c50fc7843c60458e6e39f74` |
+| RHVoice systembase | 53,460,992 | `34e49174ae9e32495e2416400c6e96a018980ee172e88a2482c1ad6433ed36e4` |
+
+The OpenEVV composition was installed into inactive slot A with successful
+kernel and systembase NAND readbacks. Slot B and the factory bootloader were
+preserved. A subsequent software reboot of the candidate returned through
+EBOOT to Linux with the cell supply enabled. Braille, speech and local login
+were active, with no failed services; readable braille and spoken command
+output were operator-confirmed. The early startup cue completed successfully.
+
+Software poweroff released the cells, confirmed by touch. A plain Reset then
+returned to slot A with the cell supply enabled and the same services active.
+This qualifies the cell-supply shutdown sequence and retained-loader restart
+on one device, not whole-board electrical poweroff, power-key wake from halt,
+endurance or a boot path that bypasses EBOOT.
+
+Pinned-container source tests ran 405 cases with one optional skip. The
+OpenEVV NAND/recovery build completed 3,577 tasks; the RHVoice NAND build
+completed 3,674 tasks. Both used local layer checkouts and existing caches.
+The recovery image contains the separate UBI probe-rules package without the
+NAND boot-acknowledgement service. The RHVoice profile is build-validated,
+not hardware-qualified by the OpenEVV tests above.
+
+Subsequent builds from the published layer pins, without local overrides,
+completed 3,552 tasks for OpenEVV and 3,674 for RHVoice. The kernel bundle,
+systembase and A/B carrier matched the corresponding saved local-build
+artifacts byte-for-byte in both profiles. Existing caches were reused; this
+does not extend the historical independent cross-host reproducibility result.
+
 ## Recovery and startup robustness
 
 Hardware layer `c9d04137bb095504044a656b93e6008d05d3eb0d` and distribution
