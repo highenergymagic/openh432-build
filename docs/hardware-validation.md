@@ -6,6 +6,40 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Power-button duration handling
+
+Distribution layer `4f22a072a95e2cafdb1978da6c6ddb2b270c7046` assigns
+short presses to suspend and long presses to poweroff. Distinct actions enable
+systemd-logind's duration handling: the short action waits for release and
+the long action uses its five-second timer. No custom input daemon or kernel
+button-driver change is required.
+
+| Artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| NAND kernel bundle, both speech profiles | 9,070,592 | `227dbf2ebe5fc8ecb43c7ab0ba2be1ebac4144d68b283a1d84c40b01c7723242` |
+| OpenEVV systembase | 52,604,928 | `13d127ad604431bf4290f6c77f2a181cb2eea6db81bc6a1ba52c807904bc0f6b` |
+| RHVoice systembase | 53,460,992 | `41f3dc31c30cc82787401c5ffc6b9968d53c32079b08f337974462eb84673470` |
+
+The OpenEVV composition was installed into inactive slot B. Both NAND
+readbacks passed, with slot A and the factory bootloader preserved. Software
+reboot reached the installed policy without a volatile override. Braille,
+speech and local login were active, the startup cue completed, and no services
+failed. Boot health restored both slot allowances to three.
+
+A short press suspended on release. A subsequent brief power press restored
+the same session with working braille and speech, without immediate resuspend.
+After wake, a sustained press was recognized as long after 5.06 seconds and
+requested poweroff. Shutdown sound and unpowered braille cells were
+operator-confirmed. This qualifies the software gestures, not electrical
+power removal, power-key startup from halt or repeated-cycle endurance.
+Reset is required after shutdown.
+
+Published-pin builds completed 3,552 tasks for OpenEVV and 3,674 for RHVoice.
+Kernel and systembase matched the corresponding saved local-build artifacts
+byte-for-byte; the A/B carrier was unchanged. Existing caches were reused.
+The RHVoice composition is build-validated, not device-tested in this record.
+Build/layer source tests ran 406 cases with one optional skip.
+
 ## Braille shutdown and factory-loader restart
 
 Hardware layer `4ad20ff6a7fa5f01b15d875aedd0fcfeca4c98e4` and distribution

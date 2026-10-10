@@ -34,7 +34,7 @@ qualification. Hardware tests describe one qualification device.
 | Audio | Partial runtime | Speaker playback, startup/shutdown cues and internal microphone duplex capture; jack GPIO reporting and speaker gating tested. Headphone listening unqualified; external microphone routing not implemented; capture has an initial settling transient |
 | Speech | Runtime, build-selected | RHVoice/SLT default has real-time limitations; optional private OpenEVV profile provides BRLTTY speech and character feedback, including after wake; latency unmeasured |
 | Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
-| Power key | Runtime | logind deep suspend; power-only wake and restoration of the interactive session |
+| Power key | Runtime | Short press suspends on release; power-only wake restores the session; approximately five-second hold requests graceful shutdown. Reset is required to start from halt |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
