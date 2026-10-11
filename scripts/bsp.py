@@ -145,7 +145,8 @@ def configure_wifi(cfg, work, firmware=None, country="00"):
     destination.chmod(0o600)
     cfg["local_conf_header"]["private-wifi-firmware"] = (
         'H432B_WIFI_FIRMWARE_DIR = "/work/private-wifi-firmware"\n'
-        'IMAGE_INSTALL:append:pn-openh432-systembase-b = " h432b-wifi-firmware"\n'
+        'IMAGE_INSTALL:append:pn-openh432-systembase-b = '
+        '" h432b-wifi-firmware kernel-module-rtl8712s"\n'
     )
     return digest
 

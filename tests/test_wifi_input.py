@@ -18,6 +18,9 @@ class WifiInput(unittest.TestCase):
             self.assertIsNone(bsp.configure_wifi(cfg, Path(folder)))
             self.assertEqual(list(Path(folder).iterdir()), [])
         self.assertNotIn("private-wifi-firmware", cfg["local_conf_header"])
+        config = "".join(cfg["local_conf_header"].values())
+        self.assertNotIn("kernel-module-rtl8712s", config)
+        self.assertNotIn("h432b-wifi-firmware", config)
 
     def test_rejects_injected_country(self):
         for country in ('NZ"\nOTHER=1', "nz", "NZ;id", "ABC"):
@@ -43,6 +46,7 @@ class WifiInput(unittest.TestCase):
             self.assertEqual(copied.read_bytes(), b"fixture")
             self.assertEqual(copied.stat().st_mode & 0o777, 0o600)
             self.assertIn("h432b-wifi-firmware", cfg["local_conf_header"]["private-wifi-firmware"])
+            self.assertIn("kernel-module-rtl8712s", cfg["local_conf_header"]["private-wifi-firmware"])
 
 
 if __name__ == "__main__":

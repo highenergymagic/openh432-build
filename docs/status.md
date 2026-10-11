@@ -27,7 +27,7 @@ qualification. Hardware tests describe one qualification device.
 | NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
 | Internal SD | Runtime | Bounded 64 MiB filesystem write/readback; no repartitioning or power-loss qualification |
 | Ethernet | Runtime | Networking, DHCP and SSH; one deep-sleep recovery cycle with verified bidirectional transfer |
-| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP, DHCP, transfers/reconnect; post-sleep reassociation/ICMP; passive scan, fixed 1 Mb/s TX; manual experiment controls excluded from standard kernel |
+| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP station, firmware TX rate adaptation, HT20 RX and A-MSDU; standard supplicant uses passive scanning. Transfer/reconnect results are artifact-specific; TX PHY rate, roaming, power saving and WPA3 are unqualified |
 | Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
@@ -40,7 +40,7 @@ qualification. Hardware tests describe one qualification device.
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
 | USB host | Runtime | Three-port hub/adapter enumeration; onboard hub held runtime-active for empty-port reboot; deep-sleep recovery tested; serial payload unqualified |
-| External SD | Runtime, read-only | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
+| External SD | Runtime, read/write | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
 | PMIC / suspend | Partial | Deep sleep, braille supply removal/restoration and Ethernet recovery tested; Wi-Fi reassociation, Bluetooth parameter retention and post-resume audio tested separately; RTC sleep-time accounting tested; full peripheral resume and electrical shutdown incomplete |
 | Compass / accelerometer | Partial runtime | AMI603 IIO six-axis readings, factory parameters, rotation/tilt response and one deep-sleep recovery cycle; mounting orientation and heading calibration unqualified |
 | Status LEDs | Partial runtime | RTL8712 LED0/LED1 class controls and checked register writes; physical indicator mapping, other indicators and LED resume unqualified |
@@ -63,8 +63,11 @@ SSH requires an operator-provisioned public key and verified host key; identity
 and credentials are volatile. No private credentials, proprietary radio
 firmware or per-device identities are published in the generic composition.
 
-The maintenance USB interface retains compatibility product/serial strings;
-its USB serial string is not a unique per-device identity.
+The Linux console and high-RAM maintenance loader use explicit Fractal
+Microsystems product strings and, when available, a validated factory-MAC-derived
+USB board ID. This is not a verified manufacturer serial number. Host console
+tools also accept historical installed-image identities and reject ambiguous
+matches; the initial low-address conversion bootstrap retains its legacy identity.
 
 Accessible applications, persistent userdata, full power management and
 a signed update installer remain incomplete. These images are not for everyday or

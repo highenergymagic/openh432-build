@@ -40,8 +40,11 @@ AC and USB connected has been observed in the NAND runtime; it does not
 establish USB-only charging. Status uses the recovered GPIO inputs;
 100 percent alone does not imply Full.
 
-A root-only `registers` snapshot under the battery-inventory platform device
-provides fixed read-only measurement and parameter-shadow windows for analysis.
+The optional `CONFIG_H432B_BATTERY_DEBUG` diagnostic configuration exposes
+`/sys/kernel/debug/battery-inventory/registers`, a root-only snapshot of fixed
+read-only measurement and parameter-shadow windows. This debugfs interface is
+absent from the standard NAND kernel and is not a stable userspace ABI. Normal
+battery monitoring uses the power_supply properties above.
 See the [hardware documentation](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/battery.md).
 
 ## Ethernet maintenance access

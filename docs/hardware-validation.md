@@ -6,6 +6,71 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Standard NAND Wi-Fi integration
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `f2971915eea2e03eac165a84fe6c5213f95789ba4530699743d7f04a58f60dfb` |
+| OpenEVV systembase | `40294feb9e9c4ad6db2639fe11cc33c62482b7efa029ace6ab3b73faf1a1e0f1` |
+
+Inactive-slot installation and full NAND readback passed. A normal software
+reboot reached slot A, automatically loaded the station module, and reached
+braille, speech, power-key policy and local login with no failed units. The
+health policy acknowledged the boot; the alternate slot remained available.
+The kernel does not use the global unused-clock override.
+
+The shipped supplicant completed passive discovery, WPA2-PSK/CCMP association
+and DHCP. WLAN-bound, RAM-to-RAM TCP transfers passed SHA-256 verification at
+10.13 Mbps download and 9.24 Mbps upload for 16 MiB in each direction.
+Disconnect/reconnect and a second 4 MiB transfer passed. Authenticated HT and
+A-MSDU reception were observed. See the
+[Wi-Fi validation record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi-qualification.md)
+for counters, methodology and limits; these figures are not PHY-rate claims.
+
+The standard pinned-container build and 433 layer tests passed, alongside
+54 build-orchestration tests and the host-tool test suite. This is installed
+local-layer qualification, not a new cross-host reproducibility result.
+
+Full boot-log review still identifies the Samsung pinctrl firmware-node link
+error, unmapped supply warnings and BRLTTY's optional `pcspkr` warning. They
+were not suppressed to obtain a clean log. Generic supply/link ownership,
+full peripheral requalification and exhaustive power-cycle testing remain
+open; the Wi-Fi checkpoint does not close the entire kernel-integration audit.
+
+## NAND clock ownership and Cortex-A8 mitigation
+
+The following local-layer development artifacts were installed and checked on
+one H432B. This record qualifies the listed boot/storage behavior, not the
+entire driver-audit build or a new cross-host reproduction.
+
+| Device-tested artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| NAND kernel bundle | 9,535,488 | `f2971915eea2e03eac165a84fe6c5213f95789ba4530699743d7f04a58f60dfb` |
+| OpenEVV systembase | 52,977,664 | `513ea9546d7e83f23470031d2936e6b107ee8ee15c8ecba3c38ffdc6d50dc4f9` |
+| Factory-compatible A/B carrier | 404,871 | `57066b83ef4f2ea3951bcbb62bc5dcd54fb2083b5cb520d996e135b88d4926c0` |
+
+The NAND controller holds managed references to both NFCON and NANDXL.
+With the global unused-clock override absent, Linux disabled unused clocks
+and subsequently attached UBI successfully. Both references remained enabled
+and attributed to the NAND device. Full running-system kernel and systembase
+readbacks matched the installed image hashes. Braille, speech, local login,
+Ethernet and the power-key service reached active state; startup audio and
+interactive braille/speech were operator-confirmed.
+
+The A/B carrier's NAND payload matched the input image exactly. The factory
+StepLoader/EBOOT prefix, including spare bytes, remained identical to its
+original backup. Linux reported `Mitigation: Branch predictor hardening` and
+selected the Cortex-A8 BPIALL workaround after the updated firmware handoff.
+Both boot stages contain the early ACTLR.IBE setup. Mitigation retention
+across suspend and repeated power cycles remains unqualified for these artifacts.
+
+The combined image did not pass its complete health check: the Wi-Fi module
+required manual loading because systemd lacked kmod support. Manual loading
+created the station interface and direct passive scanning worked, but the
+supplicant scan request was rejected. Module autoload and station association
+are therefore not qualified by this record. The alternate NAND slot was
+preserved throughout testing.
+
 ## Wakeable shutdown and audible power countdown
 
 The standard runtime includes a PWM beeper and a power-switch service that

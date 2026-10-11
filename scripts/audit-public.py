@@ -22,6 +22,7 @@ ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", 
 
 # Extensionless runtime helpers; approve reviewed paths, not arbitrary names.
 ALLOWED_PATHS = {"recipes-core/openh432-boot-success/files/mark-good",
+                 "recipes-connectivity/openh432-wifi/files/openh432-wifi-regulatory",
                  "recipes-core/openh432-root-handoff/files/early-sound",
                  "recipes-accessibility/openh432-speech/files/speech-audio",
                  "recipes-accessibility/openh432-braille/files/brltty.prefs"}
