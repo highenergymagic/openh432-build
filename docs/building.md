@@ -19,6 +19,22 @@ Fetch the same targets and configuration before an offline build.
 Fetch/build require a [stock firmware input](firmware.md) or an explicit
 `--without-wifi`.
 
+## Offline validation
+
+After `checkout`, run the host-side build-orchestrator tests, then the layer
+suites in the pinned native builder:
+
+```sh
+python3 -m unittest discover -s tests -v
+python3 scripts/test-layers.py
+```
+
+The layer runner supports `--work`, `--platform` and `--local-layers`. It
+enables the compiled C vectors and fails if a test is skipped. Test containers
+have read-only sources, temporary scratch storage, no network and no device
+access. Preparing a missing builder still requires network access. CI runs
+these checks on native x86-64 and ARM64; device qualification remains separate.
+
 ## Targets
 
 Without recipe arguments, the launcher builds `openh432-nand-b`,

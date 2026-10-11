@@ -34,7 +34,8 @@ qualification. Hardware tests describe one qualification device.
 | Audio | Partial runtime | Speaker playback, startup/shutdown cues and internal microphone duplex capture; jack GPIO reporting and speaker gating tested. Headphone listening unqualified; external microphone routing not implemented; capture has an initial settling transient |
 | Speech | Runtime, build-selected | RHVoice/SLT default has real-time limitations; optional private OpenEVV profile provides BRLTTY speech and character feedback, including after wake; latency unmeasured |
 | Braille | Runtime, BRLTTY enabled | Linux eight-dot output, console reading, typing, Backspace/Enter, scrolling and cursor routing; BRLTTY chords operator-confirmed, including learn mode; exhaustive routing/chord coverage unqualified |
-| Power key | Runtime | Short press suspends on release; power-only wake restores the session; approximately five-second hold requests graceful shutdown. Reset is required to start from halt |
+| Power key | Runtime | Tap suspends on release; audible hold countdown supports cancellation and clean shutdown. Power restores a suspended session or starts a fresh boot after shutdown; repeated-cycle endurance unqualified |
+| Beeper | Runtime | Standard PWM input-sound interface, warning/confirmation tones and quiet firmware handoff tested; independent of ALSA |
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
@@ -61,6 +62,9 @@ Development images also expose an unauthenticated physical USB root console.
 SSH requires an operator-provisioned public key and verified host key; identity
 and credentials are volatile. No private credentials, proprietary radio
 firmware or per-device identities are published in the generic composition.
+
+The maintenance USB interface retains compatibility product/serial strings;
+its USB serial string is not a unique per-device identity.
 
 Accessible applications, persistent userdata, full power management and
 a signed update installer remain incomplete. These images are not for everyday or

@@ -6,6 +6,75 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Wakeable shutdown and audible power countdown
+
+The standard runtime includes a PWM beeper and a power-switch service that
+requests logind suspend/shutdown actions. The kernel's final shutdown handler
+enters retained-memory sleep with power-switch wake to a fresh factory-chain
+boot. This is not electrical battery isolation.
+
+| Device-tested artifact | Bytes | SHA-256 |
+| --- | ---: | --- |
+| NAND kernel bundle | 9,078,784 | `17752c563b88da6b8bf8c393fb1bc04fc1af4a878c3cc5a93a771038cb8dbbc4` |
+| OpenEVV systembase | 52,609,024 | `d5709875d93e69c89c7d2b5a6cb8e5185b90878ebf615d0283ed2360396012d3` |
+
+Both slot-B NAND image readbacks passed. The alternate slot and factory
+bootloader were preserved. Normal software reboot reached braille, speech,
+local login and the power-key service without failed units; the managed boot
+was acknowledged. The kernel explicitly silences the inherited PWM output;
+absence of the sustained startup tone was operator-confirmed.
+
+A held power press produced three short warning tones and a long confirmation
+tone, then requested clean shutdown. The shutdown cue and cell-power removal
+were operator-confirmed. A brief power press then produced a fresh boot,
+confirmed by a changed boot identity and healthy services. A separate short
+tap suspended on release and restored the same boot session with braille and
+speech, without immediately suspending again. Releasing during the warning
+countdown cancelled shutdown on the preceding kernel with the same systembase.
+
+The tests cover individual cycles on one device. Shutdown current,
+repeated-cycle endurance and arbitrary application activity are unqualified.
+A transient USB-related braille message was reported during resume; its exact
+text and source remain unresolved. The associated resume completed normally,
+with no error-priority kernel messages.
+
+Local-layer builds and published-pin comparisons are recorded separately;
+these hardware results do not extend the historical cross-host reproducibility
+result or qualify the default RHVoice speech profile.
+
+### Audited source composition
+
+Hardware layer `dd64d2fd932184ecfe0505b70eb5ab098c6cdf57` and distribution
+layer `3a8dc4d4be0ee174b2f07b9d4d9b93735fcd25ac` integrate the power controls.
+The assets layer remains `93f7dd5c7a34090d17da4483bad400080b12421e`.
+The distribution audit also corrected the boot-health gate to require both
+braille and local login, serialized fallback startup audio before speech, and
+hardened power-service device-open failures and stop-signal handling.
+
+Both standard NAND profiles built from these published pins, without local
+layer overrides, in the pinned amd64 container: 3,692 tasks for RHVoice and
+3,570 for OpenEVV. Existing caches and the qualified stock firmware input were
+used; the radio country was NZ. The kernel matches the tested kernel above,
+and the A/B carrier remains
+`9e8ae2f669f3d0f56282cbfe57bb987abd9e2dade898f0f49e10a2c4187cf68a`.
+
+| Build-validated systembase | Bytes | SHA-256 |
+| --- | ---: | --- |
+| RHVoice | 53,469,184 | `e916de82296c41cd782af76d03fc37685d9fe7f5eee3eb686b4fca044a86463b` |
+| OpenEVV | 52,609,024 | `4fa2426cf0315cd7044d395ab1c584d2be13e4fcf1bb4776ecc4f61afa4b3fe0` |
+
+All three OpenEVV target artifacts matched the final local-layer build
+byte-for-byte. Source tests passed 427 cases, including 373 layer tests in
+the pinned native container with no skips. Host tools passed 14 Rust,
+87 Python and nine optimized-Python checks. New executable regressions cover
+partial console health and power-service startup/stop failures. CI now runs
+all native compiler vectors on both supported architectures and rejects skips.
+
+These rebuilt systembases were not installed during the source audit. The
+device checks above identify the earlier tested userspace separately. This
+is published-composition build validation, not a fresh-cache or new cross-host
+reproducibility result; repeated hardware endurance remains unqualified.
+
 ## Power-button duration handling
 
 Distribution layer `4f22a072a95e2cafdb1978da6c6ddb2b270c7046` assigns
@@ -32,7 +101,7 @@ After wake, a sustained press was recognized as long after 5.06 seconds and
 requested poweroff. Shutdown sound and unpowered braille cells were
 operator-confirmed. This qualifies the software gestures, not electrical
 power removal, power-key startup from halt or repeated-cycle endurance.
-Reset is required after shutdown.
+Those artifacts required Reset after shutdown; later wakeable-shutdown support is recorded above.
 
 Published-pin builds completed 3,552 tasks for OpenEVV and 3,674 for RHVoice.
 Kernel and systembase matched the corresponding saved local-build artifacts

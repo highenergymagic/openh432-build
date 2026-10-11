@@ -30,11 +30,8 @@ jobs:
           setfacl -m "u:1000:rwx" "$RUNNER_TEMP/openh432-work" "$RUNNER_TEMP/openh432-work/home"
       - name: Build pinned container and fetch pinned layers
         run: python3 scripts/bsp.py checkout --work "$RUNNER_TEMP/openh432-work"
-      - name: Test pinned layer contracts
-        run: |
-          python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-H432B/tests" -v
-          python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-openh432/tests" -v
-          python3 -m unittest discover -s "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-assets/tests" -v
+      - name: Test pinned layers with native compiler vectors
+        run: python3 scripts/test-layers.py --work "$RUNNER_TEMP/openh432-work"
       - name: Audit pinned layer sources
         run: python3 scripts/audit-public.py "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-H432B" "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-openh432" "$RUNNER_TEMP/openh432-work/layers/meta-fractalmicro-assets"
       - name: Audit pinned layer documentation
