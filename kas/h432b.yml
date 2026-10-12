@@ -32,7 +32,7 @@
     },
     "meta-fractalmicro-openh432": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
-      "commit": "d7f78f4dfa751c264ee85077804bbc16b8f27821",
+      "commit": "ac152222e359210578370d321b438eee34477371",
       "path": "layers/meta-fractalmicro-openh432"
     },
     "meta-fractalmicro-assets": {

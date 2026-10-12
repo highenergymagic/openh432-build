@@ -6,6 +6,29 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Standalone local console
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `f2971915eea2e03eac165a84fe6c5213f95789ba4530699743d7f04a58f60dfb` |
+| OpenEVV systembase | `d90e361127609daa5683bd62219e7e84e8dffb3b32dae6db8b5ed69f991eba16` |
+
+The standard systembase passed NAND readback and a software reboot with the USB
+device cable disconnected. Local autologin, interactive braille and speech were
+operator-confirmed. Ethernet and external power remained connected. The kernel
+and loader were unchanged; this does not qualify a new loader or battery-only
+cold startup.
+
+The USB maintenance service disables `TTYReset`. With terminal reset enabled,
+systemd's pre-exec USB setup could block while holding the shared console lock,
+preventing local getty initialization. The corrected policy allows disconnected
+USB output to wait independently of the built-in console.
+
+The pinned-container build and 114 OS-policy tests passed. Extracted file and
+package-manifest comparisons against the preceding standard systembase found
+only the USB service policy change. The image contains no diagnostic SSH keys.
+This is device qualification, not a new independent reproducibility result.
+
 ## Standard NAND Wi-Fi integration
 
 | Device-tested artifact | SHA-256 |
