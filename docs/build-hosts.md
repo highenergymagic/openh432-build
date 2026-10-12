@@ -92,10 +92,10 @@ then run:
 python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compare reference-hashes.json
 ```
 
-The command requires the current NAND carrier, kernel bundle and systembase
-(schema 4), and exits nonzero on any mismatch. The manifests contain file
+The command requires the current NAND carrier, kernel bundle, verity-wrapped
+systembase and integrity descriptor (schema 5), and exits nonzero on any mismatch. The manifests contain file
 names, sizes and hashes, not firmware contents. Schema 3 selected the
-XZ-compressed systembase; schema 4 selects the gzip SquashFS systembase.
+XZ-compressed systembase; schema 4 selected the unwrapped gzip SquashFS systembase.
 Schema 2 selected the legacy fixed-B maintenance carrier; it is not the current
 A/B deployment set. The historical ten-payload
 comparison uses schema 1 and the older script at its documented build revision;

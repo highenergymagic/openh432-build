@@ -6,6 +6,156 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Completed startup-audio fast path
+
+The boot/performance checkpoint rebuild completed all 3,728 build tasks and
+reproduced the kernel and systembase hashes below byte for byte. The standard
+artifact set excludes the pending MMC provisioning and persistent-filesystem
+integration. Inspection confirmed the accessibility-first services, early-audio
+completion policy and dm-verity health checks in the built systembase.
+
+Qualification checks passed 322 hardware-layer tests, 130 OS-layer tests,
+four asset-layer tests and 54 build-orchestrator tests. The pinned host-tool
+suite passed 14 Rust tests, 95 Python tests and nine optimized-Python tests.
+Diagnostic profiles now inherit the shared verified-root kernel requirement;
+their inheritance is source-tested, not newly device-qualified.
+
+The installed matching runtime remained responsive at a 22-minute inspection,
+with valid verity status, active braille/speech/local-login services and no failed
+units. Earlier intermittent freezes remain unresolved. See the support matrix
+for open platform warnings; neither this sample nor the rebuild establishes
+endurance or a new cross-host reproducibility result.
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `c8c5726768b02ddeeb6ad63ac60b78ab2a2aac27d627d41487f1699ebf6dfc5c` |
+| Verity-wrapped OpenEVV systembase | `0e4b9fb114a88214a1724334dbe531cea7c4527f5576cb66bebb1a087400aa82` |
+
+The paired images passed NAND readback and software reboot in slot B. When
+the early cue had already completed, its completion marker suppressed the
+lock-wait service. Deferred cleanup still removed the playback environment.
+Speech and braille services were active, dm-verity reported valid data, boot
+health acknowledged the slot, and no units failed. The alternate slot remained
+bootable. The pinned build and 130 OS-layer tests passed.
+
+In this single boot, speech started at 35.09 seconds and BRLTTY became ready at
+39.42 seconds from Linux entry, compared with 35.30 and 39.17 seconds in the
+preceding record. This does not establish an overall boot-time improvement:
+the removed wait overlapped other startup dependencies. The sound target was
+reached at 33.17 seconds. These are service timestamps, not measured time to
+first audible speech or a new operator qualification of playback quality.
+
+## Asynchronous early startup audio
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `9dc5b5ac9a94333223e378bedd8f60b8ce0347a44b1ab49c1b47f43d048398a5` |
+| Verity-wrapped OpenEVV systembase | `1799e9a141bb39b33c4f45331b3e9abff39ae1bfa45b44455c71e1f0c1cff061` |
+
+The paired images passed NAND readback and a software reboot. Playback continued
+across root handoff in a RAM-backed environment, completed successfully, and
+suppressed duplicate userspace playback. Cleanup released its mounts and files
+after accessibility readiness. The root mapping remained valid, boot health
+acknowledged the slot, and no failed units were reported.
+
+Measured in seconds from Linux entry, with USB, Ethernet and external power:
+
+| Milestone | Wait-for-playback image | Asynchronous image |
+| --- | ---: | ---: |
+| systemd banner | 18.07 | 12.65 |
+| Local getty started | 35.70 | 30.82 |
+| Speech service started | 40.04 | 35.30 |
+| BRLTTY ready | 43.82 | 39.17 |
+
+The asynchronous image switched root at 10.16 seconds; audio ran from 7.21 to
+16.73 seconds. Cleanup ran after the accessibility target, from 39.51 to 43.53
+seconds. The operator confirmed clean, uninterrupted playback and functional
+braille/speech on the preceding asynchronous image using the same player worker;
+the final pair moves only cleanup out of speech's dependency path. No underruns
+were reported in either boot's audio log.
+
+The pinned build and 130 OS-layer tests passed, including lock ownership,
+handoff ordering and failed-unmount behavior. This is single-device software-
+reboot qualification, not a total power-on timing or cross-host reproducibility
+claim. Arbitrary concurrent audio workloads remain outside these checks.
+
+## On-demand systembase integrity and initramfs recovery
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `02c590b0552cb4ae54e0cf1eff9ef3b4033824b7c9c61734913d024361dcfda0` |
+| Verity-wrapped OpenEVV systembase | `f760726f3ad56b1bf7f587fd51fbece3b58a25839963d22d62d5b82a025d7e74` |
+
+The paired images passed NAND readback and two software-reboot checks through
+a read-only dm-verity mapping over a static UBI volume with skip-CRC-at-open enabled.
+The operator confirmed startup audio, interactive braille and speech. Boot
+health acknowledged the selected slot; the alternate bootable pair was preserved.
+
+A separate read-only mapping with an intentionally incorrect root hash rejected
+a block read with `EIO` and reported corrupt status. The live systembase mapping
+remained valid. The negative test did not modify NAND and its mapping was removed.
+Pinned-tool image-generation tests also cover damaged data, damaged hash blocks,
+incorrect hashes and deterministic output.
+
+An actual root-handoff failure was diagnosed through the initramfs USB shell,
+without mounting the systembase or starting systemd. The handoff log, kernel
+log and device-mapper state were available there. Explicit mapper-node creation
+is required because udev is not running during handoff. The corrected helper
+creates the node before mounting SquashFS. Hostless fallback has bounded-wait
+unit coverage; a disconnected-host failure has not been hardware-qualified.
+
+One before/after comparison, in seconds from Linux entry:
+
+| Milestone | Full-volume verification | On-demand verification |
+| --- | ---: | ---: |
+| Local getty started | 43.96 | 35.70 |
+| Speech service started | 48.37 | 40.04 |
+| BRLTTY ready | 52.15 | 43.82 |
+| Accessibility target | 52.62 | 44.33 |
+
+The repeat boot reached BRLTTY readiness at 44.25 seconds and the accessibility
+target at 44.36 seconds, with a valid root mapping and no failed units.
+
+USB, Ethernet and external power were connected. The loader separately reported
+6.245 seconds for the larger kernel bundle. These measurements are not total
+power-on latency, cold-start qualification, or a cross-host reproducibility
+claim. The earlier configuration's operator-measured Reset-to-console time was
+66 seconds. Integrity does not provide secure boot or authenticate the kernel.
+
+## Accessibility-first startup
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `f2971915eea2e03eac165a84fe6c5213f95789ba4530699743d7f04a58f60dfb` |
+| OpenEVV systembase | `770e621f54bd397f6218a71270e5d1e3d56b8f4b3babe9455c61f21dc3fc5243` |
+| Cached NAND loader CE carrier | `d887ce2e8b640dade3ad0383a6933aefa156af82ac3e175a79a4e10269c3de41` |
+
+The standard systembase passed inactive-slot installation, full NAND readback
+and a software reboot. The operator confirmed local login, braille input and
+speech. Boot health acknowledged the slot with no failed units; the power-key
+service remained active. The alternate systembase was preserved.
+
+One before/after boot comparison, measured from Linux entry:
+
+| Milestone | Previous policy | Accessibility-first policy |
+| --- | ---: | ---: |
+| Essential coldplug complete | 47.27 s | 37.18 s |
+| Local getty started | 47.99 s | 43.96 s |
+| Speech service started | 56.07 s | 48.37 s |
+| BRLTTY keyboard registered | 67.83 s | 52.15 s |
+
+BRLTTY reported native readiness at 52.15 s. The accessibility target followed
+at 52.62 s; peripheral coldplug began at 53.02 s and network management at
+53.58 s. The complete coldplug pass finished at 60.72 s, and the Wi-Fi module
+loaded automatically. Ethernet maintenance access worked after startup.
+
+The loader separately reported 6.069 s. These are single-device measurements,
+not a guaranteed power-on latency or a battery-only cold-start qualification.
+USB and Ethernet were connected. Kernel, root-volume verification and audio
+levels were unchanged. The pinned-container build and 117 OS-policy tests
+passed; the package manifest was unchanged and no diagnostic SSH keys were
+included. This does not establish independent build reproducibility.
+
 ## Standalone local console
 
 | Device-tested artifact | SHA-256 |

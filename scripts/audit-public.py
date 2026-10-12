@@ -14,7 +14,7 @@ FORBIDDEN_SUFFIXES = {".bin", ".nb0", ".img", ".ubi", ".ubifs", ".dtb", ".elf",
 SECRET = re.compile(rb"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|"
                     rb"gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|"
                     rb"AKIA[A-Z0-9]{16}")
-ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf",
+ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf", ".target",
                     ".config", ".patch", ".dts", ".dtsi", ".json", ".yml", ".yaml",
                     ".ktb", ".service", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
 ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", ".gitignore",
@@ -22,6 +22,10 @@ ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", 
 
 # Extensionless runtime helpers; approve reviewed paths, not arbitrary names.
 ALLOWED_PATHS = {"recipes-core/openh432-boot-success/files/mark-good",
+                 "recipes-core/openh432-root-handoff/files/initramfs-recovery",
+                 "recipes-core/openh432-root-handoff/files/start-early-sound",
+                 "recipes-core/openh432-root-handoff/files/verity-open",
+                 "recipes-core/openh432-system-sounds/files/finish-early-sound",
                  "recipes-connectivity/openh432-wifi/files/openh432-wifi-regulatory",
                  "recipes-core/openh432-root-handoff/files/early-sound",
                  "recipes-accessibility/openh432-speech/files/speech-audio",

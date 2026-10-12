@@ -30,7 +30,9 @@ one-shot request, enters USB maintenance.
 The normal kernel bundle contains Linux, a device tree and a root-handoff
 initramfs with the startup cue, not the full userspace. Early userspace attaches the existing UBI pool,
 validates the slot marker and mounts the separate static gzip SquashFS
-`systembase_a` or `systembase_b` volume through ubiblock. It then starts systemd
+`systembase_a` or `systembase_b` volume through ubiblock and dm-verity. The
+matching kernel bundle supplies the expected root hash. Playback continues
+asynchronously while the handoff starts systemd
 with a 64 MiB volatile writable overlay. It does not format or provision storage.
 
 The standalone `openh432-fastboot-ram` bundle uses the same runtime kernel
@@ -57,6 +59,10 @@ Development images expose a privileged physical USB console. Maintenance
 SSH is key-gated, with volatile host identity. Neither interface constitutes
 a production security policy. The factory prefix and NAND tail remain
 protected from Linux-pool writes.
+
+dm-verity detects corrupted root data on read. It does not authenticate the
+kernel or create a hardware root of trust. The initramfs provides an independent
+physical USB recovery shell when root verification or mounting fails.
 
 ## Build and validation
 

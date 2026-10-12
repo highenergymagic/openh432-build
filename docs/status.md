@@ -15,7 +15,7 @@ qualification. Hardware tests describe one qualification device.
 | CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
 | Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT; ordinary empty-port reboot and reboot after deep sleep tested; endurance unqualified |
-| NAND root | Persistent A/B selection, root-handoff initramfs with startup cue, slot-matched gzip SquashFS systembase via ubiblock |
+| NAND root | Persistent A/B selection, asynchronous startup cue and slot-matched gzip SquashFS via ubiblock/dm-verity; independent initramfs USB recovery |
 | Writable state | 64 MiB volatile overlay; no persistent userdata |
 | Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback and automatic healthy-boot acknowledgement; no signed bundle installer or hang watchdog |
 | Build hosts | Native Linux amd64 and ARM64 Docker, OE-built target toolchain |
@@ -49,6 +49,17 @@ qualification. Hardware tests describe one qualification device.
 
 Runtime inclusion does not extend earlier diagnostic qualification to a new
 combined image. Artifact-specific checks are recorded in [hardware validation](hardware-validation.md).
+
+Intermittent whole-system freezes have been observed on the boot-optimized
+runtime. Subsequent logged and USB-unopened boots remained responsive, but
+the cause is unresolved. Boot-success acknowledgement is not a stability or
+endurance guarantee; no automatic recovery from a hung kernel is implemented.
+
+The current boot log also contains a Samsung wake-interrupt supplier-link
+warning and dummy-regulator notices for supplies without a qualified board
+mapping. These remain open platform-description issues; they have not been
+established as the cause of the freezes. No synthetic rail definitions or
+log suppression are used to claim a clean hardware model.
 
 Use the [hardware reference](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/index.md)
 for configuration and the [target catalogue](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/targets.md)
