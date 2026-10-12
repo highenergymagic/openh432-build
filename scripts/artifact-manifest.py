@@ -9,7 +9,7 @@ from pathlib import Path
 # Current NAND deployment set. Historical comparisons use their pinned
 # orchestration revision and schema-1 manifest (docs/cross-host-validation.md).
 ARTIFACTS = (
-    "nand-ab-ce-carrier/u-boot-ce.b000ff",
+    "modern-nand-ce-carrier/u-boot-ce.b000ff",
     "openh432-nand-b.img",
     "openh432-systembase-b-h432b.rootfs.squashfs.verity",
     "openh432-systembase-b-h432b.rootfs.verity",
@@ -27,11 +27,11 @@ def manifest(deploy):
             for block in iter(lambda: stream.read(1024 * 1024), b""):
                 sha.update(block)
         result[name] = {"bytes": path.stat().st_size, "sha256": sha.hexdigest()}
-    return {"schema": 5, "artifacts": result}
+    return {"schema": 6, "artifacts": result}
 
 def differences(reference, actual):
-    if reference.get("schema") != 5 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
-        raise ValueError("Reference must contain the complete schema-5 verity A/B NAND artifact set")
+    if reference.get("schema") != 6 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
+        raise ValueError("Reference must contain the complete schema-6 modern-loader verity A/B NAND artifact set")
     return [name for name in ARTIFACTS
             if reference["artifacts"][name] != actual["artifacts"][name]]
 

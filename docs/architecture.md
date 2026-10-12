@@ -21,8 +21,9 @@ by ordered patches; they are not duplicated as full source forks here.
 
 ## Boot and storage
 
-The persistent CE-format carrier contains a low-address U-Boot bootstrap
-and a high-RAM A/B selector. Before loading an eligible slot, the selector
+The persistent CE-format carrier contains U-Boot 2026.10, entered at the
+factory NK handoff address. It relocates before providing NAND boot and USB
+fastboot maintenance. Before loading an eligible slot, the selector
 persists and verifies its decremented attempt count in redundant UBI boot
 state. Exhausted slots are skipped. Invalid or exhausted state, or a recognized
 one-shot request, enters USB maintenance.
@@ -51,9 +52,12 @@ inactive slot ineligible before replacing either image, verify both readbacks,
 then activate the pair. The running system acknowledges its exact boot attempt
 after the local console and BRLTTY pass a 30-second health interval.
 
-The persistent selector and acknowledgement are implemented; a signed bundle
-installer, watchdog recovery of a hung kernel, persistent userdata and SD
-extensions are not. No automatic repartitioning runs at boot.
+The persistent selector, pair activation and acknowledgement are implemented.
+A systemd-owned hardware watchdog provides runtime reset recovery, with
+power-management handling in the upstream driver. Recovery from the observed
+intermittent whole-system freeze remains unproven. A signed bundle installer,
+persistent userdata and SD extensions are not implemented. No automatic
+repartitioning runs at boot.
 
 Development images expose a privileged physical USB console. Maintenance
 SSH is key-gated, with volatile host identity. Neither interface constitutes

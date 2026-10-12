@@ -8,7 +8,7 @@
   "target": [
     "openh432-nand-b",
     "openh432-systembase-b",
-    "u-boot-h432b-ab-chain"
+    "u-boot-h432b-modern-nand"
   ],
   "repos": {
     "openembedded-core": {
@@ -27,12 +27,12 @@
     },
     "meta-fractalmicro-H432B": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
-      "commit": "01b3c8cae51fc40f2deb66b043d37c867c9db752",
+      "commit": "e6d258ab9a8b793488056cb5ab7f439a974e80f1",
       "path": "layers/meta-fractalmicro-H432B"
     },
     "meta-fractalmicro-openh432": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
-      "commit": "bac4c5239c3eb23aa1b6fdd16ec48f61444825cb",
+      "commit": "4ff35a0e2c3fe1093863202c1b0e89bb8dce130a",
       "path": "layers/meta-fractalmicro-openh432"
     },
     "meta-fractalmicro-assets": {

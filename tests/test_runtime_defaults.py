@@ -10,7 +10,7 @@ class RuntimeDefaults(unittest.TestCase):
         manifest = json.loads((ROOT / "kas/h432b.yml").read_text())
         self.assertEqual(manifest["target"],
                          ["openh432-nand-b", "openh432-systembase-b",
-                          "u-boot-h432b-ab-chain"])
+                          "u-boot-h432b-modern-nand"])
 
 if __name__ == "__main__":
     unittest.main()

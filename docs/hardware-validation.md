@@ -6,6 +6,52 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Modern loader and runtime watchdog
+
+| Device-tested artifact | SHA-256 |
+| --- | --- |
+| Standard NAND kernel bundle with watchdog | `a77d3c067805ecb38b89ae7fc52c12fc841a6651fbd0e73f3908a91a1a615e14` |
+| Matching verity-wrapped OpenEVV systembase | `902a8b52b104ba02f013afe3af0e897ae80d89123277f3b505382635d288c182` |
+| Modern cached carrier with menu and experimental MMC driver | `c4280aa67401f05dcf8f3e3fdd78792f9cc3169acbc755c5866fb6a8eb43dc48` |
+
+The standard pair passed NAND readback and booted from slot B with braille,
+speech and systemd-owned watchdog operation at 30 seconds. After a powered
+shutdown longer than the watchdog timeout, the device remained off and the
+power switch started a fresh accessible-console boot with the watchdog armed.
+
+A tracing-enabled kernel using the same watchdog configuration passed a
+controlled 15-second no-keepalive reset and a suspend/resume cycle longer than
+45 seconds. Resume retained the boot ID. These tests qualify the driver's
+timeout and power-management behavior, not recovery from every hardware hang.
+The reset-status attribute remained zero after the forced timeout.
+
+Modern-loader qualification includes NAND boot, repeated software reboot,
+inactive-volume write/readback, pair activation, and return to interactive
+braille/speech. The menu's title, navigation, fastboot entry and normal reboot
+were operator-tested. Recovery-image and wipe backends remain unavailable.
+The observed loader time was approximately six seconds; it excludes Linux
+and userspace startup.
+
+The published loader excludes the experimental MMC driver and uses the
+standard cached NAND recipe. It is therefore not byte-identical to the
+device-tested carrier above. MMC provisioning and persistent filesystems
+are excluded from this source composition. The standard Linux image pair
+includes external-storage filesystem support and the watchdog policy.
+
+The pinned amd64 builder completed the standard composition (3,760 tasks).
+The kernel and systembase matched the device-tested hashes above exactly.
+The MMC-free modern carrier is 407,663 bytes with SHA-256
+`9a1d466d08711be59291aeac6240b8e602259cb79c490b47708f1b8260e01226`;
+it was built but not reflashed for this checkpoint. The native layer suites
+passed 353 hardware, 134 distribution and four asset tests without skips.
+Host tools passed 17 Rust, 95 Python and nine optimized-Python tests;
+the build orchestrator passed 54 tests. These are same-host checks, not a
+new clean-cache or cross-architecture reproduction.
+
+Intermittent whole-system freezes remain unresolved, including an occurrence
+on AC power. A successful 192 MiB Ethernet transfer on a diagnostic image does
+not establish a fix. No new cross-host bit-for-bit comparison is claimed.
+
 ## Completed startup-audio fast path
 
 The boot/performance checkpoint rebuild completed all 3,728 build tasks and

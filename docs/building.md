@@ -38,7 +38,7 @@ these checks on native x86-64 and ARM64; device qualification remains separate.
 ## Targets
 
 Without recipe arguments, the launcher builds `openh432-nand-b`,
-`openh432-systembase-b` and `u-boot-h432b-ab-chain`: a slot-independent kernel
+`openh432-systembase-b` and `u-boot-h432b-modern-nand`: a slot-independent kernel
 bundle, separate system userspace and the persistent A/B bootloader carrier.
 The historical `-b` image names do not restrict deployment to slot B.
 

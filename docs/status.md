@@ -14,10 +14,11 @@ qualification. Hardware tests describe one qualification device.
 | --- | --- |
 | CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
-| Bootloader | U-Boot 2012.10 behind retained factory first stage/EBOOT; ordinary empty-port reboot and reboot after deep sleep tested; endurance unqualified |
+| Bootloader | U-Boot 2026.10 behind retained factory first stage/EBOOT; cached NAND boot, slot-aware fastboot and Grade 1 braille boot menu; legacy conversion targets retained |
 | NAND root | Persistent A/B selection, asynchronous startup cue and slot-matched gzip SquashFS via ubiblock/dm-verity; independent initramfs USB recovery |
 | Writable state | 64 MiB volatile overlay; no persistent userdata |
-| Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback and automatic healthy-boot acknowledgement; no signed bundle installer or hang watchdog |
+| Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback, verified pair activation and automatic healthy-boot acknowledgement; no signed bundle installer |
+| Runtime watchdog | Upstream S3C2410 watchdog, systemd-owned 30-second timeout; controlled timeout reset, suspend and wakeable shutdown tested; recovery from the intermittent freeze unproven |
 | Build hosts | Native Linux amd64 and ARM64 Docker, OE-built target toolchain |
 
 ## Hardware interfaces
@@ -26,7 +27,7 @@ qualification. Hardware tests describe one qualification device.
 | --- | --- | --- |
 | NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
 | Internal SD | Runtime | Bounded 64 MiB filesystem write/readback; no repartitioning or power-loss qualification |
-| Ethernet | Runtime | Networking, DHCP and SSH; one deep-sleep recovery cycle with verified bidirectional transfer |
+| Ethernet | Runtime | Networking, DHCP and SSH; deep-sleep recovery with verified transfer. Intermittent whole-system freezes observed during Ethernet use; cause unresolved |
 | Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP station, firmware TX rate adaptation, HT20 RX and A-MSDU; standard supplicant uses passive scanning. Transfer/reconnect results are artifact-specific; TX PHY rate, roaming, power saving and WPA3 are unqualified |
 | Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
@@ -53,7 +54,8 @@ combined image. Artifact-specific checks are recorded in [hardware validation](h
 Intermittent whole-system freezes have been observed on the boot-optimized
 runtime. Subsequent logged and USB-unopened boots remained responsive, but
 the cause is unresolved. Boot-success acknowledgement is not a stability or
-endurance guarantee; no automatic recovery from a hung kernel is implemented.
+endurance guarantee. The hardware watchdog is enabled for runtime recovery,
+but recovery from this specific failure has not been demonstrated.
 
 The current boot log also contains a Samsung wake-interrupt supplier-link
 warning and dummy-regulator notices for supplies without a qualified board
