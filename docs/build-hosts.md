@@ -93,7 +93,7 @@ python3 scripts/artifact-manifest.py work/build/tmp/deploy/images/h432b --compar
 ```
 
 The command requires the current NAND carrier, kernel bundle, verity-wrapped
-systembase and integrity descriptor (schema 6), and exits nonzero on any mismatch. The manifests contain file
+systembase, system extension and both integrity descriptors (schema 7), and exits nonzero on any mismatch. The manifests contain file
 names, sizes and hashes, not firmware contents. Schema 3 selected the
 XZ-compressed systembase; schema 4 selected the unwrapped gzip SquashFS systembase.
 Schema 2 selected the legacy fixed-B maintenance carrier; it is not the current

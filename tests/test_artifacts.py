@@ -15,6 +15,8 @@ class Manifest(unittest.TestCase):
             "openh432-nand-b.img",
             "openh432-systembase-b-h432b.rootfs.squashfs.verity",
             "openh432-systembase-b-h432b.rootfs.verity",
+            "openh432-systemext-h432b.rootfs.erofs.verity",
+            "openh432-systemext-h432b.rootfs.verity",
         ))
         with self.assertRaises(ValueError):
             artifacts.differences({"schema": 3, "artifacts": {
@@ -28,7 +30,7 @@ class Manifest(unittest.TestCase):
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(b"test payload")
             reference = artifacts.manifest(root)
-            self.assertEqual(reference["schema"], 6)
+            self.assertEqual(reference["schema"], 7)
             self.assertEqual([], artifacts.differences(reference, artifacts.manifest(root)))
             (root / artifacts.ARTIFACTS[0]).write_bytes(b"new payload")
             self.assertEqual([artifacts.ARTIFACTS[0]], artifacts.differences(reference, artifacts.manifest(root)))

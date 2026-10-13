@@ -6,6 +6,154 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Multi-download fastboot transfers
+
+The tested modern CE carrier has SHA-256
+`39147ae9306d5084fc1f8796b48a482a648951a63f34a210e7cde7b82e53ccc7`.
+It retains the 112 MiB download buffer and accepts bounded Android sparse
+fragments through the standard fastboot interface. Tests used Android fastboot
+35.0.2 on the host and the inactive storage slot; factory boot stages and
+userdata were outside the write targets.
+
+An ordinary raw-image flash automatically divided a 134,217,728-byte extension
+into two downloads. Both fragments passed physical readback in a combined
+142.290 seconds. Its SHA-256 was
+`be9e25d525509d1e41be9c44684f1c13c2cc38eb022fcb5dc45b5f4ab92c62ed`.
+The normal 2,412,544-byte extension was subsequently restored with three
+1 MiB-bounded sparse downloads, each with readback, in 7.622 seconds.
+
+Direct protocol tests bypassed the desktop parser to deliver a malformed
+second chunk, an expanded image exceeding the partition limit, and an
+out-of-order static-UBI continuation. The loader rejected all three and
+retained the selected slot. A sparse write to the active extension was also
+rejected. These tests do not constitute exhaustive malformed-input coverage.
+
+Pinned source tests passed 372 hardware-layer, 170 distribution, four assets
+and 54 build-orchestration cases. Native tests execute the board's update
+session against fault-injected UBI operations, including incomplete-update
+restart and readback failure. The 962-task loader build passed; the final
+standard build output matched the frozen installed carrier. The RAM-entry
+loader also passed its 962-task build; it was not deployed in this test.
+The board patch passed
+checkpatch; the shared host/target parser uses ISO fixed-width integer types.
+
+A 135,278,592-byte systembase, including its integrity tree, passed four
+16 MiB-bounded sparse downloads and complete-volume NAND readback in 631.750
+seconds. Its SHA-256 was
+`25b1df575e760864ebfbdcf5470584c17f8c256ea1bd423c41a77423fe29047c`.
+A matching private kernel envelope, SHA-256
+`a37a072ed10f3008f7f7f22e9184993d2552a981aa5a783c6ef1b73c98e5b732`,
+carried both bootloader and initramfs descriptors; full slot activation passed
+in 359.555 seconds. This exercises
+streamed systembase integrity verification beyond the download-buffer size,
+not only a large storage write. The enlarged image was not needed for runtime
+and was not used as the distributed systembase.
+
+The standard kernel, systembase and extension identified in the following
+record were restored to slot A with readback verification. Restoring the base
+took 281.128 seconds; complete slot activation took 171.491 seconds. Slot A
+then booted from NAND and automatically acknowledged boot success. Both
+dm-verity targets reported valid status, persistent-storage health checks
+passed, the watchdog was active and no systemd units had failed. Configuration
+and SSH host identity were retained. The operator confirmed working braille,
+speech and the local user console. Slot B remained unchanged throughout.
+
+These figures are individual update-time measurements, not boot times or
+performance guarantees. Tests above 128 MiB do not qualify every image up to
+the 200 MiB/2 GiB capacity limits. Power-cut durability, persistent transfer
+resume, sparse CRC encodings and sparse kernels remain outside this scope.
+
+## Combined NAND/MMC updates and persistent SSH identity
+
+The opt-in persistent composition was installed into an inactive slot using
+the modern loader's raw fastboot interface. The previous active slot, factory
+boot stages, GPT, cache and userdata were preserved.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Modern NAND CE carrier | `b2e6144bfc00a6326d3452087cbac846bea8c95ae009b4b01d1628acb50aae41` |
+| NAND kernel bundle | `33c6a112dacb3d1303322905152d2e36d57572ddd00169d96024bdcb049489f2` |
+| Verity-wrapped OpenEVV systembase | `360cbb047ee800fc7d6fdfe8262bbc8dc5e4309b2530464677b8e71b7f816f80` |
+| Verity-wrapped EROFS system extension | `ba8f0d87338e4535ab0bf6ed372a6cedfa46f52ba689f12b68d090f7698997c3` |
+
+Fastboot reported both 2 GiB extension partitions and rejected an active-slot
+extension write. An intentionally corrupted inactive extension passed raw
+write/readback but failed activation verification; selection remained on the
+previous slot. Replacing it with the matching extension allowed activation
+of the complete kernel/base/extension set. All three payload writes included
+physical readback checks. Combined activation took 151 seconds for these
+artifacts; this is an update-time check, not a per-boot scan.
+
+The selected slot booted from NAND, mounted both dm-verity targets with valid
+status, passed persistent-storage health checks and automatically acknowledged
+boot success. Btrfs userdata, F2FS cache and the runtime watchdog were active,
+with no failed systemd units. An ordinary software reboot produced a new boot
+ID while retaining configuration identity and the same healthy state. The
+operator confirmed working braille, speech and the local user console.
+
+A root-only SSH host key prepared before the update retained its public
+identity through the update and repeat reboot. Tests used the installed key
+helper and systemd StateDirectory without enabling SSH or adding credentials.
+The temporary public-identity comparison record was removed afterward; the
+host key was retained. This does not qualify rollback to an older SSH service
+that still uses a volatile key path.
+
+The pinned build completed 3,981 tasks. Source tests passed 361 hardware-layer,
+170 distribution, four assets and 54 build-orchestration cases. Documentation
+audits and the new U-Boot patch's style check passed. A dependency/style rebuild
+retained byte-identical carrier, kernel and base outputs on the same host;
+this is not an independent cross-host reproducibility result.
+
+That loader revision accepted raw images up to 112 MiB per download; it did
+not implement multipart sparse transfers. Later transfer qualification is
+recorded above. Power-cut durability, device factory reset and a signed bundle
+installer were not qualified by this test.
+
+## Persistent internal-SD storage
+
+This qualification uses the opt-in `persistent` storage mode, not the default
+volatile composition. The existing modern loader and NAND slot B were retained.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| NAND kernel bundle | `b9ed92578dc5027733c6dd0cc5fd73a9d90f1be0be82131e2f9bdcc1ab7e6590` |
+| Verity-wrapped OpenEVV systembase | `efde9af7241c0aa01e34553aebb582c794e00e425b24e0e937ebaf1c1a719e5e` |
+| Verity-wrapped EROFS system extension | `ba8f0d87338e4535ab0bf6ed372a6cedfa46f52ba689f12b68d090f7698997c3` |
+
+Explicit recovery provisioning created the four-partition GPT layout and
+verified both extension payloads. A preceding boot rejected the original
+layout without formatting it. Controller-based discovery remained correct
+when Linux changed the internal card's block-device number.
+
+The image pair passed NAND write/readback and activation checks. Hardware
+boot mounted the verified extension, F2FS cache and Btrfs state. Local `/etc`
+changes, home files, `/data` and machine identity survived replacement of the
+systembase and creation of a new configuration deployment. The installed
+health service acknowledged the boot and published its configuration marker
+without runtime overrides; neither it nor the transient machine-ID service
+failed. Both integrity targets reported valid, and the watchdog was active.
+The operator confirmed working braille, speech and local login.
+
+A subsequent ordinary software reboot preserved the test files, deployment
+identity and machine ID, obtained a new boot ID, and again completed automatic
+health acknowledgement with no failed units. Temporary qualification files
+were then removed from the active configuration and shared user directories.
+Root handoff was recorded at 45.45 seconds on first configuration preparation
+and 22.13 seconds on the repeat boot; the repeat USB shell responded at 44.10
+seconds after Linux started. These are individual samples, not an end-to-end
+accessibility latency distribution.
+
+The pinned amd64 build completed 3,981 tasks. Hardware-layer tests passed
+357 cases, distribution tests 163, assets tests four and build-orchestration
+tests 54. Packaged ARM tools and handoff passed isolated loop-disk tests.
+Disposable-disk tests cover configuration conflicts/interruption, rollback
+data isolation and factory reset retaining the partition table/extensions.
+
+These results do not qualify power-loss durability, real-device factory reset,
+cross-host reproduction of these artifacts, or coordinated NAND/MMC updates.
+Fastboot system-extension writes and boot-menu wipe backends were not included
+in these artifacts.
+
 ## Modern loader and runtime watchdog
 
 | Device-tested artifact | SHA-256 |

@@ -13,6 +13,8 @@ ARTIFACTS = (
     "openh432-nand-b.img",
     "openh432-systembase-b-h432b.rootfs.squashfs.verity",
     "openh432-systembase-b-h432b.rootfs.verity",
+    "openh432-systemext-h432b.rootfs.erofs.verity",
+    "openh432-systemext-h432b.rootfs.verity",
 )
 
 def manifest(deploy):
@@ -27,11 +29,11 @@ def manifest(deploy):
             for block in iter(lambda: stream.read(1024 * 1024), b""):
                 sha.update(block)
         result[name] = {"bytes": path.stat().st_size, "sha256": sha.hexdigest()}
-    return {"schema": 6, "artifacts": result}
+    return {"schema": 7, "artifacts": result}
 
 def differences(reference, actual):
-    if reference.get("schema") != 6 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
-        raise ValueError("Reference must contain the complete schema-6 modern-loader verity A/B NAND artifact set")
+    if reference.get("schema") != 7 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
+        raise ValueError("Reference must contain the complete schema-7 NAND and system-extension artifact set")
     return [name for name in ARTIFACTS
             if reference["artifacts"][name] != actual["artifacts"][name]]
 

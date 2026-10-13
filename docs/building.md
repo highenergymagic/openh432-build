@@ -76,6 +76,24 @@ for the accepted input, capabilities and restrictions. Restricted sources and
 resulting images are not public release artifacts without appropriate
 distribution rights. A build option is not a license grant.
 
+## Persistent internal storage
+
+`--storage-mode persistent` enables the internal-SD handoff in the NAND image.
+Use the same mode for fetch and build. It requires a provisioned four-partition
+card and the extension matching the selected systembase; a layout mismatch
+enters initramfs recovery, not automatic formatting. The default `volatile`
+mode retains the RAM-backed writable overlay.
+
+The systembase build also produces
+`openh432-systemext-h432b.rootfs.erofs.verity` and its `.verity` descriptor.
+The descriptor is embedded in systembase. Deploy the matching extension to
+the same A/B slot as the kernel and base. The artifact manifest includes all
+six payload/descriptor files (schema 7).
+
+See the distribution layer's
+[persistent storage reference](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/persistent-storage.md)
+for the layout, deployment-local `/etc`, provisioning and reset interfaces.
+
 ## Work directories
 
 Append `--work /absolute/build-directory` to each command to select another

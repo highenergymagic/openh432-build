@@ -239,6 +239,8 @@ def main():
     parser.add_argument("--work", default=str(ROOT / "work"))
     parser.add_argument("--local-layers", action="store_true",
                         help="Use sibling layers read-only; development, not a release build")
+    parser.add_argument("--storage-mode", choices=("volatile", "persistent"), default="volatile",
+                        help="Persistent mode requires pre-provisioned internal SD; build never provisions")
     parser.add_argument("--nand-profile", choices=("readonly", "scratch", "ubi"),
                         default="readonly", help="Built kernel write window; build never deploys")
     firmware_input = parser.add_mutually_exclusive_group()
@@ -269,6 +271,9 @@ def main():
     (work / "home").mkdir(exist_ok=True)
     (work / "logs").mkdir(exist_ok=True)
     cfg = configuration(args.local_layers, args.nand_profile, build_platform)
+    cfg["local_conf_header"]["persistent-storage"] = (
+        'OPENH432_PERSISTENT_STORAGE = "' + ('1' if args.storage_mode == 'persistent' else '0') + '"\n'
+    )
     stock_provenance = None
     firmware = None
     if args.stock_nk:

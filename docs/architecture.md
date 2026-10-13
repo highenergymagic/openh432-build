@@ -34,7 +34,10 @@ validates the slot marker and mounts the separate static gzip SquashFS
 `systembase_a` or `systembase_b` volume through ubiblock and dm-verity. The
 matching kernel bundle supplies the expected root hash. Playback continues
 asynchronously while the handoff starts systemd
-with a 64 MiB volatile writable overlay. It does not format or provision storage.
+with a 64 MiB volatile writable overlay by default. In persistent mode, the
+handoff adds a slot-matched EROFS `/usr` extension through dm-verity, selects a
+writable `/etc` deployment, and binds shared Btrfs state from internal SD.
+F2FS provides disposable cache. It does not format or provision storage.
 
 The standalone `openh432-fastboot-ram` bundle uses the same runtime kernel
 with a complete RAM root. It can run before a NAND systembase is provisioned.
@@ -55,12 +58,21 @@ after the local console and BRLTTY pass a 30-second health interval.
 The persistent selector, pair activation and acknowledgement are implemented.
 A systemd-owned hardware watchdog provides runtime reset recovery, with
 power-management handling in the upstream driver. Recovery from the observed
-intermittent whole-system freeze remains unproven. A signed bundle installer,
-persistent userdata and SD extensions are not implemented. No automatic
-repartitioning runs at boot.
+intermittent whole-system freeze remains unproven. Persistent-mode activation
+also verifies the matching SD extension through the kernel's descriptor.
+Configuration is prepared during the trial boot; its health check precedes
+NAND acknowledgement. The modern loader provides inactive raw extension
+writes and combined image verification, with device qualification tracked
+separately. Neither a signed bundle
+installer nor automatic repartitioning runs at boot.
+
+See the distribution's
+[persistent storage contract](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/persistent-storage.md)
+for configuration reconciliation and explicit provisioning/reset interfaces.
 
 Development images expose a privileged physical USB console. Maintenance
-SSH is key-gated, with volatile host identity. Neither interface constitutes
+SSH is key-gated, with host identity stored in shared `/var` on persistent
+images and regenerated per boot on default volatile images. Neither interface constitutes
 a production security policy. The factory prefix and NAND tail remain
 protected from Linux-pool writes.
 

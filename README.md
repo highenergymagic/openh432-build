@@ -58,10 +58,15 @@ The default output directory is `work/build/tmp/deploy/images/h432b/`:
 | `openh432-nand-b.img` | Slot-independent kernel bundle with loader-selected root handoff |
 | `openh432-systembase-b-h432b.rootfs.squashfs.verity` | Slot-independent system userspace with an appended integrity tree; install with its matching kernel bundle |
 | `openh432-systembase-b-h432b.rootfs.verity` | Root-integrity descriptor embedded in the matching kernel bundle |
+| `openh432-systemext-h432b.rootfs.erofs.verity` | System extension for provisioned persistent-storage installations |
+| `openh432-systemext-h432b.rootfs.verity` | Extension-integrity descriptor embedded in systembase |
 | `modern-nand-ce-carrier/u-boot-ce.b000ff` | U-Boot 2026.10 A/B carrier for provisioned devices |
 
 The historical `-b` image names are retained for compatibility; the same pair
 can populate either slot. The carrier requires provisioned UBI and bootstate.
+Persistent internal-SD storage is opt-in; see
+[build configuration](docs/building.md#persistent-internal-storage) for its
+additional provisioning and matched-extension requirements.
 
 Build commands do not access a device or install images. Use the
 [installation guide](https://github.com/highenergymagic/openh432-tools/blob/main/docs/installation.md)
