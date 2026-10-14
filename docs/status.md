@@ -28,7 +28,7 @@ qualification. Hardware tests describe one qualification device.
 | NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
 | Internal SD | Runtime; persistent mode opt-in | Explicit GPT provisioning, verified extensions, persistent filesystems and inactive NAND/MMC slot updates tested; power-loss durability and device factory reset unqualified |
 | Ethernet | Runtime | Networking, DHCP and SSH; deep-sleep recovery with verified transfer. Intermittent whole-system freezes observed during Ethernet use; cause unresolved |
-| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP station, firmware TX rate adaptation, HT20 RX and A-MSDU; standard supplicant uses passive scanning. Transfer/reconnect results are artifact-specific; TX PHY rate, roaming, power saving and WPA3 are unqualified |
+| Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP station, firmware TX rate adaptation, HT20 RX and A-MSDU; passive scanning, administrative radio shutdown and restart, and one suspend/reassociation cycle tested. Throughput results are artifact-specific; connected-station power saving, roaming and WPA3 unsupported |
 | Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
 | FM | Runtime | V4L2 tuning and corroborated signal peaks; audio/stereo unverified, no RDS |
 | GPS | Runtime | NMEA, gpsd and RAM-assistance acknowledgements; no fix demonstrated |
@@ -40,7 +40,7 @@ qualification. Hardware tests describe one qualification device.
 | Keyboard / selectors | Runtime | Mappings and selected evdev tests; provisional ABI, BRLTTY chord handling; no keypad-lock or notification policy |
 | Battery | Runtime | Read-only telemetry; no charging control or exact-model qualification |
 | Vibration | Runtime command, explicit invocation | Confirmed bounded pulse; no production haptics interface |
-| USB host | Runtime | Three-port hub/adapter enumeration; onboard hub held runtime-active for empty-port reboot; deep-sleep recovery tested; serial payload unqualified |
+| USB host | Runtime | EHCI-connected three-port hub; idle autosuspend, empty-port reboot, deep-sleep/resume and rear-left full-speed insertion wake tested; low-speed HID, serial payload and endurance unqualified |
 | External SD | Runtime, read/write | Earlier diagnostic reads/hotplug; writes and mechanical write protection unqualified |
 | PMIC / suspend | Partial | Deep sleep, braille supply removal/restoration and Ethernet recovery tested; Wi-Fi reassociation, Bluetooth parameter retention and post-resume audio tested separately; RTC sleep-time accounting tested; full peripheral resume and electrical shutdown incomplete |
 | Compass / accelerometer | Partial runtime | AMI603 IIO six-axis readings, factory parameters, rotation/tilt response and one deep-sleep recovery cycle; mounting orientation and heading calibration unqualified |

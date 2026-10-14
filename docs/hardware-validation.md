@@ -6,6 +6,119 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Radio lifecycle and persistent network identity
+
+The standard persistent-storage composition was built with the private OpenEVV
+profile and operator-supplied radio firmware. The kernel and systembase passed
+NAND readback in slot B; slot A and the internal-SD system extensions were
+preserved.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Kernel bundle | `f751a0b0266a28d86b75a2de9c99bc0abb5513057ee0e40f112df738133d578f` |
+| Systembase with integrity tree | `c879ccf9dada0573ae8be8207cf6c231019e16f3084e8eadf7db618127ed988e` |
+| Unchanged system extension with integrity tree | `ba8f0d87338e4535ab0bf6ed372a6cedfa46f52ba689f12b68d090f7698997c3` |
+
+Thirty administrative Wi-Fi down/up cycles across two NAND boots completed
+WPA2-PSK/CCMP reassociation without firmware recovery. Standard networkd DHCP
+worked with the persistent machine ID normalized to mode `0444`, preserving
+its value. Three sets of five interface-bound gateway pings completed without
+loss after cycling.
+
+One power-button deep-sleep/wake cycle retained the boot identity and returned
+working braille and speech, confirmed by the operator. Wi-Fi reassociated and
+passed five further interface-bound pings. No firmware recovery or CCMP MIC
+errors were recorded; the transmit-failure counter increased once across the
+deliberate suspend.
+
+The build completed 3,986 tasks. The source suites passed 379 hardware-layer,
+173 distribution and four assets tests. These are build and functional results,
+not a new cross-host reproducibility result. The configured 200 ms minimum
+radio supply-off interval was not measured electrically. Repeated sleep/wake,
+throughput for this artifact set, battery-only energy savings and endurance
+remain unqualified. See the
+[radio qualification record](https://github.com/highenergymagic/meta-fractalmicro-H432B/blob/main/docs/wifi-qualification.md)
+for the driver-specific scope.
+
+## EHCI-only USB runtime power management
+
+The tested NAND kernel has SHA-256
+`a80d8dfb0b50a5b98ca8a812663b9130c6dcb62e59a3a8029bb6bad7895ac6c1`.
+It disables the unused OHCI companion in the board device tree and removes
+the hub-always-active quirk. The standard build completed 3,986 tasks; 371
+hardware-layer, 170 distribution and four assets tests passed.
+
+The kernel was installed in slot A with NAND readback verification. Its existing
+systembase and internal-SD extension were retained; slot B and userdata were
+unchanged. Normal boot and an ordinary software reboot with empty host ports
+returned to working braille, speech and local login. Both the onboard hub and
+EHCI root hub automatically entered runtime suspend, with no PM policy writes
+from a test helper. Boot acknowledgement passed; no failed units or kernel
+taint were reported.
+
+A subsequent power-button deep-sleep/wake test resumed the same boot and local
+braille/speech session. The kernel recorded suspend entry and exit, restored
+the onboard hub, and returned both hub and root hub to runtime suspend.
+
+On the installed image, a rear-left PL2303 insertion woke both the runtime-
+suspended onboard hub and EHCI root hub. The adapter enumerated at 12 Mbps
+on downstream port 3 and bound the pl2303 driver, creating a serial device.
+No manual PM-policy changes were needed. Serial payload,
+low-speed HID and repeated-cycle endurance are not qualified by these checks.
+
+A subsequent battery-only screening comparison used three 20-second windows:
+hub/root forced active, automatic runtime suspend, then forced active again.
+AC and gadget USB power were disconnected; Ethernet remained connected and
+the device was awake and idle. Four instantaneous fuel-gauge samples were
+recorded per window at approximately five-second intervals. Using the last
+two samples in each window to reduce transition lag, discharge averaged
+563.79 mA, 476.21 mA and 565.08 mA respectively. The suspended window reduced
+draw by 88.22 mA relative to the mean of the active windows, approximately
+0.36 W or 15.6% of whole-device idle draw at the measured battery voltage.
+The script restored automatic runtime suspend and exited successfully.
+This short, reversible comparison is not an endurance test or a measurement
+of the combined savings from other peripheral power policies.
+
+## Unused Bluetooth power screening
+
+Using the kernel identified in the preceding USB record, a two-second
+GPE0[2] low/high cycle followed by BCSP attachment returned a successful HCI
+Read Local Version response. The test temporarily released the fixed regulator
+and requested only that GPIO through the character-device interface. The
+regulator was rebound and the transport stopped afterward. The kernel also
+logged an out-of-order BCSP packet, an unexpected event and a timed-out HCI
+Reset command. This validates the local-version response, not clean startup,
+restored factory identity or pairing.
+
+A battery-only comparison then sampled three approximately 20-second windows:
+enable high, enable low, enable high again. The transport was inactive and
+USB host autosuspend remained enabled. The last two instantaneous samples
+per window averaged 465.62 mA, 465.31 mA and 473.75 mA discharge. The apparent
+reduction relative to the mean of the powered windows is smaller than the
+difference between those windows; no meaningful saving is established.
+Enable high and fixed-regulator ownership were restored, the test exited
+successfully, and the same Linux boot remained responsive. No permanent
+Bluetooth power policy was changed.
+
+## Disconnected Wi-Fi power screening
+
+On the same kernel as the preceding USB record, the initialized station was
+disconnected with no supplicant running. A driver unbind/rebind preflight
+completed the radio shutdown and firmware initialization paths and recreated
+the interface with its original address and administrative state.
+
+A battery-only comparison used three approximately 20-second windows:
+initialized station, driver-owned radio shutdown, restored station. USB host
+autosuspend remained enabled and Ethernet remained connected. The last two
+instantaneous samples per window averaged 472.81 mA, 358.05 mA and 472.11 mA
+discharge. The reversible reduction was 114.41 mA, approximately 0.47 W or
+24.2% of whole-device idle draw in this configuration. The test exited
+successfully and the same Linux boot remained responsive.
+
+No network association or payload test was part of this measurement. It does
+not qualify connected power saving, a user-facing radio-off interface,
+repeated-cycle reliability or battery endurance. No permanent policy changed.
+
 ## Multi-download fastboot transfers
 
 The tested modern CE carrier has SHA-256
