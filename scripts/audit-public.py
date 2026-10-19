@@ -16,12 +16,14 @@ SECRET = re.compile(rb"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----|"
                     rb"AKIA[A-Z0-9]{16}")
 ALLOWED_SUFFIXES = {".md", ".py", ".bb", ".bbappend", ".bbclass", ".inc", ".conf", ".target",
                     ".config", ".patch", ".dts", ".dtsi", ".json", ".yml", ".yaml",
-                    ".ktb", ".service", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".h", ".S"}
+                    ".ktb", ".service", ".socket", ".timer", ".rules", ".network", ".preset", ".sh", ".txt", ".c", ".cpp", ".h", ".S",
+                    ".te", ".fc", ".if"}
 ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", ".gitignore",
                  ".gitattributes", "init", "series", "openh432-wifi-start", "GPL-2.0-only", "GPL-2.0-or-later"}
 
 # Extensionless runtime helpers; approve reviewed paths, not arbitrary names.
 ALLOWED_PATHS = {"recipes-core/openh432-boot-success/files/mark-good",
+                 "recipes-security/openh432-selinux-state/files/label-state",
                  "recipes-core/openh432-root-handoff/files/initramfs-recovery",
                  "recipes-core/openh432-root-handoff/files/start-early-sound",
                  "recipes-core/openh432-root-handoff/files/verity-open",

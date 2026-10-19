@@ -11,6 +11,11 @@
     "u-boot-h432b-modern-nand"
   ],
   "repos": {
+    "meta-selinux": {
+      "url": "https://git.yoctoproject.org/meta-selinux",
+      "commit": "1c3a699f363167571ab39fecb0fe6f56691a4e20",
+      "path": "layers/meta-selinux"
+    },
     "openembedded-core": {
       "url": "https://git.openembedded.org/openembedded-core",
       "commit": "ef022bf82d79015802309d14c28b13373ebe53f5",
@@ -27,12 +32,12 @@
     },
     "meta-fractalmicro-H432B": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
-      "commit": "cdf4c3165832a5339224cdec7847c0e5b252e4d0",
+      "commit": "31d983bb2e262b5f57b0ca67c861cf471dca8984",
       "path": "layers/meta-fractalmicro-H432B"
     },
     "meta-fractalmicro-openh432": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
-      "commit": "4b73ad8150d32993f69eb33bda9fae9341f38511",
+      "commit": "ed846df1ceb10a94dd635ce1983a5818f1f3e859",
       "path": "layers/meta-fractalmicro-openh432"
     },
     "meta-fractalmicro-assets": {

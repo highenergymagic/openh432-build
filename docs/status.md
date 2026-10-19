@@ -20,6 +20,10 @@ qualification. Hardware tests describe one qualification device.
 | Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback, verified kernel/base/extension activation and automatic healthy-boot acknowledgement; Android sparse fragments support images larger than the 112 MiB download buffer; no signed bundle installer |
 | Runtime watchdog | Upstream S3C2410 watchdog, systemd-owned 30-second timeout; controlled timeout reset, suspend and wakeable shutdown tested; recovery from the intermittent freeze unproven |
 | Build hosts | Native Linux amd64 and ARM64 Docker, OE-built target toolchain |
+| Network management | NetworkManager owns Ethernet/Wi-Fi; persistent profiles, radio toggling and reconnect after reboot/suspend tested; no cellular or VPN integration |
+| System settings | Typed CLI and D-Bus preferences with persistent SQLite storage; secure scope root-only, application delegation and hardware consumers incomplete |
+| USB debugging | Android 16 adbd included but disabled by default; explicit serial/ADB handoff, unprivileged authenticated sessions and accessible local approval; no wireless pairing or MTP |
+| SELinux | Build-time filesystem labels and settings-service policy; permissive qualification only, not enforced application isolation |
 
 ## Hardware interfaces
 
@@ -77,6 +81,14 @@ host key and authorized keys survive reboot in persistent-storage mode and
 are erased by factory reset. Default volatile images retain neither across
 reboots. No private credentials, proprietary radio
 firmware or per-device identities are published in the generic composition.
+
+Administrators may explicitly select authenticated ADB instead of the serial
+console. Local approval grants a connection-only session; persistent host trust
+requires separate key administration. The development USB root console remains
+the default, so ADB authentication does not make the overall image secure.
+See [USB debugging](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/adb.md),
+[network policy](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/networking.md)
+and [settings authorization](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/settings.md).
 
 The Linux console and high-RAM maintenance loader use explicit Fractal
 Microsystems product strings and, when available, a validated factory-MAC-derived

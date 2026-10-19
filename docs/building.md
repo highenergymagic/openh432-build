@@ -105,6 +105,24 @@ Use separate directories for different host architectures.
 selection. Default parallelism is two BitBake tasks with four compiler jobs
 per task. Disk monitoring stops new tasks at 10 GB free and halts at 5 GB.
 
+## Reclaiming build storage
+
+Stop all builds and containers using a workspace before removing generated files.
+Archive the deployed image set and its tested fallback, hashes, build records
+and any required private inputs outside the work directory first.
+
+`work/build/tmp` contains disposable compilation trees, staging sysroots and
+deployment outputs. Removing this directory reclaims most build storage; the
+next build restores eligible tasks from `work/sstate-cache`. Do not retain its
+task stamps separately from the generated tree. BitBake event logs and metadata
+caches under `work/build` are also disposable once relevant failure records have
+been retained.
+
+Keep `work/downloads` to avoid fetching source again and `work/sstate-cache` to
+avoid recompiling unchanged tasks. These caches can be removed independently
+when disk capacity matters more than rebuild time. Neither cache replaces Git
+sources, the pinned manifest, private build inputs or release artifacts.
+
 ## Local-layer development
 
 Place checkouts of all three Fractal Microsystems layers beside this

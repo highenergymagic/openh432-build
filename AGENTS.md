@@ -9,7 +9,8 @@
 - Preserve component copyright/license notices. New metadata is MIT.
 - Record validation honestly: parsed, compiled, reproduced and device-tested
   are distinct states. No new image inherits hardware qualification.
-- Keep the working Buildroot baseline intact during Yocto migration.
+- Yocto is the supported build workflow. Do not recreate retired Buildroot
+  outputs; retain required private inputs and the deployed/fallback images.
 
 ## Public documentation
 

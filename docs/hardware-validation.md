@@ -6,6 +6,33 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Authenticated USB and local approval
+
+The persistent-storage, OpenEVV composition below booted from slot A with
+working local braille and speech. Slot B retained the preceding authenticated
+USB image. ADB is disabled at ordinary boot; tests selected it explicitly.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Kernel bundle | `52af14c1e9deb70fe54219e6726eabc7d4c841b0d77cc4e4b96f46d8eb40f920` |
+| Systembase with integrity tree | `61138a9b2ea255205c461cbda8737dfacf88f3523e32afcd674be12be0cbde0c` |
+| System extension with integrity tree | `5d07bf2859bcf1ce22c160bcc56c81b788579ede70610fcc1348ee5ea6b9cb78` |
+
+The installed local-approval broker presented its prompt through BRLTTY,
+accepted deliberate `yes` input and returned to tty1. The resulting ADB shell
+used the dedicated unprivileged account; no host key was persisted. Explicit
+denial and an unanswered timeout were tested with the same broker code in
+temporary service instances before image integration. USB serial handoff and
+restoration, unknown-key rejection, provisioned-key authentication,
+checksum-matched transfer and revocation were tested in the preceding image.
+
+The later checkpoint adds compiled regression vectors and hardening for
+negative TLS key-comparison returns and key-setup failure. That code change
+is build-tested separately from the installed artifacts above; wireless
+pairing remains disabled and unqualified. No new cross-host reproducibility,
+production USB policy, SELinux enforcement or ADB suspend-cycle claim follows
+from these results.
+
 ## Radio lifecycle and persistent network identity
 
 The standard persistent-storage composition was built with the private OpenEVV
