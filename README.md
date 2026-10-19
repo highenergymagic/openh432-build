@@ -76,7 +76,7 @@ are not interchangeable.
 ## Source layout
 
 The [manifest](kas/h432b.yml) pins the following layers alongside
-OpenEmbedded Core, BitBake and meta-openembedded.
+OpenEmbedded Core, BitBake, meta-openembedded and meta-selinux.
 
 | Repository | Responsibility |
 | --- | --- |
