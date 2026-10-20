@@ -8,7 +8,8 @@
   "target": [
     "openh432-nand-b",
     "openh432-systembase-b",
-    "u-boot-h432b-modern-nand"
+    "u-boot-h432b-modern-nand",
+    "openh432-recovery-image"
   ],
   "repos": {
     "meta-selinux": {
@@ -32,12 +33,12 @@
     },
     "meta-fractalmicro-H432B": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-H432B.git",
-      "commit": "3854fe4936054d042d33582a07e405b68076ef09",
+      "commit": "99b297898253e45e039bb1b20ebaa8275f67bef8",
       "path": "layers/meta-fractalmicro-H432B"
     },
     "meta-fractalmicro-openh432": {
       "url": "https://github.com/highenergymagic/meta-fractalmicro-openh432.git",
-      "commit": "188a195032af06453fbbf40bc8034e80a9f5479f",
+      "commit": "1a1ea4e0ca3d313fd8b6f7e1d5db68f5eb941289",
       "path": "layers/meta-fractalmicro-openh432"
     },
     "meta-fractalmicro-assets": {

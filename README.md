@@ -61,6 +61,7 @@ The default output directory is `work/build/tmp/deploy/images/h432b/`:
 | `openh432-systemext-h432b.rootfs.erofs.verity` | System extension for provisioned persistent-storage installations |
 | `openh432-systemext-h432b.rootfs.verity` | Extension-integrity descriptor embedded in systembase |
 | `modern-nand-ce-carrier/u-boot-ce.b000ff` | U-Boot 2026.10 A/B carrier for provisioned devices |
+| `openh432-recovery.img` | Standalone accessible recovery and storage maintenance |
 
 The historical `-b` image names are retained for compatibility; the same pair
 can populate either slot. The carrier requires provisioned UBI and bootstate.

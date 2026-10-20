@@ -11,6 +11,7 @@ from pathlib import Path
 ARTIFACTS = (
     "modern-nand-ce-carrier/u-boot-ce.b000ff",
     "openh432-nand-b.img",
+    "openh432-recovery.img",
     "openh432-systembase-b-h432b.rootfs.squashfs.verity",
     "openh432-systembase-b-h432b.rootfs.verity",
     "openh432-systemext-h432b.rootfs.erofs.verity",
@@ -29,11 +30,11 @@ def manifest(deploy):
             for block in iter(lambda: stream.read(1024 * 1024), b""):
                 sha.update(block)
         result[name] = {"bytes": path.stat().st_size, "sha256": sha.hexdigest()}
-    return {"schema": 7, "artifacts": result}
+    return {"schema": 8, "artifacts": result}
 
 def differences(reference, actual):
-    if reference.get("schema") != 7 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
-        raise ValueError("Reference must contain the complete schema-7 NAND and system-extension artifact set")
+    if reference.get("schema") != 8 or set(reference.get("artifacts", {})) != set(ARTIFACTS):
+        raise ValueError("Reference must contain the complete schema-8 NAND, recovery and system-extension artifact set")
     return [name for name in ARTIFACTS
             if reference["artifacts"][name] != actual["artifacts"][name]]
 

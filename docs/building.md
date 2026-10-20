@@ -38,15 +38,16 @@ these checks on native x86-64 and ARM64; device qualification remains separate.
 ## Targets
 
 Without recipe arguments, the launcher builds `openh432-nand-b`,
-`openh432-systembase-b` and `u-boot-h432b-modern-nand`: a slot-independent kernel
-bundle, separate system userspace and the persistent A/B bootloader carrier.
+`openh432-systembase-b`, `u-boot-h432b-modern-nand` and
+`openh432-recovery-image`: a slot-independent kernel bundle, separate system
+userspace, the persistent A/B bootloader carrier and standalone recovery.
 The historical `-b` image names do not restrict deployment to slot B.
 
-For the independent NAND recovery menu, build `openh432-recovery-image`
-explicitly using the same storage, firmware and speech configuration as the
-normal release. Its output is `openh432-recovery.img`. Factory defaults are
-taken from the built systembase; neither a running device nor a working system
-slot is needed to build or boot it. See the
+The independent NAND recovery menu is built with the same storage,
+firmware and speech configuration as the normal release. Its output is
+`openh432-recovery.img`; building it does not install it or erase storage.
+Factory defaults are taken from the built systembase; neither a running
+device nor a working system slot is needed to build or boot it. See the
 [recovery guide](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/recovery.md)
 for installation and reset behavior.
 
@@ -96,7 +97,7 @@ The systembase build also produces
 `openh432-systemext-h432b.rootfs.erofs.verity` and its `.verity` descriptor.
 The descriptor is embedded in systembase. Deploy the matching extension to
 the same A/B slot as the kernel and base. The artifact manifest includes all
-six payload/descriptor files (schema 7).
+seven payload/descriptor files, including standalone recovery (schema 8).
 
 See the distribution layer's
 [persistent storage reference](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/persistent-storage.md)
