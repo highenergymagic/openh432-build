@@ -12,7 +12,7 @@ qualification. Hardware tests describe one qualification device.
 
 | Component | Availability and limits |
 | --- | --- |
-| CPU / memory | S5PV210, 256 MiB DRAM, 800 MHz; DVFS/1 GHz unqualified |
+| CPU / memory | S5PV210, 256 MiB DRAM; fixed 800 MHz by default, explicit 400/800 MHz divider-only control tested; voltage scaling and 1 GHz unsupported |
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
 | Bootloader | U-Boot 2026.10 behind retained factory first stage/EBOOT; cached NAND boot, slot-aware fastboot and Grade 1 braille boot menu; legacy conversion targets retained |
 | NAND root | Persistent A/B selection, asynchronous startup cue and slot-matched gzip SquashFS via ubiblock/dm-verity; independent initramfs USB recovery |

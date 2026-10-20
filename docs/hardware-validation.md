@@ -6,6 +6,46 @@ describe a recorded test; the support matrix describes current integration.
 Artifact hashes identify tested images, not downloads. See the [support matrix](status.md)
 for deployment scope.
 
+## Fixed-supply CPU frequency control
+
+The standard persistent-storage composition includes the divider-only
+`s5pv210-fixed` CPUFreq driver. The default remains `performance` at 800 MHz;
+voltage scaling and 1 GHz operation are outside this qualification.
+
+| Artifact | SHA-256 |
+| --- | --- |
+| Kernel bundle | `fc8d8c7c725dbebfe43bc143349817e69d11a4100b53cf61c6198ec181061770` |
+| Systembase with integrity tree | `ace218582ad89747693383d8c6bc5dca98128f96fdc31eebb597b182922c3cad` |
+| Unchanged system extension with integrity tree | `5d07bf2859bcf1ce22c160bcc56c81b788579ede70610fcc1348ee5ea6b9cb78` |
+
+Kernel and systembase passed NAND write/readback checks in slot B, preserving
+slot A. The first launch stalled at the BRLTTY startup cue and required a
+manual reset, before any 400 MHz request. The subsequent boot provided
+working braille and speech and acknowledged slot B as successful. This
+unresolved startup failure prevents a blanket boot-reliability claim.
+
+Runtime checks completed 202 frequency transitions, including 100 round
+trips, with unchanged test-data hashes and matching before/after PMIC and
+clock snapshots. CPU-bound SHA-256 throughput returned to its initial level
+after an 800/400/800 MHz sequence. Speech and braille were user-confirmed
+at 400 MHz. A power-button deep-suspend cycle with the maximum capped at
+400 MHz resumed the same boot session and working local console; the normal
+800 MHz policy was restored afterward. Restart from a capped 400 MHz state
+has not been device-qualified.
+
+The `ondemand` governor reached 800 MHz under load. With a 50 ms sampling
+interval, a quiet ten-second observation spent approximately 98% of its
+accounted time at 400 MHz. A separate battery-only screening used three
+twenty-second phases: fixed 800 MHz, automatic scaling, then fixed 800 MHz.
+Mean input power was approximately 1.779, 1.768 and 1.759 W respectively.
+The middle phase did not resolve a saving against the drifting baseline.
+These short observations are not battery-life or long-duration stability tests.
+
+Suspend logs also reported radio LED callback errors while the radio was
+unavailable. No claim of an error-free suspend log follows from the successful
+console resume. Regulator integration and voltage-dependent operating points
+are deferred; fixed-frequency operation remains the supported default.
+
 ## Authenticated USB and local approval
 
 The persistent-storage, OpenEVV composition below booted from slot A with
