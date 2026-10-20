@@ -42,8 +42,16 @@ Without recipe arguments, the launcher builds `openh432-nand-b`,
 bundle, separate system userspace and the persistent A/B bootloader carrier.
 The historical `-b` image names do not restrict deployment to slot B.
 
+For the independent NAND recovery menu, build `openh432-recovery-image`
+explicitly using the same storage, firmware and speech configuration as the
+normal release. Its output is `openh432-recovery.img`. Factory defaults are
+taken from the built systembase; neither a running device nor a working system
+slot is needed to build or boot it. See the
+[recovery guide](https://github.com/highenergymagic/meta-fractalmicro-openh432/blob/main/docs/recovery.md)
+for installation and reset behavior.
+
 Specify recipe names after the action to select other targets. For example,
-to build a fastboot RAM loader and standalone recovery environment:
+to build the legacy conversion loader and full development RAM environment:
 
 ```sh
 python3 scripts/bsp.py fetch u-boot-h432b-fastboot openh432-fastboot-ram --without-wifi

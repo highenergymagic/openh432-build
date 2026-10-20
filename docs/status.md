@@ -16,6 +16,7 @@ qualification. Hardware tests describe one qualification device.
 | Kernel | CIP 6.12.111-cip32 plus separately integrated rt21; not an official combined CIP RT release |
 | Bootloader | U-Boot 2026.10 behind retained factory first stage/EBOOT; cached NAND boot, slot-aware fastboot and Grade 1 braille boot menu; legacy conversion targets retained |
 | NAND root | Persistent A/B selection, asynchronous startup cue and slot-matched gzip SquashFS via ubiblock/dm-verity; independent initramfs USB recovery |
+| Standalone recovery | Explicit NAND recovery image with Grade-1 local menu and independent USB shell; cache wipe, factory reset and return to normal boot tested; no automatic repartitioning |
 | Writable state | 64 MiB volatile overlay by default; opt-in persistent mode uses provisioned internal SD for Btrfs userdata, deployment-local `/etc`, F2FS cache and a matched EROFS `/usr` extension |
 | Updates | Redundant boot state, persistent attempt limits, exhausted-slot fallback, verified kernel/base/extension activation and automatic healthy-boot acknowledgement; Android sparse fragments support images larger than the 112 MiB download buffer; no signed bundle installer |
 | Runtime watchdog | Upstream S3C2410 watchdog, systemd-owned 30-second timeout; controlled timeout reset, suspend and wakeable shutdown tested; recovery from the intermittent freeze unproven |
@@ -30,7 +31,7 @@ qualification. Hardware tests describe one qualification device.
 | Interface | Integration | Verified scope / principal limitation |
 | --- | --- | --- |
 | NAND | Runtime | BCH8/512, UBI read/write, full image readback; factory prefix/tail protected |
-| Internal SD | Runtime; persistent mode opt-in | Explicit GPT provisioning, verified extensions, persistent filesystems and inactive NAND/MMC slot updates tested; power-loss durability and device factory reset unqualified |
+| Internal SD | Runtime; persistent mode opt-in | Explicit GPT provisioning, verified extensions, persistent filesystems, inactive NAND/MMC slot updates and device factory reset tested; power-loss durability unqualified |
 | Ethernet | Runtime | Networking, DHCP and SSH; deep-sleep recovery with verified transfer. Intermittent whole-system freezes observed during Ethernet use; cause unresolved |
 | Wi-Fi | Runtime, external firmware required | WPA2-PSK/CCMP station, firmware TX rate adaptation, HT20 RX and A-MSDU; passive scanning, administrative radio shutdown and restart, and one suspend/reassociation cycle tested. Throughput results are artifact-specific; connected-station power saving, roaming and WPA3 unsupported |
 | Bluetooth | Partial runtime | Manual setup, discovery/pairing/L2CAP and sleep-time parameter retention; service disabled, no audio backend |
@@ -104,6 +105,7 @@ for conversion and recovery gaps.
 ## Validation
 
 - [Hardware records](hardware-validation.md): scope, artifact hashes and limitations.
+- [Recovery qualification](recovery-validation.md): local menu, cache wipe and factory reset.
 - [Cross-host comparison](cross-host-validation.md): ten matching target payloads
   at explicitly recorded historical revisions.
 - [Build hosts](build-hosts.md): clean-workspace and comparison procedures.

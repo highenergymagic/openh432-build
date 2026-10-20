@@ -23,6 +23,7 @@ ALLOWED_NAMES = {"LICENSE", "COPYING", "Dockerfile", "Makefile", "Makefile.in", 
 
 # Extensionless runtime helpers; approve reviewed paths, not arbitrary names.
 ALLOWED_PATHS = {"recipes-core/openh432-boot-success/files/mark-good",
+                 "recipes-core/openh432-recovery/files/recovery-init",
                  "recipes-security/openh432-selinux-state/files/label-state",
                  "recipes-core/openh432-root-handoff/files/initramfs-recovery",
                  "recipes-core/openh432-root-handoff/files/start-early-sound",
